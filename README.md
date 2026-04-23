@@ -1,14 +1,64 @@
 # django-flask-microservices-project
 
+# django-flask-microservices-project
+
 ## Overview
 
-This project is a backend template designed for building applications using a Django web service and Flask microservices.
+This project is a microservice-based time tracking system designed to demonstrate modern backend architecture using Django, Flask, and FastAPI.
 
-This stage includes:
-- Django running in Docker
-- SQLite database (development only)
+The system will allow users to:
+
+- Create and manage projects
+- Clock in and out of work sessions
+- Track time across projects
+- Manage tasks associated with projects
+- View aggregated metrics and insights
+
+The architecture follows a **backend-for-frontend (BFF)** pattern using Django, with domain-specific logic split across independent services.
 
 ---
+
+## Architecture
+
+The system will be composed of multiple services:
+
+- **Django (Web / BFF)** *(later phase)*
+  Handles authentication, user interaction, and orchestration between services
+
+- **Projects Service (Flask)** *(later phase)*
+  Manages project creation, updates, and lifecycle (active/archived)
+
+- **Time Tracking Service (Flask)** *(later phase)*
+  Handles clock-in/clock-out and time entry management
+
+- **Tasks Service (Flask)** *(later phase)*
+  Manages project tasks and status tracking
+
+- **Metrics Service (FastAPI)** *(later phase)*
+  Provides aggregated reporting and analytics
+
+Each service owns its own data and communicates via HTTP APIs.
+
+---
+
+## Development Workflow
+
+Work is organised using GitHub Projects:
+
+- **Planning** – tasks grouped by development phase
+- **Work** – Kanban board for tracking progress
+- **Roadmap** – timeline view of project phases
+
+Each phase is tracked using GitHub milestones.
+
+---
+
+## Getting Started
+
+### Build containers
+
+```bash
+docker compose build
 
 ## Getting Started
 
