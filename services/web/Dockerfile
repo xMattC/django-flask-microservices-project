@@ -1,0 +1,28 @@
+FROM python:3.12-alpine
+
+LABEL maintainer="xMattC"
+
+ENV PYTHONUNBUFFERED=1
+
+COPY ./src/requirements.txt /tmp/requirements.txt
+COPY ./src/requirements.dev.txt /tmp/requirements.dev.txt
+COPY ./src /web
+
+WORKDIR /web
+EXPOSE 8000
+
+ARG DEV=false
+
+RUN python -m venv /py && \
+    /py/bin/pip install --upgrade pip && \
+    apk add --no-cache build-base && \
+    /py/bin/pip install -r /tmp/requirements.txt && \
+    if [ "$DEV" = "true" ]; then \
+        /py/bin/pip install -r /tmp/requirements.dev.txt; \
+    fi && \
+    rm -rf /tmp && \
+    adduser -D -H django-user
+
+ENV PATH="/py/bin:$PATH"
+
+USER django-user

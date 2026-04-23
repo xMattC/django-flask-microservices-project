@@ -1,0 +1,13 @@
+services:
+  web:
+    build:
+      context: ./services/web
+      dockerfile: Dockerfile
+      args:
+        DEV: "true"
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./services/web/src:/web
+    command: >
+      sh -c "python manage.py runserver 0.0.0.0:8000"
