@@ -4,8 +4,8 @@ LABEL maintainer="xMattC"
 
 ENV PYTHONUNBUFFERED=1
 
-COPY ./src/requirements.txt /tmp/requirements.txt
-COPY ./src/requirements.dev.txt /tmp/requirements.dev.txt
+COPY ./requirements.txt /tmp/requirements.txt
+COPY ./requirements.dev.txt /tmp/requirements.dev.txt
 COPY ./src /web
 
 WORKDIR /web
