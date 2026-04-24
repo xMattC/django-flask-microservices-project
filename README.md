@@ -1,7 +1,5 @@
 # django-flask-microservices-project
 
-# django-flask-microservices-project
-
 ## Overview
 
 This project is a microservice-based time tracking system designed to demonstrate modern backend architecture using Django, Flask, and FastAPI.
