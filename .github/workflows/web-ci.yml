@@ -4,11 +4,15 @@ on:
   pull_request:
     paths:
       - "services/web/**"
+      - "docker-compose.yml"
+      - ".github/workflows/web-ci.yml"
   push:
     branches:
       - main
     paths:
       - "services/web/**"
+      - "docker-compose.yml"
+      - ".github/workflows/web-ci.yml"
 
 jobs:
   web-check:
@@ -19,22 +23,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
+      - name: Test
+        run: docker compose run --rm web sh -c "python manage.py wait_for_db && python manage.py test"
 
-      - name: Install dependencies
-        working-directory: services/web
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          if [ -f requirements.dev.txt ]; then pip install -r requirements.dev.txt; fi
-
-      - name: Run tests
-        working-directory: services/web/src
-        run: python manage.py test
-
-      - name: Run flake8
-        working-directory: services/web/src
-        run: flake8 .
+      - name: Lint
+        run: docker compose run --rm web sh -c "flake8"
