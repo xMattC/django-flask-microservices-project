@@ -1,0 +1,20 @@
+{% extends "user/base.html" %}
+{% block content %}
+
+<div class="container col-md-6">
+    <h1>Sign Up</h1>
+
+    {% if form.errors %}
+        <div class="alert alert-danger">
+            {{ form.errors }}
+        </div>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary mt-3">Sign Up</button>
+    </form>
+</div>
+
+{% endblock %}
