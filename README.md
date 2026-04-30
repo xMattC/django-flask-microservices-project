@@ -39,18 +39,6 @@ Each service owns its own data and communicates via HTTP APIs.
 
 ---
 
-## Development Workflow
-
-Work is organised using GitHub Projects:
-
-- **Planning** – tasks grouped by development phase
-- **Work** – Kanban board for tracking progress
-- **Roadmap** – timeline view of project phases
-
-Each phase is tracked using GitHub milestones.
-
----
-
 ## Getting Started
 
 ### Build containers

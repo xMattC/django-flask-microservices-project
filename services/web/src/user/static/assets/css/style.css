@@ -1,0 +1,64 @@
+body {
+  font-family: "Open Sans", sans-serif;
+  color: #444444;
+  background: linear-gradient(180deg, #f8f9fa, #eef1f4);
+  min-height: 100vh;
+}
+
+a {
+  color: #2487ce;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #469fdf;
+  text-decoration: none;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Raleway", sans-serif;
+}
+
+#header {
+  transition: all 0.5s;
+  z-index: 997;
+  padding: 12px 0;
+}
+
+#header .logo {
+  font-size: 28px;
+  margin: 0;
+  padding: 0;
+  line-height: 1;
+  font-weight: 300;
+  letter-spacing: 0.5px;
+  font-family: "Poppins", sans-serif;
+}
+
+#header .logo a {
+  color: inherit;
+}
+
+.nav-link:hover {
+  opacity: 0.8;
+}
+
+.card {
+  border: 0;
+}
+
+/* Custom button colour */
+.btn-primary {
+  background-color: #2563eb;
+  border-color: #2563eb;
+}
+
+.btn-primary:hover {
+  background-color: #1d4ed8;
+  border-color: #1d4ed8;
+}
