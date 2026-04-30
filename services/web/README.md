@@ -1,187 +1,70 @@
-# Productivity / Work Management Platform (Microservices Project)
+# Django BFF (Web Service)
 
 ## Overview
 
-A work management platform for small teams where users can:
-- Manage tasks
-- Clock in and out of work sessions
-- Receive reminders
-- View productivity reports
+This service acts as the **Backend for Frontend (BFF)** for the platform.
 
-### Architecture
+It is responsible for:
+- User authentication
+- Session management
+- Rendering UI templates
+- Acting as the single entry point for the frontend
+- Communicating with backend microservices
 
-- **Django (web)** → frontend, authentication, dashboard
-- **Flask services** → focused backend microservices
-
----
-
-## Service Structure
-
-```text
-repo/
-  web/
-  tasks/
-  time-tracking/
-  notifications/
-  reports/
-  docs/
-  docker-compose.yml
-  README.md
-```
+This service does **not** contain business logic for projects, tasks, or time tracking.
 
 ---
 
-## Service Responsibilities
+## Responsibilities
 
-### web/ (Django)
-
-Handles:
-- User registration/login/logout
-- User profiles
+- User registration, login, logout
+- Session-based authentication (cookies)
 - Dashboard UI
-- Task pages
+- Project selection UI
 - Clock-in / clock-out UI
-- Reports UI
-- Calls backend services via APIs
+- Task and reporting pages
+- Forwarding requests to backend services
 
 ---
 
-### tasks/ (Flask)
+## Key Features
 
-Handles:
-- Create tasks
-- Update tasks
-- Assign tasks
-- Set due dates
-- Mark complete
-
-Task states:
-- todo
-- in_progress
-- blocked
-- done
+- Custom user model (email-based authentication)
+- Django templates for frontend rendering
+- Protected routes using `request.user`
+- Service integration layer (API calls to microservices)
 
 ---
 
-### time-tracking/ (Flask)
+## Architecture Role
 
-Handles:
-- Clock in
-- Clock out
-- Active session tracking
-- Session history
-- Total hours worked
+Browser → Django BFF → Microservices
 
-Core rules:
-- One active session per user
-- Clock-out closes session
-- Duration calculated by service
+Django handles:
+- Authentication
+- UI rendering
+- Request routing
 
----
-
-### notifications/ (Flask)
-
-Handles:
-- Task reminders
-- Clock-out reminders
-- Daily summaries
-- Mock email sending
+Microservices handle:
+- Business logic
+- Data storage
 
 ---
 
-### reports/ (Flask)
+## Example Flow
 
-Handles:
-- Daily summaries
-- Weekly summaries
-- Task completion stats
-- Productivity overview
-
----
-
-## MVP Scope
-
-### Django
-- Auth (login/register)
-- Dashboard
-- Pages for tasks, time tracking, reports
-
-### Tasks Service
-- Create task
-- List tasks
-- Update task status
-
-### Time Tracking Service
-- Clock in
-- Clock out
-- View today’s sessions
-
-### Notifications Service
-- Basic reminders
-
-### Reports Service
-- Weekly hours total
-- Completed tasks count
+1. User logs in
+2. Django creates session
+3. User accesses dashboard
+4. Django calls backend services (e.g. time tracking)
+5. Data is aggregated and rendered in templates
 
 ---
 
-## Architecture Principles
+## Endpoints (Example)
 
-- Each service is independently deployable
-- Each service owns its own business logic
-- Services communicate via APIs
-- No shared business logic between services
-- Django does NOT own domain logic for services
-
----
-
-## Example User Flow
-
-1. User signs up (Django)
-2. Creates a task (Tasks service)
-3. Clocks in (Time Tracking service)
-4. Works on task
-5. Clocks out
-6. Receives notification
-7. Views report
-
----
-
-## Future Enhancements
-
-- Link time entries to tasks
-- Advanced notifications
-- Charts in reports
-- Team-level dashboards
-- Project grouping
-
----
-
-## Notes
-
-- Keep services focused
-- Avoid over-engineering
-- Prioritise clean boundaries over complexity
-
----
-
-## Suggested Project Names
-
-- WorkPulse
-- FlowTrack
-- TeamClock
-- TaskForge
-- WorkBoard
-
----
-
-## Summary
-
-This project demonstrates:
-- Microservice architecture principles
-- Clear service boundaries
-- Independent deployment capability
-- Realistic product design
-
-The goal is to show understanding, not just implementation.
+- /login/
+- /logout/
+- /register/
+- /dashboard/
 
