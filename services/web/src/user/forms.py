@@ -3,12 +3,49 @@ from django.contrib.auth import get_user_model
 
 
 class RegisterForm(forms.ModelForm):
-    password = forms.CharField(widget=forms.PasswordInput)
-    password_confirm = forms.CharField(widget=forms.PasswordInput)
+    password = forms.CharField(
+        label="Password",
+        widget=forms.PasswordInput(
+            attrs={
+                "class": "form-control",
+                "placeholder": "Enter your password",
+            }
+        ),
+    )
+
+    password_confirm = forms.CharField(
+        label="Confirm password",
+        widget=forms.PasswordInput(
+            attrs={
+                "class": "form-control",
+                "placeholder": "Confirm your password",
+            }
+        ),
+    )
 
     class Meta:
         model = get_user_model()
         fields = ["email", "name", "password"]
+
+        widgets = {
+            "email": forms.EmailInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "Enter your email",
+                }
+            ),
+            "name": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "Enter your name",
+                }
+            ),
+        }
+
+        labels = {
+            "email": "Email",
+            "name": "Name",
+        }
 
     def clean(self):
         cleaned_data = super().clean()

@@ -5,6 +5,10 @@ from django.shortcuts import redirect, render
 
 from user.forms import RegisterForm
 
+from django.shortcuts import render
+
+def home_view(request):
+    return render(request, "user/home.html")
 
 def register_view(request) -> HttpResponseRedirect | HttpResponse:
     if request.method == "POST":

@@ -7,78 +7,55 @@
     <title>Django BFF</title>
     {% load static %}
 
-    <!-- Favicons -->
     <link href="{% static 'images/favicon.ico' %}" rel="icon" />
 
-    <!-- Google Fonts -->
     <link
       href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700|Raleway:300,400,600,700|Poppins:300,400,500,600,700"
       rel="stylesheet"
     />
 
-    <!-- Vendor CSS -->
-    <link
-      rel="stylesheet"
-      href="{% static 'assets/vendor/bootstrap/css/bootstrap.min.css' %}"
-    />
-    <link
-      rel="stylesheet"
-      href="{% static 'assets/vendor/bootstrap-icons/bootstrap-icons.css' %}"
-    />
-
-    <!-- Main CSS -->
+    <link rel="stylesheet" href="{% static 'assets/vendor/bootstrap/css/bootstrap.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'assets/vendor/bootstrap-icons/bootstrap-icons.css' %}" />
     <link rel="stylesheet" href="{% static 'assets/css/style.css' %}" />
 
     {% block head_content %}{% endblock %}
   </head>
 
   <body>
-    <!-- ======= Header ======= -->
-    <header id="header">
+    <header id="header" class="bg-secondary text-white py-2">
       <div class="container d-flex align-items-center justify-content-between">
-        <h1 class="logo">
-          <a href="{% url 'dashboard' %}">Django BFF</a>
+        <h1 class="logo mb-0">
+          <a href="{% url 'home' %}" class="text-white" >Django BFF</a>
         </h1>
 
-        <nav class="navbar">
-          <ul class="d-flex align-items-center gap-3 mb-0 ms-auto">
-            <li>
-              <a class="nav-link" href="{% url 'dashboard' %}">Home</a>
-            </li>
+        <nav class="d-flex flex-column align-items-end">
+          {% if request.user.is_authenticated %}
+            <div class="small text-white mb-1">
+              Logged in as {{ request.user.email }}
+            </div>
+          {% endif %}
+
+          <div class="d-flex align-items-center gap-3">
+            <a class="nav-link text-white p-0" href="{% url 'home' %}">Home</a>
 
             {% if request.user.is_authenticated %}
-              <li>
-                <a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a>
-              </li>
-              <li>
-                <span class="nav-link">
-                  Logged in as {{ request.user.email }}
-                </span>
-              </li>
-              <li>
-                <form method="post" action="{% url 'logout' %}" style="display:inline;">
-                  {% csrf_token %}
-                  <button type="submit" class="nav-link btn btn-link p-0">
-                    Logout
-                  </button>
-                </form>
-              </li>
-            {% else %}
-              <li>
-                <a class="nav-link" href="{% url 'login' %}">Login</a>
-              </li>
-              <li>
-                <a class="nav-link" href="{% url 'register' %}">Register</a>
-              </li>
-            {% endif %}
-          </ul>
+              <a class="nav-link text-white p-0" href="{% url 'dashboard' %}">Dashboard</a>
 
-          <i class="bi bi-list mobile-nav-toggle"></i>
+              <form method="post" action="{% url 'logout' %}" class="m-0">
+                {% csrf_token %}
+                <button type="submit" class="nav-link text-white btn btn-link p-0">
+                  Logout
+                </button>
+              </form>
+            {% else %}
+              <a class="nav-link text-white p-0" href="{% url 'login' %}">Login</a>
+              <a class="nav-link text-white p-0" href="{% url 'register' %}">Register</a>
+            {% endif %}
+          </div>
         </nav>
       </div>
     </header>
 
-    <!-- ======= Main ======= -->
     <main id="main">
       <div class="container mt-3">
         <section>
@@ -87,9 +64,7 @@
       </div>
     </main>
 
-    <!-- Vendor JS -->
     <script src="{% static 'assets/vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
-    <script src="{% static 'assets/js/main.js' %}"></script>
 
     {% block js_script %}{% endblock %}
   </body>
