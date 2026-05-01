@@ -23,6 +23,23 @@ services:
       db:
         condition: service_healthy
 
+  projects:
+    build:
+      context: ./services/projects
+      dockerfile: dockerfile
+      args:
+        DEV: "true"
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./services/projects:/app
+    command: >
+      sh -c "flask --app app.main:create_app run --host=0.0.0.0 --port=5000
+      --debug"
+    environment:
+      - FLASK_ENV=development
+      - FLASK_DEBUG=1
+
   db:
     image: postgres:15-alpine
     restart: unless-stopped
@@ -33,7 +50,7 @@ services:
       - POSTGRES_USER=devuser
       - POSTGRES_PASSWORD=changeme
     healthcheck:
-      test: ["CMD", "pg_isready", "-q", "-d", "devdb", "-U", "devuser"]
+      test: [ "CMD", "pg_isready", "-q", "-d", "devdb", "-U", "devuser" ]
 
 volumes:
   dev-db-data:

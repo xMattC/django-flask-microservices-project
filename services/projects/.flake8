@@ -5,7 +5,4 @@ max-line-length = 120
 
 # Files/directories that should not be linted.
 exclude =
-  migrations,
   __pycache__,
-  manage.py,
-  settings.py
