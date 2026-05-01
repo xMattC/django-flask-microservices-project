@@ -1,0 +1,33 @@
+name: Projects Checks
+
+on:
+  pull_request:
+    paths:
+      - "services/projects/**"
+      - "docker-compose.yml"
+      - ".github/workflows/projects-ci.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "services/projects/**"
+      - "docker-compose.yml"
+      - ".github/workflows/projects-ci.yml"
+
+jobs:
+  projects-check:
+    name: Projects Lint & Test
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build projects service
+        run: docker compose build projects
+
+      - name: Test
+        run: docker compose run --rm projects python -m pytest
+
+      - name: Lint
+        run: docker compose run --rm projects flake8
