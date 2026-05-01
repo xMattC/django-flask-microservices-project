@@ -4,7 +4,7 @@ from app.extensions import db
 
 
 class Project(db.Model):
-    """ Database model representing a project.
+    """Database model representing a project.
     This maps to the "projects" table and stores all project-related data. Each project belongs to a user,
     identified via `owner_user_id`, which comes from the Django BFF through the X-User-ID header.
         - Ownership is enforced via a simple user ID string
