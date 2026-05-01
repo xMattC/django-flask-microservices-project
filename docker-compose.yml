@@ -1,4 +1,7 @@
 services:
+  # ------------------------------------------------------------------
+  # Django BFF (auth, UI, orchestration)
+  # ------------------------------------------------------------------
   web:
     build:
       context: ./services/web
@@ -6,13 +9,14 @@ services:
       args:
         DEV: "true"
     ports:
-      - "8000:8000"
+      - "8000:8000"  # Expose Django to host (browser/Postman)
     volumes:
-      - ./services/web:/web
+      - ./services/web:/web  # Enable live reload during development
     command: >
       sh -c "python manage.py wait_for_db &&
              python manage.py runserver 0.0.0.0:8000"
     environment:
+      # TODO: rename db → web-db for consistency later
       - DB_HOST=db
       - DB_NAME=devdb
       - DB_USER=devuser
@@ -23,34 +27,70 @@ services:
       db:
         condition: service_healthy
 
+  # ------------------------------------------------------------------
+  # Flask Projects Microservice (owns project data + logic)
+  # ------------------------------------------------------------------
   projects:
     build:
       context: ./services/projects
       dockerfile: dockerfile
       args:
         DEV: "true"
+    working_dir: /app
     ports:
-      - "5000:5000"
+      - "5000:5000"  # Expose for Postman testing
     volumes:
-      - ./services/projects:/app
+      - ./services/projects:/app  # Live reload
     command: >
-      sh -c "flask --app app.main:create_app run --host=0.0.0.0 --port=5000
-      --debug"
+      sh -c "flask --app app.main:create_app run --host=0.0.0.0 --port=5000 --debug"
     environment:
       - FLASK_ENV=development
       - FLASK_DEBUG=1
+      - PYTHONPATH=/app
 
+      # Database config (projects-db service)
+      - DB_HOST=projects-db
+      - DB_NAME=projectsdb
+      - DB_USER=projectsuser
+      - DB_PASSWORD=changeme
+      - DB_PORT=5432
+    depends_on:
+      projects-db:
+        condition: service_healthy
+
+  # ------------------------------------------------------------------
+  # PostgreSQL for Django (web service)
+  # ------------------------------------------------------------------
   db:
     image: postgres:15-alpine
     restart: unless-stopped
     volumes:
-      - dev-db-data:/var/lib/postgresql/data
+      - dev-db-data:/var/lib/postgresql/data  # Persist Django DB data
     environment:
       - POSTGRES_DB=devdb
       - POSTGRES_USER=devuser
       - POSTGRES_PASSWORD=changeme
     healthcheck:
-      test: [ "CMD", "pg_isready", "-q", "-d", "devdb", "-U", "devuser" ]
+      test: ["CMD", "pg_isready", "-q", "-d", "devdb", "-U", "devuser"]
 
+  # ------------------------------------------------------------------
+  # PostgreSQL for Projects Service
+  # ------------------------------------------------------------------
+  projects-db:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    volumes:
+      - projects-db-data:/var/lib/postgresql/data  # Persist projects DB data
+    environment:
+      - POSTGRES_DB=projectsdb
+      - POSTGRES_USER=projectsuser
+      - POSTGRES_PASSWORD=changeme
+    healthcheck:
+      test: ["CMD", "pg_isready", "-q", "-d", "projectsdb", "-U", "projectsuser"]
+
+# ------------------------------------------------------------------
+# Named volumes (data persistence)
+# ------------------------------------------------------------------
 volumes:
   dev-db-data:
+  projects-db-data:
