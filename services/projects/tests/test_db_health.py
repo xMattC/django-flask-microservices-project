@@ -1,0 +1,12 @@
+from app.main import create_app
+
+
+def test_db_health_endpoint_returns_200():
+    app = create_app()
+    app.config.update({"TESTING": True})
+
+    with app.test_client() as client:
+        response = client.get("/db-health")
+
+    assert response.status_code == 200
+    assert response.get_json() == {"database": "ok"}
