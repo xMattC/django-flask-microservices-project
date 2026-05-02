@@ -104,3 +104,26 @@ def update_project(project_id):
     db.session.commit()
 
     return {"results": [project.to_dict()]}, 200
+
+
+@routes.delete("/projects/<int:project_id>")
+def delete_project(project_id):
+    """Delete a project for the authenticated user.
+
+    param project_id: ID of the project.
+    return: Empty response and HTTP status code.
+    """
+    user_id = request.headers.get("X-User-ID")
+
+    if not user_id:
+        return {"error": "Missing X-User-ID header"}, 400
+
+    project = Project.query.filter_by(id=project_id, owner_user_id=user_id).first()
+
+    if not project:
+        return {"error": "Project not found"}, 404
+
+    db.session.delete(project)
+    db.session.commit()
+
+    return "", 204

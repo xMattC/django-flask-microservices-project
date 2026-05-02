@@ -218,18 +218,13 @@ def test_update_project_success(client):
         "name": "Old Project",
         "description": "Old description",
     }
-
     response = client.post("/projects", json=create_payload, headers=USER_HEADERS)
 
     assert response.status_code == 201
 
     project_id = get_first_result(response)["id"]
 
-    update_payload = {
-        "name": "Updated Project",
-        "description": "Updated description",
-    }
-
+    update_payload = {"name": "Updated Project", "description": "Updated description"}
     response = client.patch(f"/projects/{project_id}", json=update_payload, headers=USER_HEADERS)
 
     assert response.status_code == 200
@@ -247,19 +242,11 @@ def test_update_project_partial_name_only(client):
         "name": "Old Project",
         "description": "Old description",
     }
-
     response = client.post("/projects", json=create_payload, headers=USER_HEADERS)
     project_id = get_first_result(response)["id"]
 
-    update_payload = {
-        "name": "Updated Project",
-    }
-
-    response = client.patch(
-        f"/projects/{project_id}",
-        json=update_payload,
-        headers=USER_HEADERS,
-    )
+    update_payload = {"name": "Updated Project"}
+    response = client.patch(f"/projects/{project_id}", json=update_payload, headers=USER_HEADERS)
 
     assert response.status_code == 200
 
@@ -270,40 +257,28 @@ def test_update_project_partial_name_only(client):
 
 
 def test_update_project_missing_user_header(client):
-    response = client.patch(
-        "/projects/1",
-        json={"name": "Updated Project"},
-    )
+    response = client.patch("/projects/1", json={"name": "Updated Project"})
 
     assert response.status_code == 400
     assert get_response_data(response) == {"error": "Missing X-User-ID header"}
 
 
 def test_update_project_not_found(client):
-    response = client.patch(
-        "/projects/999",
-        json={"name": "Updated Project"},
-        headers=USER_HEADERS,
-    )
+    payload = {"name": "Updated Project"}
+    response = client.patch("/projects/999", json=payload, headers=USER_HEADERS)
 
     assert response.status_code == 404
     assert get_response_data(response) == {"error": "Project not found"}
 
 
 def test_update_project_other_user_returns_404(client):
-    response = client.post(
-        "/projects",
-        json={"name": "My Project"},
-        headers=USER_HEADERS,
-    )
+    post_payload = {"name": "My Project"}
+    response = client.post("/projects", json=post_payload, headers=USER_HEADERS)
 
     project_id = get_first_result(response)["id"]
 
-    response = client.patch(
-        f"/projects/{project_id}",
-        json={"name": "Hacked Project"},
-        headers={"X-User-ID": "999"},
-    )
+    update_payload = {"name": "Updated Project"}
+    response = client.patch(f"/projects/{project_id}", json=update_payload, headers={"X-User-ID": "999"})
 
     assert response.status_code == 404
     assert get_response_data(response) == {"error": "Project not found"}
@@ -312,3 +287,15 @@ def test_update_project_other_user_returns_404(client):
 # -----------------------------------------------------------------
 # PROJECT DELETE TESTS
 # -----------------------------------------------------------------
+def test_delete_project_success(client):
+    payload = {"name": "Project to delete"}
+    response = client.post("/projects", json=payload, headers=USER_HEADERS)
+    assert response.status_code == 201
+
+    project_id = get_first_result(response)["id"]
+    response = client.delete(f"/projects/{project_id}", headers=USER_HEADERS)
+    assert response.status_code == 204
+
+    response = client.get(f"/projects/{project_id}", headers=USER_HEADERS)
+
+    assert response.status_code == 404
