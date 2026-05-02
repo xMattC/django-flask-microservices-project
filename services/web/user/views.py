@@ -1,5 +1,4 @@
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, render
 
@@ -13,7 +12,7 @@ def register_view(request) -> HttpResponseRedirect | HttpResponse:
         if form.is_valid():
             user = form.save()
             login(request, user)
-            return redirect("dashboard:home")
+            return redirect("app:home")
 
     else:
         form = RegisterForm()
@@ -32,7 +31,7 @@ def login_view(request) -> HttpResponseRedirect | HttpResponse:
 
         if user is not None:
             login(request, user)
-            return redirect("dashboard:home")
+            return redirect("app:home")
 
         error = "Invalid email or password."
 
@@ -41,5 +40,5 @@ def login_view(request) -> HttpResponseRedirect | HttpResponse:
 
 def logout_view(request) -> HttpResponseRedirect:
     logout(request)
-    return redirect("login")
+    return redirect("user:login")
 

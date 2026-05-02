@@ -4,8 +4,8 @@ from django.shortcuts import render
 
 
 def home_view(request) -> HttpResponse:
-    return render(request, "dashboard/home.html")
+    return render(request, "app/home.html")
 
 @login_required
 def dashboard_view(request) -> HttpResponse:
-    return render(request, "dashboard/dashboard.html")
+    return render(request, "app/dashboard.html")

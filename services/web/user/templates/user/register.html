@@ -1,4 +1,4 @@
-{% extends "user/base.html" %}
+{% extends "base.html" %}
 
 {% block content %}
 
@@ -45,7 +45,7 @@
 
         <p class="text-center mt-3 mb-0">
           Already have an account?
-          <a href="{% url 'login' %}">Log in</a>
+          <a href="{% url 'user:login' %}">Log in</a>
         </p>
       </div>
     </div>
