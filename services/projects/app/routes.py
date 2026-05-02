@@ -39,12 +39,7 @@ def create_project():
     if not user_id:
         return {"error": "Missing X-User-ID header"}, 400
 
-    project = Project(
-        owner_user_id=user_id,
-        name=data.get("name"),
-        description=data.get("description"),
-    )
-
+    project = Project(owner_user_id=user_id, name=data.get("name"), description=data.get("description"))
     if not project.name:
         return {"error": "Missing project name"}, 400
 
@@ -77,15 +72,10 @@ def get_project_detail(project_id):
     return: Project detail and HTTP status code.
     """
     user_id = request.headers.get("X-User-ID")
-
     if not user_id:
         return {"error": "Missing X-User-ID header"}, 400
 
-    project = Project.query.filter_by(
-        id=project_id,
-        owner_user_id=user_id,
-    ).first()
-
+    project = Project.query.filter_by(id=project_id, owner_user_id=user_id).first()
     if not project:
         return {"error": "Project not found"}, 404
 
