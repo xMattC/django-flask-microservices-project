@@ -1,4 +1,4 @@
-{% extends "user/base.html" %}
+{% extends "base.html" %}
 
 {% block content %}
 
@@ -16,7 +16,7 @@
       Register
     </a>
   {% else %}
-    <a href="{% url 'dashboard' %}" class="btn btn-primary">
+    <a href="{% url 'dashboard:home' %}" class="btn btn-primary">
       Go to Dashboard
     </a>
   {% endif %}

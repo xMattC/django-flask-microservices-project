@@ -40,6 +40,7 @@ INSTALLED_APPS = [
 
     "core",
     "user",
+    "dashboard",
 ]
 
 AUTH_USER_MODEL = "core.User"
@@ -59,7 +60,7 @@ ROOT_URLCONF = "config.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "src"],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -126,7 +127,7 @@ USE_TZ = True
 STATIC_URL = "static/"
 
 LOGIN_URL = "login"
-LOGIN_REDIRECT_URL = "dashboard"
+LOGIN_REDIRECT_URL = "dashboard:home"
 LOGOUT_REDIRECT_URL = "login"
 
 # Default primary key field type

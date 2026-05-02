@@ -6,10 +6,6 @@ from django.shortcuts import redirect, render
 from user.forms import RegisterForm
 
 
-def home_view(request):
-    return render(request, "user/home.html")
-
-
 def register_view(request) -> HttpResponseRedirect | HttpResponse:
     if request.method == "POST":
         form = RegisterForm(request.POST)
@@ -17,7 +13,7 @@ def register_view(request) -> HttpResponseRedirect | HttpResponse:
         if form.is_valid():
             user = form.save()
             login(request, user)
-            return redirect("dashboard")
+            return redirect("dashboard:home")
 
     else:
         form = RegisterForm()
@@ -36,7 +32,7 @@ def login_view(request) -> HttpResponseRedirect | HttpResponse:
 
         if user is not None:
             login(request, user)
-            return redirect("dashboard")
+            return redirect("dashboard:home")
 
         error = "Invalid email or password."
 
@@ -47,7 +43,3 @@ def logout_view(request) -> HttpResponseRedirect:
     logout(request)
     return redirect("login")
 
-
-@login_required
-def dashboard_view(request) -> HttpResponse:
-    return render(request, "user/dashboard.html")
