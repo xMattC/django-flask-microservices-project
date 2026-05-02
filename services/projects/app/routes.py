@@ -37,6 +37,8 @@ def create_project():
     data = request.get_json() or {}
 
     user_id = request.headers.get("X-User-ID")
+    if not user_id:
+        return {"error": "Missing X-User-ID header"}, 400
 
     project = Project(
         owner_user_id=user_id,
