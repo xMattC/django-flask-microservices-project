@@ -92,7 +92,6 @@ def update_project(project_id):
     user_id = request.headers.get("X-User-ID")
     project = Project.query.filter_by(id=project_id, owner_user_id=user_id).first()
 
-
     data = request.get_json() or {}
     project.name = data.get("name", project.name)
     project.description = data.get("description", project.description)
