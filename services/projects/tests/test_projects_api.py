@@ -34,3 +34,33 @@ def test_create_project_success():
 
     assert project is not None
     assert project.name == "Test Project"
+
+def test_create_project_missing_user_header():
+    app = create_app()
+    app.config.update({"TESTING": True})
+
+    with app.app_context():
+        db.create_all()
+
+    with app.test_client() as client:
+        response = client.post(
+            "/projects",
+            json={
+                "name": "Test Project",
+                "description": "My first project",
+            },
+        )
+
+    assert response.status_code == 400
+
+    data = response.get_json()
+
+    assert data["error"] == "Missing X-User-ID header"
+
+# def test_create_project_missing_name():
+
+
+# def test_create_project_missing_empty_name():
+
+
+
