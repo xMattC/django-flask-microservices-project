@@ -57,7 +57,27 @@ def test_create_project_missing_user_header():
 
     assert data["error"] == "Missing X-User-ID header"
 
-# def test_create_project_missing_name():
+def test_create_project_missing_name():
+    app = create_app()
+    app.config.update({"TESTING": True})
+
+    with app.app_context():
+        db.create_all()
+
+    with app.test_client() as client:
+        response = client.post(
+            "/projects",
+            json={
+                "description": "My first project",
+            },
+            headers={"X-User-ID": "123"},
+        )
+
+    assert response.status_code == 400
+
+    data = response.get_json()
+
+    assert data["error"] == "Missing Project Name"
 
 
 # def test_create_project_missing_empty_name():

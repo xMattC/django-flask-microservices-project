@@ -28,6 +28,7 @@ def db_health():
     return {"database": "ok"}, 200
 
 
+
 @routes.post("/projects")
 def create_project():
     """Create a new project.
@@ -55,3 +56,5 @@ def create_project():
         "name": project.name,
         "description": project.description,
     }, 201
+
+
