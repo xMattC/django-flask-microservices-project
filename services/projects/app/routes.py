@@ -69,3 +69,24 @@ def get_all_projects():
     return {"results": [project.to_dict() for project in projects]}, 200
 
 
+@routes.get("/projects/<int:project_id>")
+def get_project_detail(project_id):
+    """Get a single project for the authenticated user.
+
+    param project_id: ID of the project.
+    return: Project detail and HTTP status code.
+    """
+    user_id = request.headers.get("X-User-ID")
+
+    if not user_id:
+        return {"error": "Missing X-User-ID header"}, 400
+
+    project = Project.query.filter_by(
+        id=project_id,
+        owner_user_id=user_id,
+    ).first()
+
+    if not project:
+        return {"error": "Project not found"}, 404
+
+    return {"results": [project.to_dict()]}, 200
