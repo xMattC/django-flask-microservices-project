@@ -31,6 +31,7 @@ def test_create_project_success(app, client):
     assert project.name == "Test Project"
     assert project.description == "My first project"
 
+
 def test_get_projects_returns_empty_list(client):
     response = client.get(
         "/projects",
@@ -42,6 +43,7 @@ def test_get_projects_returns_empty_list(client):
     assert "results" in data
     assert isinstance(data["results"], list)
     assert len(data["results"]) == 0
+
 
 def test_create_project_missing_user_header(client):
     response = client.post(
@@ -87,7 +89,7 @@ def test_create_project_empty_name(client):
 
 
 # -----------------------------------------------------------------
-# PROJECT READ TESTS
+# PROJECT READ (LIST) TESTS
 # -----------------------------------------------------------------
 
 
@@ -144,6 +146,20 @@ def test_get_projects_limited_to_user(client):
 
     assert len(projects) == 1
     assert projects[0]["name"] == "My Project"
+
+
+def test_get_projects_missing_user_header(client):
+    response = client.get("/projects")
+    assert response.status_code == 400
+
+    data = response.get_json()
+    assert "error" in data
+    assert data["error"] == "Missing X-User-ID header"
+
+
+# -----------------------------------------------------------------
+# PROJECT READ (DETAIL) TESTS
+# -----------------------------------------------------------------
 
 
 # -----------------------------------------------------------------
