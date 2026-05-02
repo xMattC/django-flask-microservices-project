@@ -231,6 +231,7 @@ def test_get_project_detail_missing_user_header(client):
 # PROJECT UPDATE TESTS
 # -----------------------------------------------------------------
 def test_update_project_success(client):
+    # Create project
     response = client.post(
         "/projects",
         json={"name": "Old Project", "description": "Old description"},
@@ -240,9 +241,13 @@ def test_update_project_success(client):
 
     project_id = response.get_json()["results"][0]["id"]
 
+    # Update project
     response = client.patch(
         f"/projects/{project_id}",
-        json={"name": "Updated Project", "description": "Updated description"},
+        json={
+            "name": "Updated Project",
+            "description": "Updated description",
+        },
         headers={"X-User-ID": "123"},
     )
 

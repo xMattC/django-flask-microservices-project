@@ -80,3 +80,23 @@ def get_project_detail(project_id):
         return {"error": "Project not found"}, 404
 
     return {"results": [project.to_dict()]}, 200
+
+
+@routes.patch("/projects/<int:project_id>")
+def update_project(project_id):
+    """Update a project for the authenticated user.
+
+    param project_id: ID of the project.
+    return: Updated project detail and HTTP status code.
+    """
+    user_id = request.headers.get("X-User-ID")
+    project = Project.query.filter_by(id=project_id, owner_user_id=user_id).first()
+
+
+    data = request.get_json() or {}
+    project.name = data.get("name", project.name)
+    project.description = data.get("description", project.description)
+
+    db.session.commit()
+
+    return {"results": [project.to_dict()]}, 200
