@@ -34,6 +34,18 @@ class Project(db.Model):
         onupdate=lambda: datetime.now(timezone.utc),
     )
 
+    def to_dict(self):
+        """ Convert Project model instance to dictionary.
+
+        return: Dictionary representation of the project.
+        """
+        return {
+            "id": self.id,
+            "owner_user_id": self.owner_user_id,
+            "name": self.name,
+            "description": self.description,
+        }
+
     def __repr__(self):
         """Return a readable string representation of the Project.
         Useful for debugging, logging, and inspecting objects in the console.

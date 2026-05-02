@@ -3,7 +3,6 @@ from flask import Blueprint, request
 from app.extensions import db
 from app.models import Project
 
-
 routes = Blueprint("routes", __name__)
 
 
@@ -26,7 +25,6 @@ def db_health():
         connection.exec_driver_sql("SELECT 1")
 
     return {"database": "ok"}, 200
-
 
 
 @routes.post("/projects")
@@ -53,11 +51,16 @@ def create_project():
     db.session.add(project)
     db.session.commit()
 
-    return {
-        "id": project.id,
-        "owner_user_id": project.owner_user_id,
-        "name": project.name,
-        "description": project.description,
-    }, 201
+    return {"results": [project.to_dict()]}, 201
 
 
+@routes.get("/projects")
+def get_all_projects():
+    """Get all projects for the authenticated user.
+
+    return: List of projects and HTTP status code.
+    """
+    user_id = request.headers.get("X-User-ID")
+    projects = Project.query.filter_by(owner_user_id=user_id).all()
+
+    return {"results": [project.to_dict() for project in projects]}, 200

@@ -14,15 +14,15 @@ def test_create_project_success(app, client):
         },
         headers={"X-User-ID": "123"},
     )
-
     assert response.status_code == 201
 
     data = response.get_json()
+    project_data = data["results"][0]
 
-    assert data["id"] is not None
-    assert data["name"] == "Test Project"
-    assert data["description"] == "My first project"
-    assert data["owner_user_id"] == "123"
+    assert project_data["id"] is not None
+    assert project_data["name"] == "Test Project"
+    assert project_data["description"] == "My first project"
+    assert project_data["owner_user_id"] == "123"
 
     with app.app_context():
         project = Project.query.filter_by(owner_user_id="123").first()
@@ -40,11 +40,9 @@ def test_create_project_missing_user_header(client):
             "description": "My first project",
         },
     )
-
     assert response.status_code == 400
 
     data = response.get_json()
-
     assert data["error"] == "Missing X-User-ID header"
 
 
@@ -56,11 +54,9 @@ def test_create_project_missing_name(client):
         },
         headers={"X-User-ID": "123"},
     )
-
     assert response.status_code == 400
 
     data = response.get_json()
-
     assert data["error"] == "Missing project name"
 
 
@@ -73,11 +69,9 @@ def test_create_project_empty_name(client):
         },
         headers={"X-User-ID": "123"},
     )
-
     assert response.status_code == 400
 
     data = response.get_json()
-
     assert data["error"] == "Missing project name"
 
 
@@ -103,18 +97,15 @@ def test_get_all_projects(client):
         "/projects",
         headers={"X-User-ID": "123"},
     )
-
     assert response.status_code == 200
 
     data = response.get_json()
+    projects = data["results"]
 
-    assert len(data) == 2
-
-    names = [project["name"] for project in data]
-
+    names = [project["name"] for project in projects]
+    assert len(names) == 2
     assert "Project 1" in names
     assert "Project 2" in names
-
 
 
 # -----------------------------------------------------------------
