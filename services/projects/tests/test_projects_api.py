@@ -230,7 +230,31 @@ def test_get_project_detail_missing_user_header(client):
 # -----------------------------------------------------------------
 # PROJECT UPDATE TESTS
 # -----------------------------------------------------------------
+def test_update_project_success(client):
+    response = client.post(
+        "/projects",
+        json={"name": "Old Project", "description": "Old description"},
+        headers={"X-User-ID": "123"},
+    )
+    assert response.status_code == 201
 
+    project_id = response.get_json()["results"][0]["id"]
+
+    response = client.patch(
+        f"/projects/{project_id}",
+        json={"name": "Updated Project", "description": "Updated description"},
+        headers={"X-User-ID": "123"},
+    )
+
+    assert response.status_code == 200
+
+    data = response.get_json()
+    project_data = data["results"][0]
+
+    assert project_data["id"] == project_id
+    assert project_data["name"] == "Updated Project"
+    assert project_data["description"] == "Updated description"
+    assert project_data["owner_user_id"] == "123"
 
 # -----------------------------------------------------------------
 # PROJECT DELETE TESTS
