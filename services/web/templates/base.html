@@ -25,7 +25,7 @@
     <header id="header" class="bg-secondary text-white py-2">
       <div class="container d-flex align-items-center justify-content-between">
         <h1 class="logo mb-0">
-          <a href="{% url 'dashboard:home' %}" class="text-white" >Django BFF</a>
+          <a href="{% url 'dashboard:home' %}" class="text-white">Django BFF</a>
         </h1>
 
         <nav class="d-flex flex-column align-items-end">
@@ -39,17 +39,17 @@
             <a class="nav-link text-white p-0" href="{% url 'dashboard:home' %}">Home</a>
 
             {% if request.user.is_authenticated %}
-              <a class="nav-link text-white p-0" href="{% url 'dashboard:home' %}">Dashboard</a>
+              <a class="nav-link text-white p-0" href="{% url 'dashboard:dashboard' %}">Dashboard</a>
 
-              <form method="post" action="{% url 'logout' %}" class="m-0">
+              <form method="post" action="{% url 'user:logout' %}" class="m-0">
                 {% csrf_token %}
                 <button type="submit" class="nav-link text-white btn btn-link p-0">
                   Logout
                 </button>
               </form>
             {% else %}
-              <a class="nav-link text-white p-0" href="{% url 'login' %}">Login</a>
-              <a class="nav-link text-white p-0" href="{% url 'register' %}">Register</a>
+              <a class="nav-link text-white p-0" href="{% url 'user:login' %}">Login</a>
+              <a class="nav-link text-white p-0" href="{% url 'user:register' %}">Register</a>
             {% endif %}
           </div>
         </nav>
