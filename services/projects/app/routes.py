@@ -48,7 +48,7 @@ def create_project():
     )
 
     if not project.name:
-        return {"error": "Missing Project Name"}, 400
+        return {"error": "Missing project name"}, 400
 
     db.session.add(project)
     db.session.commit()
