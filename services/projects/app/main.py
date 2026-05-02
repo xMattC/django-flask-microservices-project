@@ -3,6 +3,7 @@ import os
 from flask import Flask
 
 from app.extensions import db, migrate
+from app.routes import routes
 
 
 def _build_db_uri():
@@ -41,23 +42,6 @@ def create_app():
 
     _init_extensions(app)
 
-    @app.get("/health")
-    def health():
-        """Return basic service health status.
-
-        return: JSON health response and HTTP status code.
-        """
-        return {"status": "ok"}, 200
-
-    @app.get("/db-health")
-    def db_health():
-        """Check the database connection.
-
-        return: JSON database health response and HTTP status code.
-        """
-        with db.engine.connect() as connection:
-            connection.exec_driver_sql("SELECT 1")
-
-        return {"database": "ok"}, 200
+    app.register_blueprint(routes)
 
     return app
