@@ -31,6 +31,17 @@ def test_create_project_success(app, client):
     assert project.name == "Test Project"
     assert project.description == "My first project"
 
+def test_get_projects_returns_empty_list(client):
+    response = client.get(
+        "/projects",
+        headers={"X-User-ID": "123"},
+    )
+    assert response.status_code == 200
+
+    data = response.get_json()
+    assert "results" in data
+    assert isinstance(data["results"], list)
+    assert len(data["results"]) == 0
 
 def test_create_project_missing_user_header(client):
     response = client.post(
@@ -129,9 +140,10 @@ def test_get_projects_limited_to_user(client):
     )
 
     data = response.get_json()
+    projects = data["results"]
 
-    assert len(data) == 1
-    assert data[0]["name"] == "My Project"
+    assert len(projects) == 1
+    assert projects[0]["name"] == "My Project"
 
 
 # -----------------------------------------------------------------
