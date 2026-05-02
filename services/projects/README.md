@@ -6,11 +6,12 @@ This service:
 
 * Owns project data and logic
 * Uses `X-User-ID` for ownership
+* Has its own database (`projects-db`)
 * Is completely independent from Django (`web/`)
 
 ---
 
-## 🚀 Running the Service
+## Running the Service
 
 ### 1. Run the full system (recommended)
 
@@ -24,7 +25,7 @@ This starts:
 
 * Django (`web`)
 * Projects service (`projects`)
-* Database (`db`)
+* Databases (`db`, `projects-db`)
 
 ---
 
@@ -34,11 +35,10 @@ This starts:
 docker compose up --build projects
 ```
 
-This is useful for:
+Starts:
 
-* Fast iteration
-* API testing in isolation
-* Debugging
+* `projects`
+* `projects-db`
 
 ---
 
@@ -48,16 +48,23 @@ This is useful for:
 docker compose down
 ```
 
+Reset DBs (deletes data):
+
+```bash
+docker compose down -v
+```
+
 ---
 
 ## Service URL
 
-When running:
 http://localhost:5000
 
 ---
 
-## Quick Test (Health Check)
+## Health Checks
+
+### Service health
 
 ```bash
 curl http://localhost:5000/health
@@ -69,8 +76,61 @@ Expected:
 {"status": "ok"}
 ```
 
+---
 
+### Database health
 
+```bash
+curl http://localhost:5000/db-health
+```
+
+Expected:
+
+```json
+{"database": "ok"}
+```
+
+---
+
+## Database & Migrations
+
+### Start DB only
+
+```bash
+docker compose up -d projects-db
+```
+
+---
+
+### Initialise migrations (run once)
+
+```bash
+docker compose run --rm projects flask --app app.main:create_app db init
+```
+
+---
+
+### Create a migration
+
+```bash
+docker compose run --rm projects flask --app app.main:create_app db migrate -m "message"
+```
+
+---
+
+### Apply migrations
+
+```bash
+docker compose run --rm projects flask --app app.main:create_app db upgrade
+```
+
+---
+
+### Notes
+
+* DB must be running for migrations
+* App does NOT need to be running
+* Migration files are auto-generated (safe to exclude from linting)
 
 ---
 
@@ -91,13 +151,25 @@ flask --app app.main:create_app run --host=0.0.0.0 --port=5000 --debug
 
 ---
 
-## Running Tests & linting
+## Tests & Linting
 
 ```bash
 docker compose run --rm projects python -m pytest
-
 docker compose run --rm projects flake8
-
 docker compose run --rm projects sh -c "python -m pytest && flake8"
 ```
+
+---
+
+## Dev Notes
+
+* Use service name for internal calls:
+
+```
+http://projects:5000
+```
+
+* Never use `localhost` between containers
+* DB config comes from environment variables
+* Models define DB schema → migrations apply it
 
