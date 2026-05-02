@@ -108,6 +108,32 @@ def test_get_all_projects(client):
     assert "Project 2" in names
 
 
+def test_get_projects_limited_to_user(client):
+    # Other user's project
+    client.post(
+        "/projects",
+        json={"name": "Other Project"},
+        headers={"X-User-ID": "999"},
+    )
+
+    # Current user's project
+    client.post(
+        "/projects",
+        json={"name": "My Project"},
+        headers={"X-User-ID": "123"},
+    )
+
+    response = client.get(
+        "/projects",
+        headers={"X-User-ID": "123"},
+    )
+
+    data = response.get_json()
+
+    assert len(data) == 1
+    assert data[0]["name"] == "My Project"
+
+
 # -----------------------------------------------------------------
 # PROJECT UPDATE TESTS
 # -----------------------------------------------------------------
