@@ -242,6 +242,73 @@ def test_update_project_success(client):
     assert project_data["owner_user_id"] == USER_HEADERS["X-User-ID"]
 
 
+def test_update_project_partial_name_only(client):
+    create_payload = {
+        "name": "Old Project",
+        "description": "Old description",
+    }
+
+    response = client.post("/projects", json=create_payload, headers=USER_HEADERS)
+    project_id = get_first_result(response)["id"]
+
+    update_payload = {
+        "name": "Updated Project",
+    }
+
+    response = client.patch(
+        f"/projects/{project_id}",
+        json=update_payload,
+        headers=USER_HEADERS,
+    )
+
+    assert response.status_code == 200
+
+    project_data = get_first_result(response)
+
+    assert project_data["name"] == "Updated Project"
+    assert project_data["description"] == "Old description"
+
+
+def test_update_project_missing_user_header(client):
+    response = client.patch(
+        "/projects/1",
+        json={"name": "Updated Project"},
+    )
+
+    assert response.status_code == 400
+    assert get_response_data(response) == {"error": "Missing X-User-ID header"}
+
+
+def test_update_project_not_found(client):
+    response = client.patch(
+        "/projects/999",
+        json={"name": "Updated Project"},
+        headers=USER_HEADERS,
+    )
+
+    assert response.status_code == 404
+    assert get_response_data(response) == {"error": "Project not found"}
+
+
+def test_update_project_other_user_returns_404(client):
+    response = client.post(
+        "/projects",
+        json={"name": "My Project"},
+        headers=USER_HEADERS,
+    )
+
+    project_id = get_first_result(response)["id"]
+
+    response = client.patch(
+        f"/projects/{project_id}",
+        json={"name": "Hacked Project"},
+        headers={"X-User-ID": "999"},
+    )
+
+    assert response.status_code == 404
+    assert get_response_data(response) == {"error": "Project not found"}
+
+
 # -----------------------------------------------------------------
 # PROJECT DELETE TESTS
 # -----------------------------------------------------------------
