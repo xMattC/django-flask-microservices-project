@@ -47,6 +47,9 @@ def create_project():
         description=data.get("description"),
     )
 
+    if not project.name:
+        return {"error": "Missing Project Name"}, 400
+
     db.session.add(project)
     db.session.commit()
 
