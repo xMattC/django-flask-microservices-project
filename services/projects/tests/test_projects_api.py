@@ -82,9 +82,46 @@ def test_create_project_empty_name(client):
 
 
 # -----------------------------------------------------------------
-# PROJECT LIST TESTS
+# PROJECT READ TESTS
 # -----------------------------------------------------------------
 
 
-# def test_get_projects_success(client):
-#     pass
+def test_get_all_projects(client):
+    # Create projects for user 123
+    client.post(
+        "/projects",
+        json={"name": "Project 1", "description": "An initial project"},
+        headers={"X-User-ID": "123"},
+    )
+    client.post(
+        "/projects",
+        json={"name": "Project 2", "description": "A second project"},
+        headers={"X-User-ID": "123"},
+    )
+
+    response = client.get(
+        "/projects",
+        headers={"X-User-ID": "123"},
+    )
+
+    assert response.status_code == 200
+
+    data = response.get_json()
+
+    assert len(data) == 2
+
+    names = [project["name"] for project in data]
+
+    assert "Project 1" in names
+    assert "Project 2" in names
+
+
+
+# -----------------------------------------------------------------
+# PROJECT UPDATE TESTS
+# -----------------------------------------------------------------
+
+
+# -----------------------------------------------------------------
+# PROJECT DELETE TESTS
+# -----------------------------------------------------------------
