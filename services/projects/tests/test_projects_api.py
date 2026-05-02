@@ -299,3 +299,34 @@ def test_delete_project_success(client):
     response = client.get(f"/projects/{project_id}", headers=USER_HEADERS)
 
     assert response.status_code == 404
+
+
+def test_delete_project_missing_user_header(client):
+    response = client.delete("/projects/1")
+
+    assert response.status_code == 400
+    assert get_response_data(response) == {"error": "Missing X-User-ID header"}
+
+
+def test_delete_project_not_found(client):
+    response = client.delete("/projects/999", headers=USER_HEADERS)
+
+    assert response.status_code == 404
+    assert get_response_data(response) == {"error": "Project not found"}
+
+
+def test_delete_project_other_user_returns_404(client):
+    payload = {"name": "Project to delete"}
+    response = client.post("/projects", json=payload, headers=USER_HEADERS)
+
+    assert response.status_code == 201
+
+    project_id = get_first_result(response)["id"]
+    response = client.delete(f"/projects/{project_id}", headers=OTHER_USER_HEADERS)
+
+    assert response.status_code == 404
+    assert get_response_data(response) == {"error": "Project not found"}
+
+    response = client.get(f"/projects/{project_id}", headers=USER_HEADERS)
+
+    assert response.status_code == 200
