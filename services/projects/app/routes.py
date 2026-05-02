@@ -67,3 +67,5 @@ def get_all_projects():
     projects = Project.query.filter_by(owner_user_id=user_id).all()
 
     return {"results": [project.to_dict() for project in projects]}, 200
+
+

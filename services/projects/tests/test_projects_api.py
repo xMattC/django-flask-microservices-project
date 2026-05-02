@@ -160,7 +160,32 @@ def test_get_projects_missing_user_header(client):
 # -----------------------------------------------------------------
 # PROJECT READ (DETAIL) TESTS
 # -----------------------------------------------------------------
+def test_get_project_detail_success(app, client):
+    # Create a project for user 123
+    response = client.post(
+        "/projects",
+        json={"name": "Detail Project", "description": "Project for detail test"},
+        headers={"X-User-ID": "123"},
+    )
+    assert response.status_code == 201
 
+    data = response.get_json()
+    project_id = data["results"][0]["id"]
+
+    # Get project detail
+    response = client.get(
+        f"/projects/{project_id}",
+        headers={"X-User-ID": "123"},
+    )
+    assert response.status_code == 200
+
+    data = response.get_json()
+    project_data = data["results"][0]
+
+    assert project_data["id"] == project_id
+    assert project_data["name"] == "Detail Project"
+    assert project_data["description"] == "Project for detail test"
+    assert project_data["owner_user_id"] == "123"
 
 # -----------------------------------------------------------------
 # PROJECT UPDATE TESTS
