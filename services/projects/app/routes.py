@@ -61,6 +61,9 @@ def get_all_projects():
     return: List of projects and HTTP status code.
     """
     user_id = request.headers.get("X-User-ID")
+    if not user_id:
+        return {"error": "Missing X-User-ID header"}, 400
+
     projects = Project.query.filter_by(owner_user_id=user_id).all()
 
     return {"results": [project.to_dict() for project in projects]}, 200
