@@ -90,7 +90,12 @@ def update_project(project_id):
     return: Updated project detail and HTTP status code.
     """
     user_id = request.headers.get("X-User-ID")
+    if not user_id:
+        return {"error": "Missing X-User-ID header"}, 400
+
     project = Project.query.filter_by(id=project_id, owner_user_id=user_id).first()
+    if not project:
+        return {"error": "Project not found"}, 404
 
     data = request.get_json() or {}
     project.name = data.get("name", project.name)
