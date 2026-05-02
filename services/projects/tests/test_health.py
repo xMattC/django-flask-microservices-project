@@ -1,7 +1,3 @@
-import pytest
-from app.main import create_app
-
-
 def test_health_endpoint_returns_200(client):
     response = client.get("/health")
 
