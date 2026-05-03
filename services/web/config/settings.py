@@ -39,11 +39,11 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "app",
-    "core",
     "user",
+    "common",
 ]
 
-AUTH_USER_MODEL = "core.User"
+AUTH_USER_MODEL = "user.User"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -124,11 +124,18 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
+
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
 
 LOGIN_URL = "user:login"
 LOGIN_REDIRECT_URL = "app:home"
 LOGOUT_REDIRECT_URL = "user:login"
+
+PROJECTS_SERVICE_URL = "http://projects:5000"
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

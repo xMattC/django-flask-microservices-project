@@ -16,32 +16,9 @@
 </div>
 
 <div class="row mt-4">
-  <div class="col-md-4 mb-3">
-    <div class="card shadow-sm border-0 h-100">
-      <div class="card-body">
-        <h5 class="card-title">Projects</h5>
-        <p class="text-muted mb-0">Project service integration pending.</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="col-md-4 mb-3">
-    <div class="card shadow-sm border-0 h-100">
-      <div class="card-body">
-        <h5 class="card-title">Tasks</h5>
-        <p class="text-muted mb-0">Task service integration pending.</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="col-md-4 mb-3">
-    <div class="card shadow-sm border-0 h-100">
-      <div class="card-body">
-        <h5 class="card-title">Activity</h5>
-        <p class="text-muted mb-0">Activity summary integration pending.</p>
-      </div>
-    </div>
-  </div>
+  {% include "app/dashboard/_projects_card.html" %}
+  {% include "app/dashboard/_tasks_card.html" %}
+  {% include "app/dashboard/_sessions_card.html" %}
 </div>
 
 {% endblock %}
