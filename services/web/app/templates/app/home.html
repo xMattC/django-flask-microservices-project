@@ -1,4 +1,4 @@
-{% extends "user/base.html" %}
+{% extends "base.html" %}
 
 {% block content %}
 
@@ -9,14 +9,14 @@
   </p>
 
   {% if not request.user.is_authenticated %}
-    <a href="{% url 'login' %}" class="btn btn-primary me-2">
+    <a href="{% url 'user:login' %}" class="btn btn-primary me-2">
       Login
     </a>
-    <a href="{% url 'register' %}" class="btn btn-outline-primary">
+    <a href="{% url 'user:register' %}" class="btn btn-outline-primary">
       Register
     </a>
   {% else %}
-    <a href="{% url 'dashboard' %}" class="btn btn-primary">
+    <a href="{% url 'app:dashboard' %}" class="btn btn-primary">
       Go to Dashboard
     </a>
   {% endif %}

@@ -1,0 +1,19 @@
+<div class="col-md-4 mb-3">
+  <div class="card shadow-sm border-0 h-100">
+    <div class="card-body">
+      <h5 class="card-title">Projects</h5>
+
+      {% if projects_error %}
+        <p class="text-warning mb-0">{{ projects_error }}</p>
+      {% elif projects %}
+        <ul class="mb-0 ps-3">
+          {% for project in projects %}
+            <li>{{ project.name }}</li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="text-muted mb-0">No projects found.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
