@@ -16,7 +16,7 @@ class PublicAuthTests(TestCase):
 
     def test_register_page_loads(self):
         """Test register page loads successfully."""
-        res = self.client.get(reverse("register"))
+        res = self.client.get(reverse("user:register"))
         self.assertEqual(res.status_code, 200)
 
     def test_register_user_success(self):
@@ -28,7 +28,7 @@ class PublicAuthTests(TestCase):
             "password_confirm": "testpass123",
         }
 
-        res = self.client.post(reverse("register"), payload)
+        res = self.client.post(reverse("user:register"), payload)
 
         self.assertEqual(res.status_code, 302)
         self.assertTrue(get_user_model().objects.filter(email=payload["email"]).exists())
@@ -42,14 +42,14 @@ class PublicAuthTests(TestCase):
             "password_confirm": "wrongpass",
         }
 
-        res = self.client.post(reverse("register"), payload)
+        res = self.client.post(reverse("user:register"), payload)
 
         self.assertEqual(res.status_code, 200)
         self.assertContains(res, "Passwords do not match")
 
     def test_login_page_loads(self):
         """Test login page loads successfully."""
-        res = self.client.get(reverse("login"))
+        res = self.client.get(reverse("user:login"))
         self.assertEqual(res.status_code, 200)
 
     def test_login_success(self):
@@ -61,14 +61,14 @@ class PublicAuthTests(TestCase):
         )
 
         res = self.client.post(
-            reverse("login"),
+            reverse("user:login"),
             {
                 "email": "test@example.com",
                 "password": "testpass123",
             },
         )
 
-        self.assertRedirects(res, reverse("dashboard"))
+        self.assertRedirects(res, reverse("app:home"))
 
     def test_login_invalid_credentials(self):
         """Test login fails with invalid credentials."""
@@ -79,7 +79,7 @@ class PublicAuthTests(TestCase):
         )
 
         res = self.client.post(
-            reverse("login"),
+            reverse("user:login"),
             {
                 "email": "test@example.com",
                 "password": "wrongpass",
@@ -105,19 +105,19 @@ class PrivateAuthTests(TestCase):
     def test_dashboard_requires_login(self):
         """Test dashboard requires authentication."""
         self.client.logout()
-        res = self.client.get(reverse("dashboard"))
+        res = self.client.get(reverse("app:dashboard"))
 
-        self.assertRedirects(res, f"{reverse('login')}?next={reverse('dashboard')}")
+        self.assertRedirects(res, f"{reverse('user:login')}?next={reverse('app:dashboard')}")
 
     def test_dashboard_access(self):
         """Test logged in user can access dashboard."""
-        res = self.client.get(reverse("dashboard"))
+        res = self.client.get(reverse("app:dashboard"))
         self.assertEqual(res.status_code, 200)
 
     def test_logout(self):
         """Test user can log out."""
-        res = self.client.post(reverse("logout"))
-        self.assertRedirects(res, reverse("login"))
+        res = self.client.post(reverse("user:logout"))
+        self.assertRedirects(res, reverse("user:login"))
 
-        res = self.client.get(reverse("dashboard"))
-        self.assertRedirects(res, f"{reverse('login')}?next={reverse('dashboard')}")
+        res = self.client.get(reverse("app:dashboard"))
+        self.assertRedirects(res, f"{reverse('user:login')}?next={reverse('app:dashboard')}")

@@ -41,4 +41,3 @@ def login_view(request) -> HttpResponseRedirect | HttpResponse:
 def logout_view(request) -> HttpResponseRedirect:
     logout(request)
     return redirect("user:login")
-
