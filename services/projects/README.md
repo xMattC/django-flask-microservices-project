@@ -109,7 +109,7 @@ docker compose up -d projects-db
 
 ---
 
-### Initialise migrations (run once)
+### Initialise migrations (run once first thime then ignore)
 
 ```bash
 docker compose run --rm projects flask --app app.main:create_app db init
