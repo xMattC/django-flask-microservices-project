@@ -11,14 +11,11 @@ class ProjectsServiceUnavailable(ProjectsServiceError):
 
 
 def get_projects(user_id: int) -> list[dict]:
-    url = f"{settings.PROJECTS_SERVICE_URL}/projects"
+    url = f"{settings.PROJECTS_SERVICE_URL}/api/projects"
 
     try:
-        response = requests.get(
-            url,
-            headers={"X-User-ID": str(user_id)},
-            timeout=5,
-        )
+        response = requests.get(url, headers={"X-User-ID": str(user_id)}, timeout=5)
+
     except requests.RequestException as exc:
         raise ProjectsServiceUnavailable("Projects service is unavailable.") from exc
 
