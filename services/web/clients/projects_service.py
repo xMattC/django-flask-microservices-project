@@ -93,8 +93,7 @@ def get_project(project_id: int, user_id: int) -> dict:
 
 
 def create_project(user_id: int, payload: dict) -> dict:
-    """
-    Create a new project for a given user.
+    """Create a new project for a given user.
 
     Sends a POST request to the Projects service and returns the created project.
 
@@ -178,7 +177,7 @@ def update_project(project_id: int, user_id: int, payload: dict) -> dict:
 
 
 def delete_project(project_id: int, user_id: int) -> None:
-    """aDelete a project for a given user.
+    """Delete a project for a given user.
 
     Sends a DELETE request to the Projects service for the specified project.
 

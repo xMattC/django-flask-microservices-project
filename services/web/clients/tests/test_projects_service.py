@@ -183,7 +183,6 @@ class ProjectsClientTests(SimpleTestCase):
         with self.assertRaises(ProjectsServiceUnavailable):
             get_project(project_id=project_id, user_id=user_id)
 
-
     @responses.activate
     @override_settings(PROJECTS_SERVICE_URL="http://projects:5000")
     def test_get_project_raises_error_on_upstream_error_status(self):
@@ -199,7 +198,6 @@ class ProjectsClientTests(SimpleTestCase):
 
         with self.assertRaises(ProjectsServiceError):
             get_project(project_id=project_id, user_id=123)
-
 
     @responses.activate
     @override_settings(PROJECTS_SERVICE_URL="http://projects:5000")
@@ -217,7 +215,6 @@ class ProjectsClientTests(SimpleTestCase):
         with self.assertRaises(ProjectsServiceError):
             get_project(project_id=project_id, user_id=123)
 
-
     @responses.activate
     @override_settings(PROJECTS_SERVICE_URL="http://projects:5000")
     def test_get_project_raises_error_when_results_missing(self):
@@ -234,7 +231,6 @@ class ProjectsClientTests(SimpleTestCase):
         with self.assertRaises(ProjectsServiceError):
             get_project(project_id=project_id, user_id=123)
 
-
     @responses.activate
     @override_settings(PROJECTS_SERVICE_URL="http://projects:5000")
     def test_get_project_raises_error_when_results_is_not_a_list(self):
@@ -250,7 +246,6 @@ class ProjectsClientTests(SimpleTestCase):
 
         with self.assertRaises(ProjectsServiceError):
             get_project(project_id=project_id, user_id=123)
-
 
     @responses.activate
     @override_settings(PROJECTS_SERVICE_URL="http://projects:5000")
@@ -306,7 +301,6 @@ class ProjectsClientTests(SimpleTestCase):
         self.assertEqual(request.headers.get("Content-Type"), "application/json")
         self.assertEqual(request.body.decode("utf-8"), '{"name": "Project A", "description": "Test"}')
 
-
     @responses.activate
     @override_settings(PROJECTS_SERVICE_URL="http://projects:5000")
     def test_create_project_raises_unavailable_on_request_exception(self):
@@ -326,7 +320,6 @@ class ProjectsClientTests(SimpleTestCase):
         with self.assertRaises(ProjectsServiceUnavailable):
             create_project(user_id=user_id, payload=request_payload)
 
-
     @responses.activate
     @override_settings(PROJECTS_SERVICE_URL="http://projects:5000")
     def test_create_project_raises_error_on_upstream_error_status(self):
@@ -342,7 +335,6 @@ class ProjectsClientTests(SimpleTestCase):
 
         with self.assertRaises(ProjectsServiceError):
             create_project(user_id=123, payload=request_payload)
-
 
     @responses.activate
     @override_settings(PROJECTS_SERVICE_URL="http://projects:5000")
@@ -360,7 +352,6 @@ class ProjectsClientTests(SimpleTestCase):
         with self.assertRaises(ProjectsServiceError):
             create_project(user_id=123, payload=request_payload)
 
-
     @responses.activate
     @override_settings(PROJECTS_SERVICE_URL="http://projects:5000")
     def test_create_project_raises_error_when_results_missing(self):
@@ -377,7 +368,6 @@ class ProjectsClientTests(SimpleTestCase):
         with self.assertRaises(ProjectsServiceError):
             create_project(user_id=123, payload=request_payload)
 
-
     @responses.activate
     @override_settings(PROJECTS_SERVICE_URL="http://projects:5000")
     def test_create_project_raises_error_when_results_is_not_a_list(self):
@@ -393,7 +383,6 @@ class ProjectsClientTests(SimpleTestCase):
 
         with self.assertRaises(ProjectsServiceError):
             create_project(user_id=123, payload=request_payload)
-
 
     @responses.activate
     @override_settings(PROJECTS_SERVICE_URL="http://projects:5000")
@@ -452,7 +441,6 @@ class ProjectsClientTests(SimpleTestCase):
         self.assertEqual(request.headers.get("Content-Type"), "application/json")
         self.assertEqual(sent_payload, request_payload)
 
-
     @responses.activate
     @override_settings(PROJECTS_SERVICE_URL="http://projects:5000")
     def test_update_project_raises_unavailable_on_request_exception(self):
@@ -473,7 +461,6 @@ class ProjectsClientTests(SimpleTestCase):
         with self.assertRaises(ProjectsServiceUnavailable):
             update_project(project_id=project_id, user_id=user_id, payload=request_payload)
 
-
     @responses.activate
     @override_settings(PROJECTS_SERVICE_URL="http://projects:5000")
     def test_update_project_raises_error_on_upstream_error_status(self):
@@ -490,7 +477,6 @@ class ProjectsClientTests(SimpleTestCase):
 
         with self.assertRaises(ProjectsServiceError):
             update_project(project_id=project_id, user_id=123, payload=request_payload)
-
 
     @responses.activate
     @override_settings(PROJECTS_SERVICE_URL="http://projects:5000")
@@ -509,7 +495,6 @@ class ProjectsClientTests(SimpleTestCase):
         with self.assertRaises(ProjectsServiceError):
             update_project(project_id=project_id, user_id=123, payload=request_payload)
 
-
     @responses.activate
     @override_settings(PROJECTS_SERVICE_URL="http://projects:5000")
     def test_update_project_raises_error_when_results_missing(self):
@@ -526,7 +511,6 @@ class ProjectsClientTests(SimpleTestCase):
 
         with self.assertRaises(ProjectsServiceError):
             update_project(project_id=project_id, user_id=123, payload=request_payload)
-
 
     @responses.activate
     @override_settings(PROJECTS_SERVICE_URL="http://projects:5000")
@@ -545,7 +529,6 @@ class ProjectsClientTests(SimpleTestCase):
         with self.assertRaises(ProjectsServiceError):
             update_project(project_id=project_id, user_id=123, payload=request_payload)
 
-
     @responses.activate
     @override_settings(PROJECTS_SERVICE_URL="http://projects:5000")
     def test_update_project_raises_error_when_results_does_not_contain_one_project(self):
@@ -562,7 +545,6 @@ class ProjectsClientTests(SimpleTestCase):
 
         with self.assertRaises(ProjectsServiceError):
             update_project(project_id=project_id, user_id=123, payload=request_payload)
-
 
     # -----------------------------------------------------------------------------------------------------------------
     # Test cases for delete_project
@@ -589,7 +571,6 @@ class ProjectsClientTests(SimpleTestCase):
         request = responses.calls[0].request
         self.assertEqual(request.headers.get("X-User-ID"), str(user_id))
 
-
     @responses.activate
     @override_settings(PROJECTS_SERVICE_URL="http://projects:5000")
     def test_delete_project_raises_unavailable_on_request_exception(self):
@@ -609,7 +590,6 @@ class ProjectsClientTests(SimpleTestCase):
         with self.assertRaises(ProjectsServiceUnavailable):
             delete_project(project_id=project_id, user_id=user_id)
 
-
     @responses.activate
     @override_settings(PROJECTS_SERVICE_URL="http://projects:5000")
     def test_delete_project_raises_error_on_upstream_error_status(self):
@@ -625,7 +605,6 @@ class ProjectsClientTests(SimpleTestCase):
 
         with self.assertRaises(ProjectsServiceError):
             delete_project(project_id=project_id, user_id=123)
-
 
     @responses.activate
     @override_settings(PROJECTS_SERVICE_URL="http://projects:5000")
