@@ -62,6 +62,13 @@ http://localhost:5000
 
 ---
 
+
+## Service API Docs
+
+http://localhost:5000/docs
+
+---
+
 ## Health Checks
 
 ### Service health

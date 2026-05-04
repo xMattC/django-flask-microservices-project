@@ -2,10 +2,13 @@ import os
 
 from flask import Flask
 
-from app.extensions import db, migrate
+from app.extensions import api, db, migrate
 from app.routes import routes
 
 
+# -------------------------------------------------------------------------------------------------
+# Database configuration
+# -------------------------------------------------------------------------------------------------
 def _build_db_uri():
     """Build the SQLAlchemy database URI from environment variables.
 
@@ -20,6 +23,29 @@ def _build_db_uri():
     return f"postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
 
 
+# -------------------------------------------------------------------------------------------------
+# Application configuration
+# -------------------------------------------------------------------------------------------------
+def _configure_app(app):
+    """Configure Flask, database, and OpenAPI settings.
+
+    param app: Flask application instance.
+    return: None.
+    """
+    app.config["SQLALCHEMY_DATABASE_URI"] = _build_db_uri()
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+    app.config["API_TITLE"] = "Projects Service API"
+    app.config["API_VERSION"] = "v1"
+    app.config["OPENAPI_VERSION"] = "3.0.3"
+    app.config["OPENAPI_URL_PREFIX"] = "/"
+    app.config["OPENAPI_SWAGGER_UI_PATH"] = "/docs"
+    app.config["OPENAPI_SWAGGER_UI_URL"] = "https://cdn.jsdelivr.net/npm/swagger-ui-dist/"
+
+
+# -------------------------------------------------------------------------------------------------
+# Extension initialisation
+# -------------------------------------------------------------------------------------------------
 def _init_extensions(app):
     """Initialise Flask extensions.
 
@@ -30,6 +56,20 @@ def _init_extensions(app):
     migrate.init_app(app, db)
 
 
+# -------------------------------------------------------------------------------------------------
+# Blueprint registration
+# -------------------------------------------------------------------------------------------------
+def _register_blueprints():
+    """Register Flask-Smorest blueprints.
+
+    return: None.
+    """
+    api.register_blueprint(routes, url_prefix="/api")
+
+
+# -------------------------------------------------------------------------------------------------
+# Application factory
+# -------------------------------------------------------------------------------------------------
 def create_app():
     """Create and configure the Flask application.
 
@@ -37,11 +77,10 @@ def create_app():
     """
     app = Flask(__name__)
 
-    app.config["SQLALCHEMY_DATABASE_URI"] = _build_db_uri()
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-
+    _configure_app(app)
     _init_extensions(app)
 
-    app.register_blueprint(routes)
+    api.init_app(app)
+    _register_blueprints()
 
     return app
