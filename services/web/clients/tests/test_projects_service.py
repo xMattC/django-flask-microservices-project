@@ -122,3 +122,35 @@ class ProjectsClientTests(SimpleTestCase):
 
         with self.assertRaises(ProjectsServiceError):
             get_projects(user_id=123)
+
+    # -----------------------------------------------------------------------------------------------------------------
+    # Test cases for get_project
+    # -----------------------------------------------------------------------------------------------------------------
+
+    @responses.activate
+    @override_settings(PROJECTS_SERVICE_URL="http://projects:5000")
+    def test_get_project_sends_user_id_header_and_returns_project(self):
+        """Test get_project calls upstream with user header and returns one project."""
+        user_id = 123
+        project_id = 1
+
+        payload = {
+            "results": [
+                {"id": project_id, "name": "Project A", "description": "Test"},
+            ],
+        }
+
+        responses.add(
+            method=responses.GET,
+            url=f"http://projects:5000/api/projects/{project_id}",
+            json=payload,
+            status=200,
+        )
+
+        result = get_project(project_id=project_id, user_id=user_id)
+
+        self.assertEqual(result, payload["results"][0])
+        self.assertEqual(len(responses.calls), 1)
+
+        request = responses.calls[0].request
+        self.assertEqual(request.headers.get("X-User-ID"), str(user_id))
