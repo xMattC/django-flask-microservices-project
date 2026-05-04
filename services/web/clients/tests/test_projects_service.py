@@ -2,7 +2,12 @@ import requests
 import responses
 from django.test import SimpleTestCase, override_settings
 
-from clients.projects_service import get_projects, ProjectsServiceUnavailable, ProjectsServiceError
+from clients.projects_service import (
+    get_projects,
+    get_project,
+    ProjectsServiceUnavailable,
+    ProjectsServiceError,
+)
 
 
 class ProjectsClientTests(SimpleTestCase):
@@ -154,3 +159,107 @@ class ProjectsClientTests(SimpleTestCase):
 
         request = responses.calls[0].request
         self.assertEqual(request.headers.get("X-User-ID"), str(user_id))
+
+    @responses.activate
+    @override_settings(PROJECTS_SERVICE_URL="http://projects:5000")
+    def test_get_project_raises_unavailable_on_request_exception(self):
+        """Test get_project raises ProjectsServiceUnavailable on network failure."""
+        user_id = 123
+        project_id = 1
+
+        def raise_error(request):
+            raise requests.ConnectionError("Service down")
+
+        responses.add_callback(
+            method=responses.GET,
+            url=f"http://projects:5000/api/projects/{project_id}",
+            callback=raise_error,
+        )
+
+        with self.assertRaises(ProjectsServiceUnavailable):
+            get_project(project_id=project_id, user_id=user_id)
+
+
+    @responses.activate
+    @override_settings(PROJECTS_SERVICE_URL="http://projects:5000")
+    def test_get_project_raises_error_on_upstream_error_status(self):
+        """Test get_project raises error when upstream returns an error status."""
+        project_id = 1
+
+        responses.add(
+            method=responses.GET,
+            url=f"http://projects:5000/api/projects/{project_id}",
+            json={"message": "Project not found"},
+            status=404,
+        )
+
+        with self.assertRaises(ProjectsServiceError):
+            get_project(project_id=project_id, user_id=123)
+
+
+    @responses.activate
+    @override_settings(PROJECTS_SERVICE_URL="http://projects:5000")
+    def test_get_project_raises_error_on_invalid_json(self):
+        """Test get_project raises error when response JSON is invalid."""
+        project_id = 1
+
+        responses.add(
+            method=responses.GET,
+            url=f"http://projects:5000/api/projects/{project_id}",
+            body="not-json",
+            status=200,
+        )
+
+        with self.assertRaises(ProjectsServiceError):
+            get_project(project_id=project_id, user_id=123)
+
+
+    @responses.activate
+    @override_settings(PROJECTS_SERVICE_URL="http://projects:5000")
+    def test_get_project_raises_error_when_results_missing(self):
+        """Test get_project raises error when results key is missing."""
+        project_id = 1
+
+        responses.add(
+            method=responses.GET,
+            url=f"http://projects:5000/api/projects/{project_id}",
+            json={"unexpected": []},
+            status=200,
+        )
+
+        with self.assertRaises(ProjectsServiceError):
+            get_project(project_id=project_id, user_id=123)
+
+
+    @responses.activate
+    @override_settings(PROJECTS_SERVICE_URL="http://projects:5000")
+    def test_get_project_raises_error_when_results_is_not_a_list(self):
+        """Test get_project raises error when results is not a list."""
+        project_id = 1
+
+        responses.add(
+            method=responses.GET,
+            url=f"http://projects:5000/api/projects/{project_id}",
+            json={"results": {"id": project_id}},
+            status=200,
+        )
+
+        with self.assertRaises(ProjectsServiceError):
+            get_project(project_id=project_id, user_id=123)
+
+
+    @responses.activate
+    @override_settings(PROJECTS_SERVICE_URL="http://projects:5000")
+    def test_get_project_raises_error_when_results_does_not_contain_one_project(self):
+        """Test get_project raises error when results does not contain exactly one project."""
+        project_id = 1
+
+        responses.add(
+            method=responses.GET,
+            url=f"http://projects:5000/api/projects/{project_id}",
+            json={"results": []},
+            status=200,
+        )
+
+        with self.assertRaises(ProjectsServiceError):
+            get_project(project_id=project_id, user_id=123)
