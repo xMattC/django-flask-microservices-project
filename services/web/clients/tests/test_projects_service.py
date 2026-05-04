@@ -561,3 +561,83 @@ class ProjectsClientTests(SimpleTestCase):
 
         with self.assertRaises(ProjectsServiceError):
             update_project(project_id=project_id, user_id=123, payload=request_payload)
+
+
+    # -----------------------------------------------------------------------------------------------------------------
+    # Test cases for delete_project
+    # -----------------------------------------------------------------------------------------------------------------
+
+    @responses.activate
+    @override_settings(PROJECTS_SERVICE_URL="http://projects:5000")
+    def test_delete_project_sends_user_id_header_and_returns_none(self):
+        """Test delete_project calls upstream with user header and returns None."""
+        user_id = 123
+        project_id = 1
+
+        responses.add(
+            method=responses.DELETE,
+            url=f"http://projects:5000/api/projects/{project_id}",
+            status=204,
+        )
+
+        result = delete_project(project_id=project_id, user_id=user_id)
+
+        self.assertIsNone(result)
+        self.assertEqual(len(responses.calls), 1)
+
+        request = responses.calls[0].request
+        self.assertEqual(request.headers.get("X-User-ID"), str(user_id))
+
+
+    @responses.activate
+    @override_settings(PROJECTS_SERVICE_URL="http://projects:5000")
+    def test_delete_project_raises_unavailable_on_request_exception(self):
+        """Test delete_project raises ProjectsServiceUnavailable on network failure."""
+        user_id = 123
+        project_id = 1
+
+        def raise_error(request):
+            raise requests.ConnectionError("Service down")
+
+        responses.add_callback(
+            method=responses.DELETE,
+            url=f"http://projects:5000/api/projects/{project_id}",
+            callback=raise_error,
+        )
+
+        with self.assertRaises(ProjectsServiceUnavailable):
+            delete_project(project_id=project_id, user_id=user_id)
+
+
+    @responses.activate
+    @override_settings(PROJECTS_SERVICE_URL="http://projects:5000")
+    def test_delete_project_raises_error_on_upstream_error_status(self):
+        """Test delete_project raises error when upstream returns an error status."""
+        project_id = 1
+
+        responses.add(
+            method=responses.DELETE,
+            url=f"http://projects:5000/api/projects/{project_id}",
+            json={"message": "Project not found"},
+            status=404,
+        )
+
+        with self.assertRaises(ProjectsServiceError):
+            delete_project(project_id=project_id, user_id=123)
+
+
+    @responses.activate
+    @override_settings(PROJECTS_SERVICE_URL="http://projects:5000")
+    def test_delete_project_raises_error_on_unexpected_success_status(self):
+        """Test delete_project raises error when upstream does not return 204."""
+        project_id = 1
+
+        responses.add(
+            method=responses.DELETE,
+            url=f"http://projects:5000/api/projects/{project_id}",
+            json={"results": []},
+            status=200,
+        )
+
+        with self.assertRaises(ProjectsServiceError):
+        delete_project(project_id=project_id, user_id=123)
