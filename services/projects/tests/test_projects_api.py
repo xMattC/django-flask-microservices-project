@@ -22,9 +22,9 @@ def get_first_result(response):
     return get_response_data(response)["results"][0]
 
 
-# -----------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------------------
 # PROJECT CREATE TESTS
-# -----------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------------------
 
 
 def test_create_project_success(app, client):
@@ -33,7 +33,7 @@ def test_create_project_success(app, client):
         "description": "My first project",
     }
 
-    response = client.post("/projects", json=payload, headers=USER_HEADERS)
+    response = client.post("/api/projects", json=payload, headers=USER_HEADERS)
 
     assert response.status_code == 201
 
@@ -58,10 +58,10 @@ def test_create_project_missing_user_header(client):
         "description": "My first project",
     }
 
-    response = client.post("/projects", json=payload)
+    response = client.post("/api/projects", json=payload)
 
     assert response.status_code == 400
-    assert get_response_data(response) == {"error": "Missing X-User-ID header"}
+    assert response.get_json()["message"] == "Missing X-User-ID header"
 
 
 def test_create_project_missing_name(client):
@@ -69,10 +69,10 @@ def test_create_project_missing_name(client):
         "description": "My first project",
     }
 
-    response = client.post("/projects", json=payload, headers=USER_HEADERS)
+    response = client.post("/api/projects", json=payload, headers=USER_HEADERS)
 
-    assert response.status_code == 400
-    assert get_response_data(response) == {"error": "Missing project name"}
+    assert response.status_code == 422
+    assert "errors" in response.get_json()
 
 
 def test_create_project_empty_name(client):
@@ -81,19 +81,19 @@ def test_create_project_empty_name(client):
         "description": "My first project",
     }
 
-    response = client.post("/projects", json=payload, headers=USER_HEADERS)
+    response = client.post("/api/projects", json=payload, headers=USER_HEADERS)
 
-    assert response.status_code == 400
-    assert get_response_data(response) == {"error": "Missing project name"}
+    assert response.status_code == 422
+    assert "errors" in response.get_json()
 
 
-# -----------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------------------
 # PROJECT READ (LIST) TESTS
-# -----------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------------------
 
 
 def test_get_projects_returns_empty_list(client):
-    response = client.get("/projects", headers=USER_HEADERS)
+    response = client.get("/api/projects", headers=USER_HEADERS)
 
     assert response.status_code == 200
 
@@ -108,10 +108,10 @@ def test_get_all_projects(client):
     payload_1 = {"name": "Project 1", "description": "An initial project"}
     payload_2 = {"name": "Project 2", "description": "A second project"}
 
-    client.post("/projects", json=payload_1, headers=USER_HEADERS)
-    client.post("/projects", json=payload_2, headers=USER_HEADERS)
+    client.post("/api/projects", json=payload_1, headers=USER_HEADERS)
+    client.post("/api/projects", json=payload_2, headers=USER_HEADERS)
 
-    response = client.get("/projects", headers=USER_HEADERS)
+    response = client.get("/api/projects", headers=USER_HEADERS)
 
     assert response.status_code == 200
 
@@ -127,10 +127,10 @@ def test_get_projects_limited_to_user(client):
     other_user_payload = {"name": "Other Project"}
     current_user_payload = {"name": "My Project"}
 
-    client.post("/projects", json=other_user_payload, headers=OTHER_USER_HEADERS)
-    client.post("/projects", json=current_user_payload, headers=USER_HEADERS)
+    client.post("/api/projects", json=other_user_payload, headers=OTHER_USER_HEADERS)
+    client.post("/api/projects", json=current_user_payload, headers=USER_HEADERS)
 
-    response = client.get("/projects", headers=USER_HEADERS)
+    response = client.get("/api/projects", headers=USER_HEADERS)
 
     assert response.status_code == 200
 
@@ -141,15 +141,15 @@ def test_get_projects_limited_to_user(client):
 
 
 def test_get_projects_missing_user_header(client):
-    response = client.get("/projects")
+    response = client.get("/api/projects")
 
     assert response.status_code == 400
-    assert get_response_data(response) == {"error": "Missing X-User-ID header"}
+    assert response.get_json()["message"] == "Missing X-User-ID header"
 
 
-# -----------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------------------
 # PROJECT READ (DETAIL) TESTS
-# -----------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------------------
 
 
 def test_get_project_detail_success(client):
@@ -158,13 +158,13 @@ def test_get_project_detail_success(client):
         "description": "Project for detail test",
     }
 
-    response = client.post("/projects", json=payload, headers=USER_HEADERS)
+    response = client.post("/api/projects", json=payload, headers=USER_HEADERS)
 
     assert response.status_code == 201
 
     project_id = get_first_result(response)["id"]
 
-    response = client.get(f"/projects/{project_id}", headers=USER_HEADERS)
+    response = client.get(f"/api/projects/{project_id}", headers=USER_HEADERS)
 
     assert response.status_code == 200
 
@@ -177,10 +177,10 @@ def test_get_project_detail_success(client):
 
 
 def test_get_project_detail_not_found(client):
-    response = client.get("/projects/999", headers=USER_HEADERS)
+    response = client.get("/api/projects/999", headers=USER_HEADERS)
 
     assert response.status_code == 404
-    assert get_response_data(response) == {"error": "Project not found"}
+    assert response.get_json()["message"] == "Project not found"
 
 
 def test_get_project_detail_other_user_returns_404(client):
@@ -189,28 +189,28 @@ def test_get_project_detail_other_user_returns_404(client):
         "description": "Project for detail test",
     }
 
-    response = client.post("/projects", json=payload, headers=USER_HEADERS)
+    response = client.post("/api/projects", json=payload, headers=USER_HEADERS)
 
     assert response.status_code == 201
 
     project_id = get_first_result(response)["id"]
 
-    response = client.get(f"/projects/{project_id}", headers={"X-User-ID": "456"})
+    response = client.get(f"/api/projects/{project_id}", headers={"X-User-ID": "456"})
 
     assert response.status_code == 404
-    assert get_response_data(response) == {"error": "Project not found"}
+    assert response.get_json()["message"] == "Project not found"
 
 
 def test_get_project_detail_missing_user_header(client):
-    response = client.get("/projects/1")
+    response = client.get("/api/projects/1")
 
     assert response.status_code == 400
-    assert get_response_data(response) == {"error": "Missing X-User-ID header"}
+    assert response.get_json()["message"] == "Missing X-User-ID header"
 
 
-# -----------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------------------
 # PROJECT UPDATE TESTS
-# -----------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------------------
 
 
 def test_update_project_success(client):
@@ -218,14 +218,14 @@ def test_update_project_success(client):
         "name": "Old Project",
         "description": "Old description",
     }
-    response = client.post("/projects", json=create_payload, headers=USER_HEADERS)
+    response = client.post("/api/projects", json=create_payload, headers=USER_HEADERS)
 
     assert response.status_code == 201
 
     project_id = get_first_result(response)["id"]
 
     update_payload = {"name": "Updated Project", "description": "Updated description"}
-    response = client.patch(f"/projects/{project_id}", json=update_payload, headers=USER_HEADERS)
+    response = client.patch(f"/api/projects/{project_id}", json=update_payload, headers=USER_HEADERS)
 
     assert response.status_code == 200
 
@@ -242,11 +242,11 @@ def test_update_project_partial_name_only(client):
         "name": "Old Project",
         "description": "Old description",
     }
-    response = client.post("/projects", json=create_payload, headers=USER_HEADERS)
+    response = client.post("/api/projects", json=create_payload, headers=USER_HEADERS)
     project_id = get_first_result(response)["id"]
 
     update_payload = {"name": "Updated Project"}
-    response = client.patch(f"/projects/{project_id}", json=update_payload, headers=USER_HEADERS)
+    response = client.patch(f"/api/projects/{project_id}", json=update_payload, headers=USER_HEADERS)
 
     assert response.status_code == 200
 
@@ -257,76 +257,78 @@ def test_update_project_partial_name_only(client):
 
 
 def test_update_project_missing_user_header(client):
-    response = client.patch("/projects/1", json={"name": "Updated Project"})
+    response = client.patch("/api/projects/1", json={"name": "Updated Project"})
 
     assert response.status_code == 400
-    assert get_response_data(response) == {"error": "Missing X-User-ID header"}
+    assert response.get_json()["message"] == "Missing X-User-ID header"
 
 
 def test_update_project_not_found(client):
     payload = {"name": "Updated Project"}
-    response = client.patch("/projects/999", json=payload, headers=USER_HEADERS)
+    response = client.patch("/api/projects/999", json=payload, headers=USER_HEADERS)
 
     assert response.status_code == 404
-    assert get_response_data(response) == {"error": "Project not found"}
+    assert response.get_json()["message"] == "Project not found"
 
 
 def test_update_project_other_user_returns_404(client):
     post_payload = {"name": "My Project"}
-    response = client.post("/projects", json=post_payload, headers=USER_HEADERS)
+    response = client.post("/api/projects", json=post_payload, headers=USER_HEADERS)
 
     project_id = get_first_result(response)["id"]
 
     update_payload = {"name": "Updated Project"}
-    response = client.patch(f"/projects/{project_id}", json=update_payload, headers={"X-User-ID": "999"})
+    response = client.patch(f"/api/projects/{project_id}", json=update_payload, headers={"X-User-ID": "999"})
 
     assert response.status_code == 404
-    assert get_response_data(response) == {"error": "Project not found"}
+    assert response.get_json()["message"] == "Project not found"
 
 
-# -----------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------------------
 # PROJECT DELETE TESTS
-# -----------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------------------
+
+
 def test_delete_project_success(client):
     payload = {"name": "Project to delete"}
-    response = client.post("/projects", json=payload, headers=USER_HEADERS)
+    response = client.post("/api/projects", json=payload, headers=USER_HEADERS)
     assert response.status_code == 201
 
     project_id = get_first_result(response)["id"]
-    response = client.delete(f"/projects/{project_id}", headers=USER_HEADERS)
+    response = client.delete(f"/api/projects/{project_id}", headers=USER_HEADERS)
     assert response.status_code == 204
 
-    response = client.get(f"/projects/{project_id}", headers=USER_HEADERS)
+    response = client.get(f"/api/projects/{project_id}", headers=USER_HEADERS)
 
     assert response.status_code == 404
 
 
 def test_delete_project_missing_user_header(client):
-    response = client.delete("/projects/1")
+    response = client.delete("/api/projects/1")
 
     assert response.status_code == 400
-    assert get_response_data(response) == {"error": "Missing X-User-ID header"}
+    assert response.get_json()["message"] == "Missing X-User-ID header"
 
 
 def test_delete_project_not_found(client):
-    response = client.delete("/projects/999", headers=USER_HEADERS)
+    response = client.delete("/api/projects/999", headers=USER_HEADERS)
 
     assert response.status_code == 404
-    assert get_response_data(response) == {"error": "Project not found"}
+    assert response.get_json()["message"] == "Project not found"
 
 
 def test_delete_project_other_user_returns_404(client):
     payload = {"name": "Project to delete"}
-    response = client.post("/projects", json=payload, headers=USER_HEADERS)
+    response = client.post("/api/projects", json=payload, headers=USER_HEADERS)
 
     assert response.status_code == 201
 
     project_id = get_first_result(response)["id"]
-    response = client.delete(f"/projects/{project_id}", headers=OTHER_USER_HEADERS)
+    response = client.delete(f"/api/projects/{project_id}", headers=OTHER_USER_HEADERS)
 
     assert response.status_code == 404
-    assert get_response_data(response) == {"error": "Project not found"}
+    assert response.get_json()["message"] == "Project not found"
 
-    response = client.get(f"/projects/{project_id}", headers=USER_HEADERS)
+    response = client.get(f"/api/projects/{project_id}", headers=USER_HEADERS)
 
     assert response.status_code == 200
