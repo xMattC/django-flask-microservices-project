@@ -7,6 +7,7 @@ from clients.projects_service import (
     ProjectsServiceError,
     ProjectsServiceUnavailable,
     create_project,
+    delete_project,
     get_project,
     get_projects,
     update_project,
@@ -640,4 +641,4 @@ class ProjectsClientTests(SimpleTestCase):
         )
 
         with self.assertRaises(ProjectsServiceError):
-        delete_project(project_id=project_id, user_id=123)
+            delete_project(project_id=project_id, user_id=123)
