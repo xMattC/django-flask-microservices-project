@@ -9,7 +9,7 @@ from clients.projects_service import (
     create_project,
     get_project,
     get_projects,
-    # update_project,
+    update_project,
 )
 
 
