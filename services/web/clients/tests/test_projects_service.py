@@ -1,12 +1,15 @@
 import requests
 import responses
+import json
 from django.test import SimpleTestCase, override_settings
 
 from clients.projects_service import (
-    get_projects,
-    get_project,
-    ProjectsServiceUnavailable,
     ProjectsServiceError,
+    ProjectsServiceUnavailable,
+    create_project,
+    get_project,
+    get_projects,
+    # update_project,
 )
 
 
@@ -406,3 +409,155 @@ class ProjectsClientTests(SimpleTestCase):
 
         with self.assertRaises(ProjectsServiceError):
             create_project(user_id=123, payload=request_payload)
+
+    # -----------------------------------------------------------------------------------------------------------------
+    # Test cases for update_project
+    # -----------------------------------------------------------------------------------------------------------------
+
+    @responses.activate
+    @override_settings(PROJECTS_SERVICE_URL="http://projects:5000")
+    def test_update_project_sends_user_id_header_payload_and_returns_project(self):
+        """Test update_project calls upstream with user header, payload, and returns one project."""
+        user_id = 123
+        project_id = 1
+
+        request_payload = {
+            "name": "Updated Project",
+            "description": "Updated description",
+        }
+
+        response_payload = {
+            "results": [
+                {"id": project_id, "name": "Updated Project", "description": "Updated description"},
+            ],
+        }
+
+        responses.add(
+            method=responses.PATCH,
+            url=f"http://projects:5000/api/projects/{project_id}",
+            json=response_payload,
+            status=200,
+        )
+
+        result = update_project(project_id=project_id, user_id=user_id, payload=request_payload)
+
+        self.assertEqual(result, response_payload["results"][0])
+        self.assertEqual(len(responses.calls), 1)
+
+        request = responses.calls[0].request
+        sent_payload = json.loads(request.body.decode("utf-8"))
+
+        self.assertEqual(request.headers.get("X-User-ID"), str(user_id))
+        self.assertEqual(request.headers.get("Content-Type"), "application/json")
+        self.assertEqual(sent_payload, request_payload)
+
+
+    @responses.activate
+    @override_settings(PROJECTS_SERVICE_URL="http://projects:5000")
+    def test_update_project_raises_unavailable_on_request_exception(self):
+        """Test update_project raises ProjectsServiceUnavailable on network failure."""
+        user_id = 123
+        project_id = 1
+        request_payload = {"name": "Updated Project"}
+
+        def raise_error(request):
+            raise requests.ConnectionError("Service down")
+
+        responses.add_callback(
+            method=responses.PATCH,
+            url=f"http://projects:5000/api/projects/{project_id}",
+            callback=raise_error,
+        )
+
+        with self.assertRaises(ProjectsServiceUnavailable):
+            update_project(project_id=project_id, user_id=user_id, payload=request_payload)
+
+
+    @responses.activate
+    @override_settings(PROJECTS_SERVICE_URL="http://projects:5000")
+    def test_update_project_raises_error_on_upstream_error_status(self):
+        """Test update_project raises error when upstream returns an error status."""
+        project_id = 1
+        request_payload = {"name": "Updated Project"}
+
+        responses.add(
+            method=responses.PATCH,
+            url=f"http://projects:5000/api/projects/{project_id}",
+            json={"message": "Project not found"},
+            status=404,
+        )
+
+        with self.assertRaises(ProjectsServiceError):
+            update_project(project_id=project_id, user_id=123, payload=request_payload)
+
+
+    @responses.activate
+    @override_settings(PROJECTS_SERVICE_URL="http://projects:5000")
+    def test_update_project_raises_error_on_invalid_json(self):
+        """Test update_project raises error when response JSON is invalid."""
+        project_id = 1
+        request_payload = {"name": "Updated Project"}
+
+        responses.add(
+            method=responses.PATCH,
+            url=f"http://projects:5000/api/projects/{project_id}",
+            body="not-json",
+            status=200,
+        )
+
+        with self.assertRaises(ProjectsServiceError):
+            update_project(project_id=project_id, user_id=123, payload=request_payload)
+
+
+    @responses.activate
+    @override_settings(PROJECTS_SERVICE_URL="http://projects:5000")
+    def test_update_project_raises_error_when_results_missing(self):
+        """Test update_project raises error when results key is missing."""
+        project_id = 1
+        request_payload = {"name": "Updated Project"}
+
+        responses.add(
+            method=responses.PATCH,
+            url=f"http://projects:5000/api/projects/{project_id}",
+            json={"unexpected": []},
+            status=200,
+        )
+
+        with self.assertRaises(ProjectsServiceError):
+            update_project(project_id=project_id, user_id=123, payload=request_payload)
+
+
+    @responses.activate
+    @override_settings(PROJECTS_SERVICE_URL="http://projects:5000")
+    def test_update_project_raises_error_when_results_is_not_a_list(self):
+        """Test update_project raises error when results is not a list."""
+        project_id = 1
+        request_payload = {"name": "Updated Project"}
+
+        responses.add(
+            method=responses.PATCH,
+            url=f"http://projects:5000/api/projects/{project_id}",
+            json={"results": {"id": project_id}},
+            status=200,
+        )
+
+        with self.assertRaises(ProjectsServiceError):
+            update_project(project_id=project_id, user_id=123, payload=request_payload)
+
+
+    @responses.activate
+    @override_settings(PROJECTS_SERVICE_URL="http://projects:5000")
+    def test_update_project_raises_error_when_results_does_not_contain_one_project(self):
+        """Test update_project raises error when results does not contain exactly one project."""
+        project_id = 1
+        request_payload = {"name": "Updated Project"}
+
+        responses.add(
+            method=responses.PATCH,
+            url=f"http://projects:5000/api/projects/{project_id}",
+            json={"results": []},
+            status=200,
+        )
+
+        with self.assertRaises(ProjectsServiceError):
+            update_project(project_id=project_id, user_id=123, payload=request_payload)
