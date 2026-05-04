@@ -62,3 +62,9 @@ h6 {
   background-color: #1d4ed8;
   border-color: #1d4ed8;
 }
+
+.projects-scroll-window {
+  max-height: 100px;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}

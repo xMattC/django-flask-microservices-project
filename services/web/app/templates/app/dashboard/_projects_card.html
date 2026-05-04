@@ -4,16 +4,40 @@
       <h5 class="card-title">Projects</h5>
 
       {% if projects_error %}
-        <p class="text-warning mb-0">{{ projects_error }}</p>
+        <p class="text-warning mb-3">{{ projects_error }}</p>
       {% elif projects %}
-        <ul class="mb-0 ps-3">
-          {% for project in projects %}
-            <li>{{ project.name }}</li>
-          {% endfor %}
-        </ul>
+        <form method="post" class="mb-3">
+          {% csrf_token %}
+          <input type="hidden" name="form_type" value="select_project">
+
+          <select name="project_id" class="form-select" onchange="this.form.submit()">
+            <option value="">Select project</option>
+
+            {% for project in projects %}
+              <option value="{{ project.id }}"
+                {% if selected_project and project.id == selected_project.id %}selected{% endif %}
+              >
+                {{ project.name }}
+              </option>
+            {% endfor %}
+          </select>
+        </form>
+
+        {% if selected_project %}
+          <p class="mb-3">
+            <strong>Selected:</strong> {{ selected_project.name }}
+          </p>
+        {% else %}
+          <p class="text-muted mb-3">No project selected.</p>
+        {% endif %}
+
       {% else %}
-        <p class="text-muted mb-0">No projects found.</p>
+        <p class="text-muted mb-3">No projects found.</p>
       {% endif %}
+
+      <a href="{% url 'app:projects' %}" class="btn btn-outline-primary btn-sm">
+        Manage projects
+      </a>
     </div>
   </div>
 </div>

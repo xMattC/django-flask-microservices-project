@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  .projects-scroll-window {
+    max-height: 650px;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+  }
+</style>
+
+<div class="row mt-5">
+  <div class="col-12">
+    <div class="card shadow-sm border-0">
+      <div class="card-body p-4">
+        <div class="d-flex align-items-center justify-content-between gap-3">
+          <div>
+            <h1 class="h3 mb-2">Projects</h1>
+            <p class="text-muted mb-0">
+              Create, rename, and delete your projects.
+            </p>
+          </div>
+
+          <a href="{% url 'app:dashboard' %}" class="btn btn-outline-secondary btn-sm">
+            Back to dashboard
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row mt-4">
+  <div class="col-lg-5 mb-3">
+    <div class="card shadow-sm border-0">
+      <div class="card-body">
+        <h5 class="card-title">Create project</h5>
+
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="form_type" value="create_project">
+
+          {{ project_create_form.name }}
+
+          {% if project_create_error %}
+            <p class="text-warning small mt-2 mb-0">{{ project_create_error }}</p>
+          {% endif %}
+
+          <button type="submit" class="btn btn-primary btn-sm mt-3">
+            Create project
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-7 mb-3">
+    <div class="card shadow-sm border-0">
+      <div class="card-body">
+        <h5 class="card-title">Manage projects</h5>
+
+        {% if projects_error %}
+          <p class="text-warning mb-0">{{ projects_error }}</p>
+
+        {% elif projects %}
+          {% if project_update_error %}
+            <p class="text-warning small">{{ project_update_error }}</p>
+          {% endif %}
+
+          {% if project_delete_error %}
+            <p class="text-warning small">{{ project_delete_error }}</p>
+          {% endif %}
+
+          <div class="projects-scroll-window">
+            {% for project in projects|dictsort:"name" %}
+              <div class="border rounded p-3 mb-3">
+                <form method="post" class="mb-2">
+                  {% csrf_token %}
+                  <input type="hidden" name="form_type" value="update_project">
+                  <input type="hidden" name="project_id" value="{{ project.id }}">
+
+                  <div class="input-group">
+                    <input
+                      type="text"
+                      name="name"
+                      value="{{ project.name }}"
+                      class="form-control"
+                      maxlength="255"
+                      required
+                    >
+                    <button type="submit" class="btn btn-secondary btn-sm">
+                      Rename
+                    </button>
+                  </div>
+                </form>
+
+                <form method="post">
+                  {% csrf_token %}
+                  <input type="hidden" name="form_type" value="delete_project">
+                  <input type="hidden" name="project_id" value="{{ project.id }}">
+
+                  <button type="submit" class="btn btn-outline-danger btn-sm">
+                    Delete
+                  </button>
+                </form>
+              </div>
+            {% endfor %}
+          </div>
+
+        {% else %}
+          <p class="text-muted mb-0">No projects found.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
