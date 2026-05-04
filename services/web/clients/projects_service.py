@@ -22,5 +22,12 @@ def get_projects(user_id: int) -> list[dict]:
     if response.status_code >= 400:
         raise ProjectsServiceError(f"Projects service returned {response.status_code}")
 
-    data = response.json()
-    return data.get("results", [])
+    try:
+        data = response.json()
+    except ValueError as exc:
+        raise ProjectsServiceError("Projects service returned invalid JSON.") from exc
+
+    if "results" not in data or not isinstance(data["results"], list):
+        raise ProjectsServiceError("Projects service returned invalid data structure.")
+
+    return data["results"]

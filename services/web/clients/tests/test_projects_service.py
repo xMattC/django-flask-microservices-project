@@ -6,7 +6,21 @@ from clients.projects_service import get_projects, ProjectsServiceUnavailable, P
 
 
 class ProjectsClientTests(SimpleTestCase):
-    """Test Projects service client."""
+    """Test Projects service client.
+
+    Service Client Test Coverage Checklist:
+    - Happy path returns expected data
+    - Required headers are sent (e.g. auth / X-User-ID)
+    - Network failures raise ServiceUnavailable
+    - Upstream 4xx/5xx responses raise ServiceError
+    - Invalid JSON responses raise ServiceError
+    - Response structure is validated
+    - Incorrect data types are rejected
+    """
+
+    # -----------------------------------------------------------------------------------------------------------------
+    # Test cases for get_projects
+    # -----------------------------------------------------------------------------------------------------------------
 
     @responses.activate
     @override_settings(PROJECTS_SERVICE_URL="http://projects:5000")
@@ -69,12 +83,40 @@ class ProjectsClientTests(SimpleTestCase):
 
     @responses.activate
     @override_settings(PROJECTS_SERVICE_URL="http://projects:5000")
-    def test_get_projects_raises_error_when_results_missing(self):
+    def test_get_projects_raises_error_when_results_key_is_missing(self):
         """Test get_projects raises error when results key is missing."""
         responses.add(
             method=responses.GET,
             url="http://projects:5000/api/projects",
             json={"unexpected": []},
+            status=200,
+        )
+
+        with self.assertRaises(ProjectsServiceError):
+            get_projects(user_id=123)
+
+    @responses.activate
+    @override_settings(PROJECTS_SERVICE_URL="http://projects:5000")
+    def test_get_projects_raises_error_on_upstream_error_status(self):
+        """Test get_projects raises error when upstream returns an error status."""
+        responses.add(
+            method=responses.GET,
+            url="http://projects:5000/api/projects",
+            json={"message": "Missing X-User-ID header"},
+            status=400,
+        )
+
+        with self.assertRaises(ProjectsServiceError):
+            get_projects(user_id=123)
+
+    @responses.activate
+    @override_settings(PROJECTS_SERVICE_URL="http://projects:5000")
+    def test_get_projects_raises_error_when_results_is_not_a_list(self):
+        """Test get_projects raises error when results is not a list."""
+        responses.add(
+            method=responses.GET,
+            url="http://projects:5000/api/projects",
+            json={"results": {"id": 1}},
             status=200,
         )
 
