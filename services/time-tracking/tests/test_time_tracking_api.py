@@ -266,6 +266,7 @@ def test_get_time_entry_detail_missing_user_header(client):
     assert response.status_code == 400
     assert response.get_json()["message"] == "Missing X-User-ID header"
 
+
 # ---------------------------------------------------------------------------------------------------------------------
 # TIME ENTRY STOP TESTS
 # ---------------------------------------------------------------------------------------------------------------------
@@ -292,3 +293,63 @@ def test_stop_time_entry_success(client):
     assert entry_data["id"] == entry_id
     assert entry_data["ended_at"] is not None
     assert entry_data["duration_seconds"] is not None
+
+
+def test_stop_time_entry_already_stopped(client):
+    payload = {
+        "project_id": 1,
+        "description": "Already stopped session",
+    }
+
+    response = client.post("/api/time-entries", json=payload, headers=USER_HEADERS)
+
+    assert response.status_code == 201
+
+    entry_id = get_first_result(response)["id"]
+
+    response = client.patch(f"/api/time-entries/{entry_id}/stop", headers=USER_HEADERS)
+
+    assert response.status_code == 200
+
+    first_ended_at = get_first_result(response)["ended_at"]
+
+    response = client.patch(f"/api/time-entries/{entry_id}/stop", headers=USER_HEADERS)
+
+    assert response.status_code == 200
+
+    entry_data = get_first_result(response)
+
+    assert entry_data["ended_at"] == first_ended_at
+    assert entry_data["duration_seconds"] is not None
+
+
+def test_stop_time_entry_not_found(client):
+    response = client.patch("/api/time-entries/999/stop", headers=USER_HEADERS)
+
+    assert response.status_code == 404
+    assert response.get_json()["message"] == "Time entry not found"
+
+
+def test_stop_time_entry_other_user_returns_404(client):
+    payload = {
+        "project_id": 1,
+        "description": "Other user stop test",
+    }
+
+    response = client.post("/api/time-entries", json=payload, headers=USER_HEADERS)
+
+    assert response.status_code == 201
+
+    entry_id = get_first_result(response)["id"]
+
+    response = client.patch(f"/api/time-entries/{entry_id}/stop", headers=OTHER_USER_HEADERS)
+
+    assert response.status_code == 404
+    assert response.get_json()["message"] == "Time entry not found"
+
+
+def test_stop_time_entry_missing_user_header(client):
+    response = client.patch("/api/time-entries/1/stop")
+
+    assert response.status_code == 400
+    assert response.get_json()["message"] == "Missing X-User-ID header"
