@@ -15,3 +15,18 @@ def test_create_time_entry_with_required_fields():
     assert entry.owner_user_id == "123"
     assert entry.project_id == 10
     assert entry.started_at == started_at
+
+
+def test_time_entry_accepts_optional_description():
+    from datetime import datetime, timezone
+
+    started_at = datetime(2026, 1, 1, 9, 0, tzinfo=timezone.utc)
+
+    entry = TimeEntry(
+        owner_user_id="123",
+        project_id=10,
+        started_at=started_at,
+        description="Worked on API design",
+    )
+
+    assert entry.description == "Worked on API design"
