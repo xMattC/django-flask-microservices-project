@@ -9,9 +9,9 @@ services:
       args:
         DEV: "true"
     ports:
-      - "8000:8000"  # Expose Django to host (browser/Postman)
+      - "8000:8000"
     volumes:
-      - ./services/web:/web  # Enable live reload during development
+      - ./services/web:/web # Enable live reload during development
     command: >
       sh -c "python manage.py wait_for_db &&
              python manage.py runserver 0.0.0.0:8000"
@@ -28,6 +28,21 @@ services:
         condition: service_healthy
 
   # ------------------------------------------------------------------
+  # Django BFF - PostgreSQL database
+  # ------------------------------------------------------------------
+  db:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    volumes:
+      - dev-db-data:/var/lib/postgresql/data # Persist Django DB data
+    environment:
+      - POSTGRES_DB=devdb
+      - POSTGRES_USER=devuser
+      - POSTGRES_PASSWORD=changeme
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-d", "devdb", "-U", "devuser" ]
+
+  # ------------------------------------------------------------------
   # Flask Projects Microservice (owns project data + logic)
   # ------------------------------------------------------------------
   projects:
@@ -38,11 +53,12 @@ services:
         DEV: "true"
     working_dir: /app
     ports:
-      - "5000:5000"  # Expose for Postman testing
+      - "5000:5000"
     volumes:
-      - ./services/projects:/app  # Live reload
+      - ./services/projects:/app # Live reload
     command: >
-      sh -c "flask --app app.main:create_app run --host=0.0.0.0 --port=5000 --debug"
+      sh -c "flask --app app.main:create_app run --host=0.0.0.0 --port=5000
+      --debug"
     environment:
       - FLASK_ENV=development
       - FLASK_DEBUG=1
@@ -59,38 +75,70 @@ services:
         condition: service_healthy
 
   # ------------------------------------------------------------------
-  # PostgreSQL for Django (web service)
-  # ------------------------------------------------------------------
-  db:
-    image: postgres:15-alpine
-    restart: unless-stopped
-    volumes:
-      - dev-db-data:/var/lib/postgresql/data  # Persist Django DB data
-    environment:
-      - POSTGRES_DB=devdb
-      - POSTGRES_USER=devuser
-      - POSTGRES_PASSWORD=changeme
-    healthcheck:
-      test: ["CMD", "pg_isready", "-q", "-d", "devdb", "-U", "devuser"]
-
-  # ------------------------------------------------------------------
-  # PostgreSQL for Projects Service
+  # Flask Projects Microservice - PostgreSQL Database
   # ------------------------------------------------------------------
   projects-db:
     image: postgres:15-alpine
     restart: unless-stopped
     volumes:
-      - projects-db-data:/var/lib/postgresql/data  # Persist projects DB data
+      - projects-db-data:/var/lib/postgresql/data # Persist projects DB data
     environment:
       - POSTGRES_DB=projectsdb
       - POSTGRES_USER=projectsuser
       - POSTGRES_PASSWORD=changeme
     healthcheck:
-      test: ["CMD", "pg_isready", "-q", "-d", "projectsdb", "-U", "projectsuser"]
+      test: [ "CMD", "pg_isready", "-q", "-d", "projectsdb", "-U", "projectsuser" ]
 
-# ------------------------------------------------------------------
-# Named volumes (data persistence)
-# ------------------------------------------------------------------
+  # ------------------------------------------------------------------
+  # Flask Time-Tracking Microservice (owns time tracking data + logic)
+  # ------------------------------------------------------------------
+  time-tracking:
+    build:
+      context: ./services/time-tracking
+      dockerfile: dockerfile
+      args:
+        DEV: "true"
+    working_dir: /app
+    ports:
+      - "5001:5000"
+    volumes:
+      - ./services/time-tracking:/app # Live reload
+    command: >
+      sh -c "flask --app app.main:create_app run --host=0.0.0.0 --port=5000
+      --debug"
+    environment:
+      - FLASK_ENV=development
+      - FLASK_DEBUG=1
+      - PYTHONPATH=/app
+    #   # Database config (time-tracking-db service)
+    #   - DB_HOST=time-tracking-db
+    #   - DB_NAME=time_tracking_db
+    #   - DB_USER=time_tracking_user
+    #   - DB_PASSWORD=changeme
+    #   - DB_PORT=5432
+    # depends_on:
+    #   time-tracking-db:
+    #     condition: service_healthy
+
+
+    # ------------------------------------------------------------------
+    # Flask Time-Tracking Microservice - PostgreSQL Database
+    # ------------------------------------------------------------------
+    # time-tracking-db:
+    #   image: postgres:15-alpine
+    #   restart: unless-stopped
+    #   volumes:
+    #     - time-tracking-db-data:/var/lib/postgresql/data # Persist time-tracking DB data
+    #   environment:
+    #     - POSTGRES_DB=time_tracking_db
+    #     - POSTGRES_USER=time_tracking_user
+    #     - POSTGRES_PASSWORD=changeme
+    #   healthcheck:
+    #     test: [ "CMD", "pg_isready", "-q", "-d", "time_tracking_db", "-U", "time_tracking_user" ]
+
+    # ------------------------------------------------------------------
+    # Named volumes (data persistence)
+    # ------------------------------------------------------------------
 volumes:
   dev-db-data:
   projects-db-data:
