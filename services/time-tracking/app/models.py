@@ -4,3 +4,4 @@ class TimeEntry:
         self.owner_user_id = owner_user_id
         self.project_id = project_id
         self.started_at = started_at
+        self.description = description
