@@ -46,3 +46,52 @@ def test_create_time_entry_success(app, client):
     assert entry.description == payload["description"]
     assert entry.ended_at is None
 
+
+def test_create_time_entry_missing_user_header(client):
+    payload = {
+        "project_id": 1,
+        "description": "Initial work session",
+    }
+
+    response = client.post("/api/time-entries", json=payload)
+
+    assert response.status_code == 400
+    assert response.get_json()["message"] == "Missing X-User-ID header"
+
+
+def test_create_time_entry_missing_project_id(client):
+    payload = {
+        "description": "Initial work session",
+    }
+
+    response = client.post("/api/time-entries", json=payload, headers=USER_HEADERS)
+
+    assert response.status_code == 422
+    assert "errors" in response.get_json()
+
+
+def test_create_time_entry_null_project_id(client):
+    payload = {
+        "project_id": None,
+        "description": "Initial work session",
+    }
+
+    response = client.post("/api/time-entries", json=payload, headers=USER_HEADERS)
+
+    assert response.status_code == 422
+    assert "errors" in response.get_json()
+
+
+def test_create_time_entry_optional_description(client):
+    payload = {
+        "project_id": 1,
+    }
+
+    response = client.post("/api/time-entries", json=payload, headers=USER_HEADERS)
+
+    assert response.status_code == 201
+
+    entry_data = get_first_result(response)
+
+    assert entry_data["project_id"] == payload["project_id"]
+    assert entry_data["description"] is None
