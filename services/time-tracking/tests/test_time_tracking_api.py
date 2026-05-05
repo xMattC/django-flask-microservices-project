@@ -389,3 +389,55 @@ def test_update_time_entry_success(client):
     assert entry_data["description"] == update_payload["description"]
     assert entry_data["project_id"] == payload["project_id"]
     assert entry_data["owner_user_id"] == USER_HEADERS["X-User-ID"]
+
+
+def test_update_time_entry_running_entry_returns_409(client):
+    payload = {
+        "project_id": 1,
+        "description": "Running session",
+    }
+
+    response = client.post("/api/time-entries", json=payload, headers=USER_HEADERS)
+    entry_id = get_first_result(response)["id"]
+
+    update_payload = {"description": "Should not update"}
+
+    response = client.patch(f"/api/time-entries/{entry_id}", json=update_payload, headers=USER_HEADERS)
+
+    assert response.status_code == 409
+    assert response.get_json()["message"] == "Cannot update a running time entry"
+
+
+def test_update_time_entry_not_found(client):
+    payload = {"description": "Updated"}
+
+    response = client.patch("/api/time-entries/999", json=payload, headers=USER_HEADERS)
+
+    assert response.status_code == 404
+    assert response.get_json()["message"] == "Time entry not found"
+
+
+def test_update_time_entry_other_user_returns_404(client):
+    payload = {
+        "project_id": 1,
+        "description": "User test",
+    }
+
+    response = client.post("/api/time-entries", json=payload, headers=USER_HEADERS)
+    entry_id = get_first_result(response)["id"]
+
+    client.patch(f"/api/time-entries/{entry_id}/stop", headers=USER_HEADERS)
+
+    update_payload = {"description": "Updated"}
+
+    response = client.patch(f"/api/time-entries/{entry_id}", json=update_payload, headers=OTHER_USER_HEADERS)
+
+    assert response.status_code == 404
+    assert response.get_json()["message"] == "Time entry not found"
+
+
+def test_update_time_entry_missing_user_header(client):
+    response = client.patch("/api/time-entries/1", json={"description": "Updated"})
+
+    assert response.status_code == 400
+    assert response.get_json()["message"] == "Missing X-User-ID header"
