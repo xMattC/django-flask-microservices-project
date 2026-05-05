@@ -47,3 +47,17 @@ def test_ended_at_can_be_none_for_running_entry():
     entry = TimeEntry(owner_user_id="123", project_id=10, started_at=_started())
 
     assert entry.ended_at is None
+
+def test_duration_seconds_returns_none_when_ended_at_is_none():
+    entry = TimeEntry(owner_user_id="123", project_id=10, started_at=_started())
+
+    assert entry.duration_seconds is None
+
+
+def test_duration_seconds_returns_correct_seconds_when_ended_at_is_present():
+    started_at = _started()
+    ended_at = started_at + timedelta(hours=1, minutes=30)
+
+    entry = TimeEntry(owner_user_id="123", project_id=10, started_at=started_at, ended_at=ended_at)
+
+    assert entry.duration_seconds == 5400
