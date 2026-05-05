@@ -13,30 +13,23 @@ This service:
 
 ## Running the Service
 
-### 1. Run the full system (recommended)
-
 From the **project root**:
 
+### 1. Run the full system
 ```bash
 docker compose up --build
 ```
 
-
 ### 2. Run ONLY the time-tracking service
-
 ```bash
 docker compose up --build time-tracking
 ```
 
 
-
 ### 3. Stop everything
-
 ```bash
 docker compose down
 ```
-
-
 
 ## Service URL
 
@@ -56,6 +49,17 @@ Expected:
 
 ```json
 {"status": "ok"}
+```
+### DB health
+
+```bash
+curl http://localhost:5001/db-health
+```
+
+Expected:
+
+```json
+{"database": "ok"}
 ```
 
 ---

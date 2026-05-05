@@ -102,7 +102,9 @@ docker compose run --rm web flake8
 ###  Multiple Commands
 
 ```Bash
-docker compose run --rm web sh -c "python manage.py test && flake8"
+docker compose run --rm web sh -c "python manage.py test && flake8" && \
+docker compose run --rm projects sh -c "pytest && flake8" && \
+docker compose run --rm time-tracking sh -c "pytest && flake8"
 ```
 
 ---
