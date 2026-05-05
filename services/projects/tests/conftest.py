@@ -11,15 +11,14 @@ def app():
     return: Configured Flask application instance.
     """
     app = create_app()
-    app.config.update({"TESTING": True})
+    app.config["TESTING"] = True
 
     with app.app_context():
         db.drop_all()
         db.create_all()
 
-    yield app
+        yield app
 
-    with app.app_context():
         db.session.remove()
         db.drop_all()
 
