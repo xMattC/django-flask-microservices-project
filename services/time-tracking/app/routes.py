@@ -41,13 +41,12 @@ def db_health():
 @routes.post("/time-entries")
 def create_time_entry():
     """Create a new time entry."""
-    user_id = request.headers.get("X-User-ID")
 
+    user_id = request.headers.get("X-User-ID")
     if not user_id:
         return jsonify({"message": "Missing X-User-ID header"}), 400
 
     data = request.get_json() or {}
-
     project_id = data.get("project_id")
     description = data.get("description")
 
@@ -66,11 +65,21 @@ def create_time_entry():
 
     return jsonify({"results": [entry.to_dict()]}), 201
 
+
 @routes.get("/time-entries")
 def list_time_entries():
     """List all time entries."""
     user_id = request.headers.get("X-User-ID")
 
-    entries = TimeEntry.query.filter_by(owner_user_id=user_id).all()
+    if not user_id:
+        return jsonify({"message": "Missing X-User-ID header"}), 400
+
+    query = TimeEntry.query.filter_by(owner_user_id=user_id)
+
+    project_id = request.args.get("project_id")
+    if project_id is not None:
+        query = query.filter_by(project_id=project_id)
+
+    entries = query.all()
 
     return jsonify({"results": [entry.to_dict() for entry in entries]}), 200
