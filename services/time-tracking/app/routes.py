@@ -68,7 +68,7 @@ def create_time_entry():
 
 @routes.get("/time-entries")
 def list_time_entries():
-    """List all time entries. Can be filtered by project_id if provided."""
+    """List all time entries. Can be filtered by project_id and running_only if provided."""
     user_id = request.headers.get("X-User-ID")
 
     if not user_id:
@@ -80,6 +80,25 @@ def list_time_entries():
     if project_id is not None:
         query = query.filter_by(project_id=project_id)
 
+    running_only = request.args.get("running_only")
+    if running_only == "true":
+        query = query.filter(TimeEntry.ended_at.is_(None))
+
     entries = query.all()
 
     return jsonify({"results": [entry.to_dict() for entry in entries]}), 200
+
+@routes.get("/time-entries/<int:entry_id>")
+def get_time_entry_detail(entry_id):
+    """Get a single time entry."""
+    user_id = request.headers.get("X-User-ID")
+
+    if not user_id:
+        return jsonify({"message": "Missing X-User-ID header"}), 400
+
+    entry = TimeEntry.query.filter_by(id=entry_id, owner_user_id=user_id).first()
+
+    if not entry:
+        return jsonify({"message": "Time entry not found"}), 404
+
+    return jsonify({"results": [entry.to_dict()]}), 200
