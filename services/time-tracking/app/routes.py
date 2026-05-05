@@ -155,3 +155,21 @@ def update_time_entry(entry_id):
     db.session.commit()
 
     return jsonify({"results": [entry.to_dict()]}), 200
+
+@routes.delete("/time-entries/<int:entry_id>")
+def delete_time_entry(entry_id):
+    """Delete a time entry."""
+    user_id = request.headers.get("X-User-ID")
+
+    if not user_id:
+        return jsonify({"message": "Missing X-User-ID header"}), 400
+
+    entry = TimeEntry.query.filter_by(id=entry_id, owner_user_id=user_id).first()
+
+    if not entry:
+        return jsonify({"message": "Time entry not found"}), 404
+
+    db.session.delete(entry)
+    db.session.commit()
+
+    return "", 204
