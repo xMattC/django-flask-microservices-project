@@ -203,6 +203,7 @@ def test_get_time_entries_filtered_by_running_only(app, client):
     assert entries[0]["id"] == get_first_result(running_response)["id"]
     assert entries[0]["ended_at"] is None
 
+
 # ---------------------------------------------------------------------------------------------------------------------
 # TIME ENTRY READ (DETAIL) TESTS
 # ---------------------------------------------------------------------------------------------------------------------
@@ -232,3 +233,35 @@ def test_get_time_entry_detail_success(client):
     assert entry_data["owner_user_id"] == USER_HEADERS["X-User-ID"]
     assert entry_data["started_at"] is not None
     assert entry_data["ended_at"] is None
+
+
+def test_get_time_entry_detail_not_found(client):
+    response = client.get("/api/time-entries/999", headers=USER_HEADERS)
+
+    assert response.status_code == 404
+    assert response.get_json()["message"] == "Time entry not found"
+
+
+def test_get_time_entry_detail_other_user_returns_404(client):
+    payload = {
+        "project_id": 1,
+        "description": "Other user detail test",
+    }
+
+    response = client.post("/api/time-entries", json=payload, headers=USER_HEADERS)
+
+    assert response.status_code == 201
+
+    entry_id = get_first_result(response)["id"]
+
+    response = client.get(f"/api/time-entries/{entry_id}", headers=OTHER_USER_HEADERS)
+
+    assert response.status_code == 404
+    assert response.get_json()["message"] == "Time entry not found"
+
+
+def test_get_time_entry_detail_missing_user_header(client):
+    response = client.get("/api/time-entries/1")
+
+    assert response.status_code == 400
+    assert response.get_json()["message"] == "Missing X-User-ID header"
