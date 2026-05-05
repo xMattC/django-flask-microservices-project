@@ -466,3 +466,38 @@ def test_delete_time_entry_success(client):
     response = client.get(f"/api/time-entries/{entry_id}", headers=USER_HEADERS)
 
     assert response.status_code == 404
+
+def test_delete_time_entry_missing_user_header(client):
+    response = client.delete("/api/time-entries/1")
+
+    assert response.status_code == 400
+    assert response.get_json()["message"] == "Missing X-User-ID header"
+
+
+def test_delete_time_entry_not_found(client):
+    response = client.delete("/api/time-entries/999", headers=USER_HEADERS)
+
+    assert response.status_code == 404
+    assert response.get_json()["message"] == "Time entry not found"
+
+
+def test_delete_time_entry_other_user_returns_404(client):
+    payload = {
+        "project_id": 1,
+        "description": "Other user delete test",
+    }
+
+    response = client.post("/api/time-entries", json=payload, headers=USER_HEADERS)
+
+    assert response.status_code == 201
+
+    entry_id = get_first_result(response)["id"]
+
+    response = client.delete(f"/api/time-entries/{entry_id}", headers=OTHER_USER_HEADERS)
+
+    assert response.status_code == 404
+    assert response.get_json()["message"] == "Time entry not found"
+
+    response = client.get(f"/api/time-entries/{entry_id}", headers=USER_HEADERS)
+
+    assert response.status_code == 200
