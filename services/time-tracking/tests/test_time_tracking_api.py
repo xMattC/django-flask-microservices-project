@@ -202,3 +202,33 @@ def test_get_time_entries_filtered_by_running_only(app, client):
     assert len(entries) == 1
     assert entries[0]["id"] == get_first_result(running_response)["id"]
     assert entries[0]["ended_at"] is None
+
+# ---------------------------------------------------------------------------------------------------------------------
+# TIME ENTRY READ (DETAIL) TESTS
+# ---------------------------------------------------------------------------------------------------------------------
+
+
+def test_get_time_entry_detail_success(client):
+    payload = {
+        "project_id": 1,
+        "description": "Detail work session",
+    }
+
+    response = client.post("/api/time-entries", json=payload, headers=USER_HEADERS)
+
+    assert response.status_code == 201
+
+    entry_id = get_first_result(response)["id"]
+
+    response = client.get(f"/api/time-entries/{entry_id}", headers=USER_HEADERS)
+
+    assert response.status_code == 200
+
+    entry_data = get_first_result(response)
+
+    assert entry_data["id"] == entry_id
+    assert entry_data["project_id"] == payload["project_id"]
+    assert entry_data["description"] == payload["description"]
+    assert entry_data["owner_user_id"] == USER_HEADERS["X-User-ID"]
+    assert entry_data["started_at"] is not None
+    assert entry_data["ended_at"] is None

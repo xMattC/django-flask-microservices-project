@@ -68,7 +68,7 @@ def create_time_entry():
 
 @routes.get("/time-entries")
 def list_time_entries():
-    """List all time entries."""
+    """List all time entries. Can be filtered by project_id if provided."""
     user_id = request.headers.get("X-User-ID")
 
     if not user_id:
