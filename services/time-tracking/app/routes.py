@@ -156,6 +156,7 @@ def update_time_entry(entry_id):
 
     return jsonify({"results": [entry.to_dict()]}), 200
 
+
 @routes.delete("/time-entries/<int:entry_id>")
 def delete_time_entry(entry_id):
     """Delete a time entry."""

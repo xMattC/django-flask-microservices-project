@@ -442,6 +442,7 @@ def test_update_time_entry_missing_user_header(client):
     assert response.status_code == 400
     assert response.get_json()["message"] == "Missing X-User-ID header"
 
+
 # ---------------------------------------------------------------------------------------------------------------------
 # TIME ENTRY DELETE TESTS
 # ---------------------------------------------------------------------------------------------------------------------
@@ -466,6 +467,7 @@ def test_delete_time_entry_success(client):
     response = client.get(f"/api/time-entries/{entry_id}", headers=USER_HEADERS)
 
     assert response.status_code == 404
+
 
 def test_delete_time_entry_missing_user_header(client):
     response = client.delete("/api/time-entries/1")
