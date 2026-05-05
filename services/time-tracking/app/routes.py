@@ -88,6 +88,7 @@ def list_time_entries():
 
     return jsonify({"results": [entry.to_dict() for entry in entries]}), 200
 
+
 @routes.get("/time-entries/<int:entry_id>")
 def get_time_entry_detail(entry_id):
     """Get a single time entry."""
@@ -100,5 +101,25 @@ def get_time_entry_detail(entry_id):
 
     if not entry:
         return jsonify({"message": "Time entry not found"}), 404
+
+    return jsonify({"results": [entry.to_dict()]}), 200
+
+
+@routes.patch("/time-entries/<int:entry_id>/stop")
+def stop_time_entry(entry_id):
+    """Stop a running time entry."""
+    user_id = request.headers.get("X-User-ID")
+
+    if not user_id:
+        return jsonify({"message": "Missing X-User-ID header"}), 400
+
+    entry = TimeEntry.query.filter_by(id=entry_id, owner_user_id=user_id).first()
+
+    if not entry:
+        return jsonify({"message": "Time entry not found"}), 404
+
+    entry.ended_at = datetime.now(timezone.utc)
+
+    db.session.commit()
 
     return jsonify({"results": [entry.to_dict()]}), 200
