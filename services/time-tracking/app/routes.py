@@ -65,3 +65,12 @@ def create_time_entry():
     db.session.commit()
 
     return jsonify({"results": [entry.to_dict()]}), 201
+
+@routes.get("/time-entries")
+def list_time_entries():
+    """List all time entries."""
+    user_id = request.headers.get("X-User-ID")
+
+    entries = TimeEntry.query.filter_by(owner_user_id=user_id).all()
+
+    return jsonify({"results": [entry.to_dict() for entry in entries]}), 200
