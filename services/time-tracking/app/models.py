@@ -1,15 +1,26 @@
-class TimeEntry:
+from datetime import datetime, timezone
 
-    def __init__(self, owner_user_id, project_id, started_at, description=None, ended_at=None):
-        self.owner_user_id = owner_user_id
-        self.project_id = project_id
-        self.description = description
-        self.started_at = started_at
-        self.ended_at = ended_at
+from app.extensions import db
 
-        self.id = None
-        self.created_at = None
-        self.updated_at = None
+
+class TimeEntry(db.Model):
+    """Database model for a single tracked time entry."""
+
+    __tablename__ = "time_entries"
+
+    id = db.Column(db.Integer, primary_key=True)
+    owner_user_id = db.Column(db.String(64), nullable=False, index=True)
+    project_id = db.Column(db.Integer, nullable=False, index=True)
+    description = db.Column(db.Text, nullable=True)
+    started_at = db.Column(db.DateTime(timezone=True), nullable=False)
+    ended_at = db.Column(db.DateTime(timezone=True), nullable=True)
+    created_at = db.Column(db.DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(
+        db.DateTime(timezone=True),
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+    )
 
     @property
     def duration_seconds(self):
