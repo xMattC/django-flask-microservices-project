@@ -6,3 +6,11 @@ class TimeEntry:
         self.started_at = started_at
         self.description = description
         self.ended_at = ended_at
+
+    @property
+    def duration_seconds(self):
+        """Return duration in seconds if ended_at is set, otherwise None."""
+        if self.ended_at is None:
+            return None
+
+        return int((self.ended_at - self.started_at).total_seconds())
