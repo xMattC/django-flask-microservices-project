@@ -23,7 +23,6 @@ def test_create_time_entry_success(app, client):
         "project_id": 1,
         "description": "Initial work session",
     }
-
     response = client.post("/api/time-entries", json=payload, headers=USER_HEADERS)
 
     assert response.status_code == 201

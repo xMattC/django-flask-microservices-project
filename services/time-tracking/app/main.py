@@ -29,7 +29,7 @@ def init_extensions(app):
 
 def register_routes(app):
     """Register application routes."""
-    app.register_blueprint(routes)
+    app.register_blueprint(routes, url_prefix="/api")
 
 
 def create_app():
