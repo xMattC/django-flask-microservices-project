@@ -64,6 +64,32 @@ Expected:
 
 ---
 
+## Database & Migrations
+
+### Start database only
+
+```bash
+docker compose up -d time-tracking-db
+```
+
+### Initialise migrations (run once)
+```bash
+docker compose run --rm time-tracking flask --app app.main:create_app db init
+```
+
+### Create a migration
+
+```bash
+docker compose run --rm time-tracking flask --app app.main:create_app db migrate -m "message"
+```
+
+### Apply migrations
+
+```bash
+docker compose run --rm time-tracking flask --app app.main:create_app db upgrade
+```
+
+---
 ## Docker Notes
 
 * Exposed on host port `5001`
