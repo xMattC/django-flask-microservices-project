@@ -118,8 +118,8 @@ def stop_time_entry(entry_id):
     if not entry:
         return jsonify({"message": "Time entry not found"}), 404
 
-    entry.ended_at = datetime.now(timezone.utc)
-
-    db.session.commit()
+    if entry.ended_at is None:
+        entry.ended_at = datetime.now(timezone.utc)
+        db.session.commit()
 
     return jsonify({"results": [entry.to_dict()]}), 200
