@@ -89,9 +89,6 @@ services:
     healthcheck:
       test: [ "CMD", "pg_isready", "-q", "-d", "projectsdb", "-U", "projectsuser" ]
 
-  # ------------------------------------------------------------------
-  # Flask Time-Tracking Microservice (owns time tracking data + logic)
-  # ------------------------------------------------------------------
   time-tracking:
     build:
       context: ./services/time-tracking
@@ -102,7 +99,7 @@ services:
     ports:
       - "5001:5000"
     volumes:
-      - ./services/time-tracking:/app # Live reload
+      - ./services/time-tracking:/app
     command: >
       sh -c "flask --app app.main:create_app run --host=0.0.0.0 --port=5000
       --debug"
@@ -110,35 +107,29 @@ services:
       - FLASK_ENV=development
       - FLASK_DEBUG=1
       - PYTHONPATH=/app
-    #   # Database config (time-tracking-db service)
-    #   - DB_HOST=time-tracking-db
-    #   - DB_NAME=time_tracking_db
-    #   - DB_USER=time_tracking_user
-    #   - DB_PASSWORD=changeme
-    #   - DB_PORT=5432
-    # depends_on:
-    #   time-tracking-db:
-    #     condition: service_healthy
+      - DB_HOST=time-tracking-db
+      - DB_NAME=time_tracking_db
+      - DB_USER=time_tracking_user
+      - DB_PASSWORD=changeme
+      - DB_PORT=5432
+    depends_on:
+      time-tracking-db:
+        condition: service_healthy
 
+  time-tracking-db:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    volumes:
+      - time-tracking-db-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=time_tracking_db
+      - POSTGRES_USER=time_tracking_user
+      - POSTGRES_PASSWORD=changeme
+    healthcheck:
+      test:
+        [ "CMD", "pg_isready", "-q", "-d", "time_tracking_db", "-U", "time_tracking_user"]
 
-    # ------------------------------------------------------------------
-    # Flask Time-Tracking Microservice - PostgreSQL Database
-    # ------------------------------------------------------------------
-    # time-tracking-db:
-    #   image: postgres:15-alpine
-    #   restart: unless-stopped
-    #   volumes:
-    #     - time-tracking-db-data:/var/lib/postgresql/data # Persist time-tracking DB data
-    #   environment:
-    #     - POSTGRES_DB=time_tracking_db
-    #     - POSTGRES_USER=time_tracking_user
-    #     - POSTGRES_PASSWORD=changeme
-    #   healthcheck:
-    #     test: [ "CMD", "pg_isready", "-q", "-d", "time_tracking_db", "-U", "time_tracking_user" ]
-
-    # ------------------------------------------------------------------
-    # Named volumes (data persistence)
-    # ------------------------------------------------------------------
 volumes:
   dev-db-data:
   projects-db-data:
+  time-tracking-db-data:
