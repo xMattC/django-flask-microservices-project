@@ -1,5 +1,9 @@
+import pytest
 from datetime import datetime, timedelta, timezone
 
+from sqlalchemy.exc import IntegrityError
+
+from app.extensions import db
 from app.models import TimeEntry
 
 
@@ -100,3 +104,57 @@ def test_to_dict_includes_duration_seconds():
     data = entry.to_dict()
 
     assert data["duration_seconds"] == 3600
+
+
+def test_created_at_and_updated_at_are_set_automatically(app):
+    entry = TimeEntry(owner_user_id="123", project_id=10, started_at=_started())
+
+    db.session.add(entry)
+    db.session.commit()
+
+    assert entry.created_at is not None
+    assert entry.updated_at is not None
+
+
+@pytest.mark.parametrize(
+    "entry_data",
+    [
+        {"project_id": 10, "started_at": _started()},
+        {"owner_user_id": "123", "started_at": _started()},
+        {"owner_user_id": "123", "project_id": 10},
+    ],
+)
+def test_required_fields_are_enforced(app, entry_data):
+    entry = TimeEntry(**entry_data)
+
+    db.session.add(entry)
+
+    with pytest.raises(IntegrityError):
+        db.session.commit()
+
+    db.session.rollback()
+
+
+def test_multiple_users_can_have_entries_without_conflict(app):
+    first_entry = TimeEntry(owner_user_id="123", project_id=10, started_at=_started())
+    second_entry = TimeEntry(owner_user_id="456", project_id=10, started_at=_started())
+
+    db.session.add_all([first_entry, second_entry])
+    db.session.commit()
+
+    assert first_entry.id is not None
+    assert second_entry.id is not None
+    assert first_entry.owner_user_id != second_entry.owner_user_id
+
+
+def test_entries_can_be_queried_by_owner_user_id(app):
+    first_entry = TimeEntry(owner_user_id="123", project_id=10, started_at=_started())
+    second_entry = TimeEntry(owner_user_id="456", project_id=10, started_at=_started())
+
+    db.session.add_all([first_entry, second_entry])
+    db.session.commit()
+
+    results = TimeEntry.query.filter_by(owner_user_id="123").all()
+
+    assert len(results) == 1
+    assert results[0].owner_user_id == "123"
