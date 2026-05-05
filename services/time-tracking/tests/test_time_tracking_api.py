@@ -95,3 +95,20 @@ def test_create_time_entry_optional_description(client):
 
     assert entry_data["project_id"] == payload["project_id"]
     assert entry_data["description"] is None
+
+
+# ---------------------------------------------------------------------------------------------------------------------
+# TIME ENTRY READ (LIST) TESTS
+# ---------------------------------------------------------------------------------------------------------------------
+
+
+def test_get_time_entries_returns_empty_list(client):
+    response = client.get("/api/time-entries", headers=USER_HEADERS)
+
+    assert response.status_code == 200
+
+    data = get_response_data(response)
+
+    assert "results" in data
+    assert isinstance(data["results"], list)
+    assert len(data["results"]) == 0
