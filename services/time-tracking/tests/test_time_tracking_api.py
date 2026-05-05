@@ -353,3 +353,39 @@ def test_stop_time_entry_missing_user_header(client):
 
     assert response.status_code == 400
     assert response.get_json()["message"] == "Missing X-User-ID header"
+
+
+# ---------------------------------------------------------------------------------------------------------------------
+# TIME ENTRY UPDATE TESTS
+# ---------------------------------------------------------------------------------------------------------------------
+
+
+def test_update_time_entry_success(client):
+    payload = {
+        "project_id": 1,
+        "description": "Initial session",
+    }
+
+    response = client.post("/api/time-entries", json=payload, headers=USER_HEADERS)
+
+    assert response.status_code == 201
+
+    entry_id = get_first_result(response)["id"]
+
+    # Stop the entry first (updates only allowed on finished entries)
+    client.patch(f"/api/time-entries/{entry_id}/stop", headers=USER_HEADERS)
+
+    update_payload = {
+        "description": "Updated session description",
+    }
+
+    response = client.patch(f"/api/time-entries/{entry_id}", json=update_payload, headers=USER_HEADERS)
+
+    assert response.status_code == 200
+
+    entry_data = get_first_result(response)
+
+    assert entry_data["id"] == entry_id
+    assert entry_data["description"] == update_payload["description"]
+    assert entry_data["project_id"] == payload["project_id"]
+    assert entry_data["owner_user_id"] == USER_HEADERS["X-User-ID"]
