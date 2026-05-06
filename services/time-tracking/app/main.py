@@ -1,5 +1,8 @@
 import os
+
 from flask import Flask
+from flask_smorest import Api
+
 from app.extensions import db, migrate
 from app.routes import routes
 
@@ -20,6 +23,13 @@ def configure_app(app):
     app.config["SQLALCHEMY_DATABASE_URI"] = build_db_uri()
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
+    app.config["API_TITLE"] = "Time Tracking Service API"
+    app.config["API_VERSION"] = "v1"
+    app.config["OPENAPI_VERSION"] = "3.0.3"
+    app.config["OPENAPI_URL_PREFIX"] = "/"
+    app.config["OPENAPI_SWAGGER_UI_PATH"] = "/docs"
+    app.config["OPENAPI_SWAGGER_UI_URL"] = "https://cdn.jsdelivr.net/npm/swagger-ui-dist/"
+
 
 def init_extensions(app):
     """Initialise Flask extensions."""
@@ -27,9 +37,9 @@ def init_extensions(app):
     migrate.init_app(app, db)
 
 
-def register_routes(app):
+def register_routes(api):
     """Register application routes."""
-    app.register_blueprint(routes, url_prefix="/api")
+    api.register_blueprint(routes, url_prefix="/api")
 
 
 def create_app():
@@ -38,6 +48,8 @@ def create_app():
 
     configure_app(app)
     init_extensions(app)
-    register_routes(app)
+
+    api = Api(app)
+    register_routes(api)
 
     return app

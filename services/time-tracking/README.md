@@ -11,6 +11,18 @@ This service:
 
 ---
 
+## Tech Stack
+
+- **Microservice Backend:** Python, Flask
+- **API Documentation Layer:** Flask-Smorest — adds OpenAPI/Swagger docs and API route metadata
+- **Database Access:** SQLAlchemy — ORM for defining models and querying PostgreSQL
+- **Database Migrations:** Flask-Migrate / Alembic — manages database schema changes
+- **Database:** PostgreSQL
+- **Infrastructure:** Docker, Docker Compose
+- **Integration Pattern:** Django BFF → Flask microservice using `X-User-ID` request headers
+
+---
+
 ## Running the Service
 
 From the **project root**:
@@ -25,15 +37,14 @@ docker compose up --build
 docker compose up --build time-tracking
 ```
 
-
-### 3. Stop everything
-```bash
-docker compose down
-```
-
-## Service URL
+### Service URL
 
 http://localhost:5001
+
+
+### Service API Docs
+
+http://localhost:5000/docs
 
 ---
 
