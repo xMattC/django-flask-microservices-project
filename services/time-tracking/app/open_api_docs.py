@@ -1,6 +1,5 @@
 from flask_smorest import Blueprint
 
-
 USER_ID_HEADER = {
     "in": "header",
     "name": "X-User-ID",
