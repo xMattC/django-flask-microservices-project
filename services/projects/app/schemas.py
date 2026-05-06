@@ -45,7 +45,7 @@ class ProjectUpdateSchema(Schema):
     description = fields.String(allow_none=True)
 
 
-class ProjectSchema(Schema):
+class ProjectResponseSchema(Schema):
     """Schema representing a project object in responses.
 
     This schema defines the structure of a project as returned by the API.
@@ -73,7 +73,7 @@ class ProjectResultsSchema(Schema):
     - results: List of project objects.
     """
 
-    results = fields.List(fields.Nested(ProjectSchema))
+    results = fields.List(fields.Nested(ProjectResponseSchema))
 
 
 class ErrorSchema(Schema):

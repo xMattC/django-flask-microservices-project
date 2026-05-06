@@ -2,12 +2,18 @@ from datetime import datetime, timezone
 
 from flask import jsonify, request
 from flask_smorest import Blueprint
+from werkzeug.exceptions import HTTPException
 
 from app.extensions import db
 from app.models import TimeEntry
 from app.open_api_docs import endpoint_docs
+from app.schemas import (
+    TimeEntryCreateSchema,
+    TimeEntryResultsSchema,
+    TimeEntryUpdateSchema,
+)
 
-routes = Blueprint("routes", __name__)
+routes = Blueprint("routes", __name__, description="Time tracking service endpoints")
 
 # ---------------------------------------------------------------------------------------------------------------------
 # Helper functions for route handlers
@@ -24,6 +30,9 @@ def health():
 @routes.errorhandler(Exception)
 def handle_exception(error):
     """Handle unexpected exceptions."""
+    if isinstance(error, HTTPException):
+        return error
+
     return jsonify({"message": "Internal server error"}), 500
 
 
@@ -43,25 +52,19 @@ def db_health():
 
 
 @routes.post("/time-entries")
-@endpoint_docs(routes, success_code=201)
-def create_time_entry():
+@routes.arguments(TimeEntryCreateSchema)
+@endpoint_docs(routes, success_code=201, response_schema=TimeEntryResultsSchema, errors=(400,))
+def create_time_entry(data):
     """Create a new time entry."""
 
     user_id = request.headers.get("X-User-ID")
     if not user_id:
         return jsonify({"message": "Missing X-User-ID header"}), 400
 
-    data = request.get_json() or {}
-    project_id = data.get("project_id")
-    description = data.get("description")
-
-    if project_id is None:
-        return jsonify({"errors": {"project_id": "This field is required"}}), 422
-
     entry = TimeEntry(
         owner_user_id=user_id,
-        project_id=project_id,
-        description=description,
+        project_id=data["project_id"],
+        description=data.get("description"),
         started_at=datetime.now(timezone.utc),
     )
 
@@ -72,7 +75,7 @@ def create_time_entry():
 
 
 @routes.get("/time-entries")
-@endpoint_docs(routes)
+@endpoint_docs(routes, response_schema=TimeEntryResultsSchema, errors=(400,))
 def list_time_entries():
     """List all time entries. Can be filtered by project_id and running_only if provided."""
     user_id = request.headers.get("X-User-ID")
@@ -96,7 +99,7 @@ def list_time_entries():
 
 
 @routes.get("/time-entries/<int:entry_id>")
-@endpoint_docs(routes)
+@endpoint_docs(routes, response_schema=TimeEntryResultsSchema, errors=(400, 404))
 def get_time_entry_detail(entry_id):
     """Get a single time entry."""
     user_id = request.headers.get("X-User-ID")
@@ -113,7 +116,7 @@ def get_time_entry_detail(entry_id):
 
 
 @routes.patch("/time-entries/<int:entry_id>/stop")
-@endpoint_docs(routes)
+@endpoint_docs(routes, response_schema=TimeEntryResultsSchema, errors=(400, 404))
 def stop_time_entry(entry_id):
     """Stop a running time entry."""
     user_id = request.headers.get("X-User-ID")
@@ -134,8 +137,9 @@ def stop_time_entry(entry_id):
 
 
 @routes.patch("/time-entries/<int:entry_id>")
-@endpoint_docs(routes)
-def update_time_entry(entry_id):
+@routes.arguments(TimeEntryUpdateSchema)
+@endpoint_docs(routes, response_schema=TimeEntryResultsSchema, errors=(400, 404, 409))
+def update_time_entry(data, entry_id):
     """Update a finished time entry."""
     user_id = request.headers.get("X-User-ID")
 
@@ -150,16 +154,11 @@ def update_time_entry(entry_id):
     if entry.ended_at is None:
         return jsonify({"message": "Cannot update a running time entry"}), 409
 
-    data = request.get_json() or {}
+    if "description" in data:
+        entry.description = data["description"]
 
-    description = data.get("description")
-    project_id = data.get("project_id")
-
-    if description is not None:
-        entry.description = description
-
-    if project_id is not None:
-        entry.project_id = project_id
+    if "project_id" in data:
+        entry.project_id = data["project_id"]
 
     db.session.commit()
 
@@ -167,7 +166,7 @@ def update_time_entry(entry_id):
 
 
 @routes.delete("/time-entries/<int:entry_id>")
-@endpoint_docs(routes, success_code=204)
+@endpoint_docs(routes, success_code=204, errors=(400, 404))
 def delete_time_entry(entry_id):
     """Delete a time entry."""
     user_id = request.headers.get("X-User-ID")

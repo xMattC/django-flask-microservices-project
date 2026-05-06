@@ -15,6 +15,7 @@ This service:
 
 - **Microservice Backend:** Python, Flask
 - **API Documentation Layer:** Flask-Smorest — adds OpenAPI/Swagger docs and API route metadata
+- **Request Validation / Serialization:** Marshmallow — schema-based request validation and API response serialization
 - **Database Access:** SQLAlchemy — ORM for defining models and querying PostgreSQL
 - **Database Migrations:** Flask-Migrate / Alembic — manages database schema changes
 - **Database:** PostgreSQL
