@@ -1,9 +1,11 @@
 from datetime import datetime, timezone
 
-from flask import Blueprint, jsonify, request
+from flask import jsonify, request
+from flask_smorest import Blueprint
 
 from app.extensions import db
 from app.models import TimeEntry
+from app.open_api_docs import endpoint_docs
 
 routes = Blueprint("routes", __name__)
 
@@ -13,6 +15,7 @@ routes = Blueprint("routes", __name__)
 
 
 @routes.get("/health")
+@endpoint_docs(routes)
 def health():
     """Health check endpoint."""
     return jsonify({"status": "ok"}), 200
@@ -25,6 +28,7 @@ def handle_exception(error):
 
 
 @routes.get("/db-health")
+@endpoint_docs(routes)
 def db_health():
     """Check the database connection."""
     with db.engine.connect() as connection:
@@ -39,6 +43,7 @@ def db_health():
 
 
 @routes.post("/time-entries")
+@endpoint_docs(routes, success_code=201)
 def create_time_entry():
     """Create a new time entry."""
 
@@ -67,6 +72,7 @@ def create_time_entry():
 
 
 @routes.get("/time-entries")
+@endpoint_docs(routes)
 def list_time_entries():
     """List all time entries. Can be filtered by project_id and running_only if provided."""
     user_id = request.headers.get("X-User-ID")
@@ -90,6 +96,7 @@ def list_time_entries():
 
 
 @routes.get("/time-entries/<int:entry_id>")
+@endpoint_docs(routes)
 def get_time_entry_detail(entry_id):
     """Get a single time entry."""
     user_id = request.headers.get("X-User-ID")
@@ -106,6 +113,7 @@ def get_time_entry_detail(entry_id):
 
 
 @routes.patch("/time-entries/<int:entry_id>/stop")
+@endpoint_docs(routes)
 def stop_time_entry(entry_id):
     """Stop a running time entry."""
     user_id = request.headers.get("X-User-ID")
@@ -126,6 +134,7 @@ def stop_time_entry(entry_id):
 
 
 @routes.patch("/time-entries/<int:entry_id>")
+@endpoint_docs(routes)
 def update_time_entry(entry_id):
     """Update a finished time entry."""
     user_id = request.headers.get("X-User-ID")
@@ -158,6 +167,7 @@ def update_time_entry(entry_id):
 
 
 @routes.delete("/time-entries/<int:entry_id>")
+@endpoint_docs(routes, success_code=204)
 def delete_time_entry(entry_id):
     """Delete a time entry."""
     user_id = request.headers.get("X-User-ID")

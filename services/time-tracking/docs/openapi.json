@@ -1,0 +1,320 @@
+{
+  "paths": {
+    "/api/health": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Health check endpoint.",
+        "tags": [
+          "routes"
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-User-ID",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "User ID supplied by the Django BFF."
+          }
+        ]
+      }
+    },
+    "/api/db-health": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Check the database connection.",
+        "tags": [
+          "routes"
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-User-ID",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "User ID supplied by the Django BFF."
+          }
+        ]
+      }
+    },
+    "/api/time-entries": {
+      "post": {
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Create a new time entry.",
+        "tags": [
+          "routes"
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-User-ID",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "User ID supplied by the Django BFF."
+          }
+        ]
+      },
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "List all time entries. Can be filtered by project_id and running_only if provided.",
+        "tags": [
+          "routes"
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-User-ID",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "User ID supplied by the Django BFF."
+          }
+        ]
+      }
+    },
+    "/api/time-entries/{entry_id}": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Get a single time entry.",
+        "tags": [
+          "routes"
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-User-ID",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "User ID supplied by the Django BFF."
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "entry_id",
+          "required": true,
+          "schema": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      ],
+      "patch": {
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Update a finished time entry.",
+        "tags": [
+          "routes"
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-User-ID",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "User ID supplied by the Django BFF."
+          }
+        ]
+      },
+      "delete": {
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Delete a time entry.",
+        "tags": [
+          "routes"
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-User-ID",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "User ID supplied by the Django BFF."
+          }
+        ]
+      }
+    },
+    "/api/time-entries/{entry_id}/stop": {
+      "patch": {
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Stop a running time entry.",
+        "tags": [
+          "routes"
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-User-ID",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "User ID supplied by the Django BFF."
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "entry_id",
+          "required": true,
+          "schema": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      ]
+    }
+  },
+  "info": {
+    "title": "Time Tracking Service API",
+    "version": "v1"
+  },
+  "tags": [
+    {
+      "name": "routes",
+      "description": ""
+    }
+  ],
+  "openapi": "3.0.3",
+  "components": {
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": "Error code"
+          },
+          "status": {
+            "type": "string",
+            "description": "Error name"
+          },
+          "message": {
+            "type": "string",
+            "description": "Error message"
+          },
+          "errors": {
+            "type": "object",
+            "description": "Errors",
+            "additionalProperties": {}
+          }
+        },
+        "additionalProperties": false
+      },
+      "PaginationMetadata": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer",
+            "description": "Total number of items."
+          },
+          "total_pages": {
+            "type": "integer",
+            "description": "Total number of pages."
+          },
+          "first_page": {
+            "type": "integer",
+            "description": "First available page number."
+          },
+          "last_page": {
+            "type": "integer",
+            "description": "Last available page number."
+          },
+          "page": {
+            "type": "integer",
+            "description": "Current page number."
+          },
+          "previous_page": {
+            "type": "integer",
+            "description": "Previous page number."
+          },
+          "next_page": {
+            "type": "integer",
+            "description": "Next page number."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "responses": {
+      "DEFAULT_ERROR": {
+        "description": "Default error response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      }
+    }
+  }
+}
