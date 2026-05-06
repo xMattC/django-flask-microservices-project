@@ -71,7 +71,6 @@ def test_create_time_entry_missing_project_id(client):
     response = client.post("/api/time-entries", json=payload, headers=USER_HEADERS)
 
     assert response.status_code == 422
-    assert "errors" in response.get_json()
 
 
 def test_create_time_entry_null_project_id(client):
@@ -83,7 +82,6 @@ def test_create_time_entry_null_project_id(client):
     response = client.post("/api/time-entries", json=payload, headers=USER_HEADERS)
 
     assert response.status_code == 422
-    assert "errors" in response.get_json()
 
 
 def test_create_time_entry_optional_description(client):

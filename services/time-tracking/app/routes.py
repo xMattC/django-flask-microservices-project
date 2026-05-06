@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 
 from flask import jsonify, request
 from flask_smorest import Blueprint
+from werkzeug.exceptions import HTTPException
 
 from app.extensions import db
 from app.models import TimeEntry
@@ -29,6 +30,9 @@ def health():
 @routes.errorhandler(Exception)
 def handle_exception(error):
     """Handle unexpected exceptions."""
+    if isinstance(error, HTTPException):
+        return error
+
     return jsonify({"message": "Internal server error"}), 500
 
 

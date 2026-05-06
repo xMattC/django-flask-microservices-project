@@ -141,6 +141,7 @@ def test_time_entry_results_schema_dumps_results_list():
     assert data["results"][0]["id"] == 1
     assert data["results"][0]["started_at"] == "2026-05-06T10:00:00+00:00"
 
+
 def test_error_schema_dumps_message():
     schema = ErrorSchema()
 
