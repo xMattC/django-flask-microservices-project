@@ -42,6 +42,7 @@ def create_time_entry(user_id: int, payload: dict):
 
     return data["results"][0]
 
+
 def get_time_entries(user_id: int, project_id: int | None = None, running_only: bool = False):
     """Get time entries for a given user, optionally filtered by project and running status.
 
@@ -87,3 +88,7 @@ def get_time_entries(user_id: int, project_id: int | None = None, running_only: 
         raise TimeTrackingServiceError("Time tracking service results must be a list.")
 
     return results
+
+
+def get_time_entry(user_id: int, entry_id: int):
+    pass

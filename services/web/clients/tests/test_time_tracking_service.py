@@ -8,6 +8,7 @@ from clients.time_tracking_service import (
     TimeTrackingServiceUnavailable,
     create_time_entry,
     get_time_entries,
+    get_time_entry,
 )
 
 
@@ -293,6 +294,53 @@ class TimeTrackingClientTests(SimpleTestCase):
     # Test cases for get_time_entry
     # -----------------------------------------------------------------------------------------------------------------
 
+    @responses.activate
+    @override_settings(TIME_TRACKING_SERVICE_URL="http://time-tracking:5000")
+    def test_get_time_entry_returns_time_entry(self):
+        """Test get_time_entry returns a single time entry."""
+        user_id = 123
+        time_entry_id = 10
+
+        mock_response_payload = {
+            "results": [
+                {
+                    "id": time_entry_id,
+                    "owner_user_id": user_id,
+                    "project_id": 42,
+                    "description": "Test",
+                    "started_at": "2026-05-07T08:36:59.971Z",
+                    "ended_at": "2026-05-07T08:36:59.971Z",
+                    "duration_seconds": 0,
+                    "created_at": "2026-05-07T08:36:59.971Z",
+                    "updated_at": "2026-05-07T08:36:59.971Z",
+                }
+            ]
+        }
+
+        responses.add(
+            method=responses.GET,
+            url=f"http://time-tracking:5000/api/time-entries/{time_entry_id}",
+            json=mock_response_payload,
+            status=200,
+        )
+
+        result = get_time_entry(user_id=user_id, time_entry_id=time_entry_id)
+
+        self.assertEqual(result, mock_response_payload["results"][0])
+        self.assertEqual(len(responses.calls), 1)
+
+        request = responses.calls[0].request
+
+        self.assertEqual(request.url, f"http://time-tracking:5000/api/time-entries/{time_entry_id}")
+        self.assertEqual(request.headers.get("X-User-ID"), str(user_id))
+
+    # def test_get_time_entry_sends_user_id_header(self):
+
+    # def test_get_time_entry_raises_service_unavailable_on_request_exception(self):
+
+    # def test_get_time_entry_raises_error_on_non_2xx_response(self):
+
+    # def test_get_time_entry_raises_error_on_invalid_response_schema(self):
     # -----------------------------------------------------------------------------------------------------------------
     # Test cases for stop_time_entry
     # -----------------------------------------------------------------------------------------------------------------
