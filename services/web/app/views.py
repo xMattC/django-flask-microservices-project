@@ -29,6 +29,8 @@ def home_view(request) -> HttpResponse:
 def dashboard_view(request) -> HttpResponse:
     projects = []
     projects_error = None
+    sessions = []
+    sessions_error = None
 
     selected_project_id = request.session.get("selected_project_id")
 
@@ -49,6 +51,11 @@ def dashboard_view(request) -> HttpResponse:
     except ProjectsServiceError:
         projects_error = "Could not load projects."
 
+    try:
+        sessions = get_time_entries(request.user.id)
+    except Exception as exc:
+        sessions_error = str(exc)
+
     selected_project = None
     if selected_project_id:
         selected_project = next(
@@ -63,9 +70,10 @@ def dashboard_view(request) -> HttpResponse:
             "projects": projects,
             "projects_error": projects_error,
             "selected_project": selected_project,
+            "sessions": sessions,
+            "sessions_error": sessions_error,
         },
     )
-
 
 @login_required
 def projects_view(request) -> HttpResponse:

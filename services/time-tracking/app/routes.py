@@ -93,7 +93,7 @@ def list_time_entries():
     if running_only == "true":
         query = query.filter(TimeEntry.ended_at.is_(None))
 
-    entries = query.all()
+    entries = query.order_by(TimeEntry.started_at.desc()).all()
 
     return jsonify({"results": [entry.to_dict() for entry in entries]}), 200
 

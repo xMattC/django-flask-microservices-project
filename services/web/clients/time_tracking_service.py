@@ -132,7 +132,7 @@ def get_time_entry(user_id: int, time_entry_id: int):
 def stop_time_entry(user_id: int, time_entry_id: int):
     """Stop a running time entry for a given user.
 
-    Sends a POST request to the Time Tracking service and returns the stopped time entry.
+    Sends a PATCH request to the Time Tracking service and returns the stopped time entry.
 
     Parameters:
     - user_id : The ID of the authenticated user.
@@ -144,7 +144,7 @@ def stop_time_entry(user_id: int, time_entry_id: int):
     url = f"{settings.TIME_TRACKING_SERVICE_URL}/api/time-entries/{time_entry_id}/stop"
 
     try:
-        response = requests.post(url, headers={"X-User-ID": str(user_id)}, timeout=5)
+        response = requests.patch(url, headers={"X-User-ID": str(user_id)}, timeout=5)
     except requests.RequestException as exc:
         raise TimeTrackingServiceUnavailable("Time tracking service is unavailable.") from exc
 

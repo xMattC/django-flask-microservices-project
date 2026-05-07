@@ -1,8 +1,76 @@
-<div class="col-md-4 mb-3">
-  <div class="card shadow-sm border-0 h-100">
-    <div class="card-body">
-      <h5 class="card-title">Sessions</h5>
-      <p class="text-muted mb-0">Session summary integration pending.</p>
-    </div>
+<div class="card">
+
+  <div class="card-header">
+    <h3>Sessions</h3>
   </div>
+
+  <div class="card-body">
+
+    <style>
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        text-align: left;
+        padding: 0.5rem;
+        border-bottom: 1px solid #ddd;
+      }
+    </style>
+
+    {% if sessions_error %}
+
+    <p>{{ sessions_error }}</p>
+
+    {% elif sessions %}
+
+    <table>
+
+      <thead>
+        <tr>
+          <th>Project</th>
+          <th>Start</th>
+          <th>End</th>
+          <th>Duration</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        {% for session in sessions %}
+        <tr>
+
+          <td>
+            {{ session.project_id }}
+          </td>
+
+          <td>
+            {{ session.created_at }}
+          </td>
+
+          <td>
+            {{ session.ended_at|default:"Running" }}
+          </td>
+
+          <td>
+            {{ session.duration_seconds|default:"-" }}
+          </td>
+
+        </tr>
+        {% endfor %}
+
+      </tbody>
+
+    </table>
+
+    {% else %}
+
+    <p>No sessions found.</p>
+
+    {% endif %}
+
+  </div>
+
 </div>
