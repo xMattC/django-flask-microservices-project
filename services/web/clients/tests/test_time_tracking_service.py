@@ -1,0 +1,87 @@
+import requests
+import responses
+import json
+from django.test import SimpleTestCase, override_settings
+
+from clients.time_tracking_service import (
+    create_time_entry,
+)
+
+
+class TimeTrackingClientTests(SimpleTestCase):
+    """Test Time Tracking service client.
+
+    Service Client Test Coverage Checklist:
+    - Happy path returns expected data
+    - Required headers are sent (e.g. auth / X-User-ID)
+    - Network failures raise ServiceUnavailable
+    - Upstream 4xx/5xx responses raise ServiceError
+    - Invalid JSON responses raise ServiceError
+    - Response structure is validated
+    - Incorrect data types are rejected
+    """
+
+    # -----------------------------------------------------------------------------------------------------------------
+    # Test cases for create_time_entry
+    # -----------------------------------------------------------------------------------------------------------------
+    @responses.activate
+    @override_settings(TIME_TRACKING_SERVICE_URL="http://time-tracking:5000")
+    def test_create_time_entry_sends_user_id_header_payload_and_returns_time_entry(self):
+        """Test create_time_entry calls upstream with user header, payload, and returns one time entry."""
+        user_id = 123
+        request_payload = {
+            "project_id": 42,
+            "description": "Test",
+        }
+        mock_response_payload = {
+            "results": [
+                {
+                    "id": 0,
+                    "owner_user_id": "123",
+                    "project_id": 42,
+                    "description": "Test",
+                    "started_at": "2026-05-07T06:43:30.504Z",
+                    "ended_at": "2026-05-07T06:43:30.504Z",
+                    "duration_seconds": 0,
+                    "created_at": "2026-05-07T06:43:30.504Z",
+                    "updated_at": "2026-05-07T06:43:30.504Z",
+                }
+            ]
+        }
+        responses.add(
+            method=responses.POST,
+            url="http://time-tracking:5000/api/time-entries",
+            json=mock_response_payload,
+            status=201,
+        )
+
+        result = create_time_entry(user_id=user_id, payload=request_payload)
+
+        self.assertEqual(result, mock_response_payload["results"][0])
+        self.assertEqual(len(responses.calls), 1)
+
+        request = responses.calls[0].request
+        self.assertEqual(request.headers.get("X-User-ID"), str(user_id))
+        self.assertEqual(request.headers.get("Content-Type"), "application/json")
+        self.assertEqual(request.headers.get("Content-Type"), "application/json")
+        self.assertEqual(json.loads(request.body), request_payload)
+
+    # -----------------------------------------------------------------------------------------------------------------
+    # Test cases for get_time_entries
+    # -----------------------------------------------------------------------------------------------------------------
+
+    # -----------------------------------------------------------------------------------------------------------------
+    # Test cases for get_time_entry
+    # -----------------------------------------------------------------------------------------------------------------
+
+    # -----------------------------------------------------------------------------------------------------------------
+    # Test cases for stop_time_entry
+    # -----------------------------------------------------------------------------------------------------------------
+
+    # -----------------------------------------------------------------------------------------------------------------
+    # Test cases for update_time_entry
+    # -----------------------------------------------------------------------------------------------------------------
+
+    # -----------------------------------------------------------------------------------------------------------------
+    # Test cases for delete_time_entry
+    # -----------------------------------------------------------------------------------------------------------------

@@ -1,3 +1,6 @@
+# ------------------------------------------------------------------
+# Docker Services Configuration for Django + Flask Microservices Project
+# ------------------------------------------------------------------
 services:
   # ------------------------------------------------------------------
   # Django BFF (auth, UI, orchestration)
@@ -89,6 +92,9 @@ services:
     healthcheck:
       test: [ "CMD", "pg_isready", "-q", "-d", "projectsdb", "-U", "projectsuser" ]
 
+  # ------------------------------------------------------------------
+  # Flask Time Tracking Microservice (owns time tracking data + logic)
+  # ------------------------------------------------------------------
   time-tracking:
     build:
       context: ./services/time-tracking
@@ -116,6 +122,9 @@ services:
       time-tracking-db:
         condition: service_healthy
 
+  # ------------------------------------------------------------------
+  # Flask Time Tracking Microservice - PostgreSQL Database
+  # ------------------------------------------------------------------
   time-tracking-db:
     image: postgres:15-alpine
     restart: unless-stopped
@@ -129,6 +138,9 @@ services:
       test:
         [ "CMD", "pg_isready", "-q", "-d", "time_tracking_db", "-U", "time_tracking_user"]
 
+# ------------------------------------------------------------------
+# Docker volumes for data persistence
+# ------------------------------------------------------------------
 volumes:
   dev-db-data:
   projects-db-data:
