@@ -51,7 +51,9 @@ def get_time_entries(user_id: int):
     - A list of dictionaries representing the time entries.
     """
     url = f"{settings.TIME_TRACKING_SERVICE_URL}/api/time-entries"
+
     response = requests.get(url, headers={"X-User-ID": str(user_id)}, timeout=5)
+
     data = response.json()
 
     return data['results']
