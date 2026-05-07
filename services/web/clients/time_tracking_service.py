@@ -90,5 +90,13 @@ def get_time_entries(user_id: int, project_id: int | None = None, running_only: 
     return results
 
 
-def get_time_entry(user_id: int, entry_id: int):
-    pass
+def get_time_entry(user_id: int, time_entry_id: int):
+    """Get a single time entry for a given user."""
+
+    url = f"{settings.TIME_TRACKING_SERVICE_URL}/api/time-entries/{time_entry_id}"
+
+    response = requests.get(url, headers={"X-User-ID": str(user_id)}, timeout=5)
+
+    data = response.json()
+
+    return data["results"][0]
