@@ -10,6 +10,13 @@ from clients.projects_service import (
     get_projects,
     update_project,
 )
+from clients.time_tracking_service import (
+    TimeTrackingServiceError,
+    TimeTrackingServiceUnavailable,
+    create_time_entry,
+    get_time_entries,
+    stop_time_entry,
+)
 
 from .forms import ProjectCreateForm, ProjectUpdateForm
 
@@ -143,3 +150,32 @@ def projects_view(request) -> HttpResponse:
             "project_delete_error": project_delete_error,
         },
     )
+
+
+@login_required
+def clock_in_view(request):
+    selected_project_id = request.session.get("selected_project_id")
+
+    if selected_project_id:
+        create_time_entry(
+            request.user.id,
+            {"project_id": selected_project_id},
+        )
+
+    return redirect("app:dashboard")
+
+
+@login_required
+def clock_out_view(request):
+    selected_project_id = request.session.get("selected_project_id")
+
+    running_entries = get_time_entries(
+        request.user.id,
+        project_id=selected_project_id,
+        running_only=True,
+    )
+
+    if running_entries:
+        stop_time_entry(request.user.id, running_entries[0]["id"])
+
+    return redirect("app:dashboard")

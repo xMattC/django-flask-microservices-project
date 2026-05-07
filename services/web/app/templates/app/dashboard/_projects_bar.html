@@ -3,41 +3,41 @@
 
 
   {% if projects_error %}
-    <span class="text-warning">{{ projects_error }}</span>
+  <span class="text-warning">{{ projects_error }}</span>
 
   {% elif projects %}
-    <form method="post" class="d-flex align-items-center gap-3 mb-0">
+  <form method="post" class="d-flex align-items-center gap-3 mb-0">
+    {% csrf_token %}
+    <input type="hidden" name="form_type" value="select_project">
+
+    <select name="project_id" class="form-select form-select-lg" style="min-width: 280px;"
+      onchange="this.form.submit()">
+      <option value="">Select project</option>
+
+      {% for project in projects %}
+      <option value="{{ project.id }}" {% if selected_project and project.id == selected_project.id %}selected{% endif %}>
+        {{ project.name }}
+      </option>
+      {% endfor %}
+    </select>
+  </form>
+
+  <form method="post" action="{% url 'app:clock_in' %}">
       {% csrf_token %}
-      <input type="hidden" name="form_type" value="select_project">
+      <button type="submit" {% if not selected_project %}disabled{% endif %}>
+          Clock in
+      </button>
+  </form>
 
-      <select
-        name="project_id"
-        class="form-select form-select-lg"
-        style="min-width: 280px;"
-        onchange="this.form.submit()"
-      >
-        <option value="">Select project</option>
-
-        {% for project in projects %}
-          <option value="{{ project.id }}"
-            {% if selected_project and project.id == selected_project.id %}selected{% endif %}
-          >
-            {{ project.name }}
-          </option>
-        {% endfor %}
-      </select>
-    </form>
-
-    <button class="btn btn-success btn-lg" disabled>
-      Clock in
-    </button>
-
-    <button class="btn btn-outline-secondary btn-lg" disabled>
-      Clock out
-    </button>
+  <form method="post" action="{% url 'app:clock_out' %}">
+      {% csrf_token %}
+      <button type="submit" {% if not selected_project %}disabled{% endif %}>
+          Clock out
+      </button>
+  </form>
 
   {% else %}
-    <span class="text-muted">No projects found.</span>
+  <span class="text-muted">No projects found.</span>
   {% endif %}
 
   <a href="{% url 'app:projects' %}" class="btn btn-outline-primary btn-lg ms-auto">
