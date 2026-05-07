@@ -334,7 +334,27 @@ class TimeTrackingClientTests(SimpleTestCase):
         self.assertEqual(request.url, f"http://time-tracking:5000/api/time-entries/{time_entry_id}")
         self.assertEqual(request.headers.get("X-User-ID"), str(user_id))
 
-    # def test_get_time_entry_sends_user_id_header(self):
+    @responses.activate
+    @override_settings(TIME_TRACKING_SERVICE_URL="http://time-tracking:5000")
+    def test_get_time_entry_sends_user_id_header(self):
+        """Test get_time_entry sends X-User-ID header."""
+        user_id = 123
+        time_entry_id = 10
+
+        responses.add(
+            method=responses.GET,
+            url=f"http://time-tracking:5000/api/time-entries/{time_entry_id}",
+            json={"results": [{}]},
+            status=200,
+        )
+
+        get_time_entry(user_id=user_id, time_entry_id=time_entry_id)
+
+        self.assertEqual(len(responses.calls), 1)
+
+        request = responses.calls[0].request
+
+        self.assertEqual(request.headers.get("X-User-ID"), str(user_id))
 
     # def test_get_time_entry_raises_service_unavailable_on_request_exception(self):
 
