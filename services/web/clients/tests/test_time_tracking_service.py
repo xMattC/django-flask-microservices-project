@@ -258,7 +258,21 @@ class TimeTrackingClientTests(SimpleTestCase):
         with self.assertRaises(TimeTrackingServiceUnavailable):
             get_time_entries(user_id=user_id)
 
-    # def test_get_time_entries_raises_error_on_non_2xx_response(self):
+    @responses.activate
+    @override_settings(TIME_TRACKING_SERVICE_URL="http://time-tracking:5000")
+    def test_get_time_entries_raises_error_on_non_2xx_response(self):
+        """Test get_time_entries raises TimeTrackingServiceError on 4xx/5xx response."""
+        user_id = 123
+
+        responses.add(
+            method=responses.GET,
+            url="http://time-tracking:5000/api/time-entries",
+            json={"message": "Error"},
+            status=500,
+        )
+
+        with self.assertRaises(TimeTrackingServiceError):
+            get_time_entries(user_id=user_id)
 
     # def test_get_time_entries_raises_error_on_invalid_response_schema(self):
     #     "missing results,  results not list, malformed payload"
