@@ -42,7 +42,6 @@ def create_time_entry(user_id: int, payload: dict):
 
     return data["results"][0]
 
-
 def get_time_entries(user_id: int, project_id: int | None = None, running_only: bool = False):
     """Get time entries for a given user, optionally filtered by project and running status.
 
@@ -59,6 +58,7 @@ def get_time_entries(user_id: int, project_id: int | None = None, running_only: 
     url = f"{settings.TIME_TRACKING_SERVICE_URL}/api/time-entries"
 
     params = {}
+
     if project_id is not None:
         params["project_id"] = project_id
 
@@ -73,6 +73,17 @@ def get_time_entries(user_id: int, project_id: int | None = None, running_only: 
     if response.status_code != 200:
         raise TimeTrackingServiceError(f"Time tracking service returned {response.status_code}")
 
-    data = response.json()
+    try:
+        data = response.json()
+    except ValueError as exc:
+        raise TimeTrackingServiceError("Time tracking service returned invalid JSON.") from exc
 
-    return data["results"]
+    try:
+        results = data["results"]
+    except KeyError as exc:
+        raise TimeTrackingServiceError("Time tracking service response missing results.") from exc
+
+    if not isinstance(results, list):
+        raise TimeTrackingServiceError("Time tracking service results must be a list.")
+
+    return results
