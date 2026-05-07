@@ -135,8 +135,9 @@ LOGIN_URL = "user:login"
 LOGIN_REDIRECT_URL = "app:home"
 LOGOUT_REDIRECT_URL = "user:login"
 
+# Internal Docker Compose service URLs (requires internal container ports)
 PROJECTS_SERVICE_URL = "http://projects:5000"
-
+TIME_TRACKING_SERVICE_URL = "http://time-tracking:5000"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
