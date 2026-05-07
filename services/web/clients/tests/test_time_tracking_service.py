@@ -274,8 +274,20 @@ class TimeTrackingClientTests(SimpleTestCase):
         with self.assertRaises(TimeTrackingServiceError):
             get_time_entries(user_id=user_id)
 
-    # def test_get_time_entries_raises_error_on_invalid_response_schema(self):
-    #     "missing results,  results not list, malformed payload"
+    def test_get_time_entries_raises_error_on_invalid_response_schema(self):
+        """Test get_time_entries raises TimeTrackingServiceError when response schema is invalid."""
+        user_id = 123
+        mock_response_payload = {"unexpected_key": []}
+
+        responses.add(
+            method=responses.GET,
+            url="http://time-tracking:5000/api/time-entries",
+            json=mock_response_payload,
+            status=200,
+        )
+
+        with self.assertRaises(TimeTrackingServiceError):
+            get_time_entries(user_id=user_id)
 
     # -----------------------------------------------------------------------------------------------------------------
     # Test cases for get_time_entry
