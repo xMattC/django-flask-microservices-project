@@ -36,7 +36,7 @@ class TimeTrackingClientTests(SimpleTestCase):
             "results": [
                 {
                     "id": 0,
-                    "owner_user_id": "123",
+                    "owner_user_id": user_id,
                     "project_id": 42,
                     "description": "Test",
                     "started_at": "2026-05-07T06:43:30.504Z",
@@ -137,12 +137,75 @@ class TimeTrackingClientTests(SimpleTestCase):
         with self.assertRaises(TimeTrackingServiceError):
             create_time_entry(user_id=user_id, payload=request_payload)
 
-    # def test_create_time_entry_raises_error_when_results_is_not_list(self):
+    def test_create_time_entry_raises_error_when_results_is_not_list(self):
+        """Test create_time_entry raises TimeTrackingServiceError when 'results' is not a list."""
+        user_id = 123
+        request_payload = {"project_id": 42, "description": "Test"}
+        mock_response_payload = {"results": "not a list"}
 
+        responses.add(
+            method=responses.POST,
+            url="http://time-tracking:5000/api/time-entries",
+            json=mock_response_payload,
+            status=201,
+        )
+
+        with self.assertRaises(TimeTrackingServiceError):
+            create_time_entry(user_id=user_id, payload=request_payload)
 
     # -----------------------------------------------------------------------------------------------------------------
     # Test cases for get_time_entries
     # -----------------------------------------------------------------------------------------------------------------
+
+    @responses.activate
+    @override_settings(TIME_TRACKING_SERVICE_URL="http://time-tracking:5000")
+    def test_get_time_entries_returns_results_list(self):
+        """Test get_time_entries returns list of time entries."""
+        user_id = 123
+
+        mock_response_payload = {
+            "results": [
+                {
+                    "id": 10,
+                    "owner_user_id": user_id,
+                    "project_id": 42,
+                    "description": "Test",
+                    "started_at": "2026-05-07T08:36:59.971Z",
+                    "ended_at": "2026-05-07T08:36:59.971Z",
+                    "duration_seconds": 0,
+                    "created_at": "2026-05-07T08:36:59.971Z",
+                    "updated_at": "2026-05-07T08:36:59.971Z",
+                }
+            ]
+        }
+
+        responses.add(
+            method=responses.GET,
+            url="http://time-tracking:5000/api/time-entries",
+            json=mock_response_payload,
+            status=200,
+        )
+
+        result = get_time_entries(user_id=user_id)
+
+        self.assertEqual(result, mock_response_payload["results"])
+        self.assertEqual(len(responses.calls), 1)
+
+        request = responses.calls[0].request
+
+        self.assertEqual(request.url, "http://time-tracking:5000/api/time-entries")
+        self.assertEqual(request.headers.get("X-User-ID"), str(user_id))
+
+    # def test_get_time_entries_sends_user_id_header(self):
+
+    # def test_get_time_entries_sends_query_params(self):
+
+    # def test_get_time_entries_raises_service_unavailable_on_request_exception(self):
+
+    # def test_get_time_entries_raises_error_on_non_2xx_response(self):
+
+    # def test_get_time_entries_raises_error_on_invalid_response_schema(self):
+    #     "missing results,  results not list, malformed payload"
 
     # -----------------------------------------------------------------------------------------------------------------
     # Test cases for get_time_entry
