@@ -168,3 +168,7 @@ def stop_time_entry(user_id: int, time_entry_id: int):
         raise TimeTrackingServiceError("Time tracking service must return exactly one time entry.")
 
     return results[0]
+
+
+def update_time_entry(user_id: int, time_entry_id: int, payload: dict):
+    pass

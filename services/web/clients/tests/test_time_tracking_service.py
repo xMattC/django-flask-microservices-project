@@ -10,6 +10,7 @@ from clients.time_tracking_service import (
     get_time_entries,
     get_time_entry,
     stop_time_entry,
+    update_time_entry,
 )
 
 
@@ -518,7 +519,33 @@ class TimeTrackingClientTests(SimpleTestCase):
     # -----------------------------------------------------------------------------------------------------------------
     # Test cases for update_time_entry
     # -----------------------------------------------------------------------------------------------------------------
+    @responses.activate
+    @override_settings(TIME_TRACKING_SERVICE_URL="http://time-tracking:5000")
+    def test_update_time_entry_returns_time_entry(self):
+        """Test update_time_entry returns the updated time entry."""
+        user_id = 123
+        time_entry_id = 10
+        request_payload = {"description": "Updated"}
+        mock_response_payload = {"results": [{"id": time_entry_id, "owner_user_id": user_id, "description": "Updated"}]}
 
+        responses.add(
+            method=responses.PATCH,
+            url=f"http://time-tracking:5000/api/time-entries/{time_entry_id}",
+            json=mock_response_payload,
+            status=200,
+        )
+
+        result = update_time_entry(user_id=user_id, time_entry_id=time_entry_id, payload=request_payload)
+
+        self.assertEqual(result, mock_response_payload["results"][0])
+
+    # def test_update_time_entry_sends_user_id_header_and_payload(self):
+
+    # def test_update_time_entry_raises_service_unavailable_on_request_exception(self):
+
+    # def test_update_time_entry_raises_error_on_non_2xx_response(self):
+
+    # def test_update_time_entry_raises_error_on_invalid_response_schema(self):
     # -----------------------------------------------------------------------------------------------------------------
     # Test cases for delete_time_entry
     # -----------------------------------------------------------------------------------------------------------------
