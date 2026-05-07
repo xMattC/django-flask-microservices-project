@@ -212,4 +212,16 @@ def update_time_entry(user_id: int, time_entry_id: int, payload: dict):
     return results[0]
 
 def delete_time_entry(user_id: int, time_entry_id: int):
-    pass
+    """Delete a time entry for a given user.
+
+    Sends a DELETE request to the Time Tracking service.
+
+    Parameters:
+    - user_id : The ID of the authenticated user.
+    - time_entry_id : The ID of the time entry to delete.
+    """
+    url = f"{settings.TIME_TRACKING_SERVICE_URL}/api/time-entries/{time_entry_id}"
+
+    requests.delete(url, headers={"X-User-ID": str(user_id)}, timeout=5)
+
+    return True
