@@ -30,6 +30,9 @@ def create_time_entry(user_id: int, payload: dict):
         raise TimeTrackingServiceUnavailable("Time tracking service is unavailable.") from exc
 
 
+    if response.status_code != 201:
+        raise TimeTrackingServiceError(f"Time tracking service returned {response.status_code}")
+
     data = response.json()
 
     return data["results"][0]
