@@ -35,6 +35,8 @@ def init_extensions(app):
     db.init_app(app)
     migrate.init_app(app, db)
 
+    # Ensure SQLAlchemy models are imported so Flask-Migrate detects tables
+    import app.models  # noqa: F401
 
 def register_blueprints():
     """Register Flask-Smorest blueprints."""

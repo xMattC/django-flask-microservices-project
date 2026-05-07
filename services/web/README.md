@@ -1,70 +1,107 @@
-# Django BFF (Web Service)
+# Web service (Django BFF)
 
-## Overview
+Django Backend-for-Frontend responsible for **auth, UI, orchestration, and service-client integration**.
 
-This service acts as the **Backend for Frontend (BFF)** for the platform.
+This service:
 
-It is responsible for:
-- User authentication
-- Session management
-- Rendering UI templates
-- Acting as the single entry point for the frontend
-- Communicating with backend microservices
-
-This service does **not** contain business logic for projects, tasks, or time tracking.
+* Owns Django app data and user-facing logic
+* Connects to its own database (`web-db`)
+* Calls Flask microservices using internal Docker service URLs
+* Passes `X-User-ID` headers to downstream services
 
 ---
 
-## Responsibilities
+## Tech Stack
 
-- User registration, login, logout
-- Session-based authentication (cookies)
-- Dashboard UI
-- Project selection UI
-- Clock-in / clock-out UI
-- Task and reporting pages
-- Forwarding requests to backend services
-
----
-
-## Key Features
-
-- Custom user model (email-based authentication)
-- Django templates for frontend rendering
-- Protected routes using `request.user`
-- Service integration layer (API calls to microservices)
+- **Backend:** Python, Django
+- **Database:** PostgreSQL
+- **Database Migrations:** Django migrations
+- **Service Clients:** Python `requests`
+- **Infrastructure:** Docker, Docker Compose
+- **Integration Pattern:** Django BFF → Flask microservices using `X-User-ID` request headers
 
 ---
 
-## Architecture Role
+## Running the Service
 
-Browser → Django BFF → Microservices
+From the **project root**:
 
-Django handles:
-- Authentication
-- UI rendering
-- Request routing
+### 1. Run the full system
 
-Microservices handle:
-- Business logic
-- Data storage
+```bash
+docker compose up --build
+```
 
----
+### 2. Run ONLY the web service
 
-## Example Flow
+```bash
+docker compose up --build web
+```
 
-1. User logs in
-2. Django creates session
-3. User accesses dashboard
-4. Django calls backend services (e.g. time tracking)
-5. Data is aggregated and rendered in templates
+### App URL
+
+http://localhost:8000
 
 ---
 
-## Endpoints (Example)
+## Database & Migrations
 
-- /login/
-- /logout/
-- /register/
-- /dashboard/
+### Start database only
 
+```bash
+docker compose up -d web-db
+```
+
+### Create migrations
+
+```bash
+docker compose run --rm web python manage.py makemigrations
+```
+
+### Apply migrations
+
+```bash
+docker compose run --rm web python manage.py migrate
+```
+
+### Create superuser
+
+```bash
+docker compose run --rm web python manage.py createsuperuser
+```
+
+### Open Django shell
+
+```bash
+docker compose run --rm web python manage.py shell
+```
+
+---
+
+## Docker Notes
+
+* Exposed on host port `8000`
+* Runs internally on port `8000`
+* Uses `web-db` as its PostgreSQL service
+
+Mounted volume for live reload:
+
+```yaml
+./services/web:/web
+```
+
+Django runs via:
+
+```bash
+python manage.py wait_for_db && python manage.py runserver 0.0.0.0:8000
+```
+
+---
+
+## Tests & Linting
+
+```bash
+docker compose run --rm web python manage.py test
+docker compose run --rm web flake8
+docker compose run --rm web sh -c "python manage.py test && flake8"
+```

@@ -39,86 +39,92 @@ Each service owns its own data and communicates via HTTP APIs.
 
 ---
 
-## Getting Started
 
-### Build containers
+## 📦 Running Locally
+
+### Prerequisites
+
+Before running this project, ensure you have:
+
+- Git (to clone the repository)
+- Docker & Docker Compose (to run the application)
+
+> If you're using Windows or macOS, install Docker Desktop which includes Docker Compose.
+
+### 1. Clone Repository
 
 ```bash
-docker compose build
-
-## Getting Started
-
-### Build the containers
-
-```bash
-docker compose build
+git clone https://github.com/xMattC/..........
+cd .............
 ```
 
-### Run the application
+### 2. Run migrations for all services:
+
 
 ```bash
-docker compose up
+docker compose up --build -d && \
+docker compose run --rm web python manage.py migrate && \
+docker compose run --rm projects flask --app app.main:create_app db init && \
+docker compose run --rm projects flask --app app.main:create_app db migrate -m "Initial migration" && \
+docker compose run --rm projects flask --app app.main:create_app db upgrade && \
+docker compose run --rm time-tracking flask --app app.main:create_app db init && \
+docker compose run --rm time-tracking flask --app app.main:create_app db migrate -m "Initial migration" && \
+docker compose run --rm time-tracking flask --app app.main:create_app db upgrade
 ```
 
-### Access the app
+### 3. Seed Data
 
-Open your browser:
+```bash
+TODO
+```
 
+### 4. Create Superuser
+
+Run the following command to create a superuser (non-interactive):
+
+```bash
+docker-compose run --rm \
+  -e DJANGO_SUPERUSER_EMAIL=admin@example.com \
+  -e DJANGO_SUPERUSER_PASSWORD=change-me \
+  app python manage.py createsuperuser --noinput
+```
+
+Example local admin:
+> Email: admin@example.com<br>
+> Password: change-me<br>
+> (Local development only)
+
+### 5. Start Server
+
+```bash
+docker-compose up
+```
+---
+### User Login
+
+**web home:**
 http://localhost:8000
 
----
+### Accessing Admin
 
-## Running Django Commands
+**Admin URL:**
+http://localhost:8000/admin/
+
+Login using the local admin credentials above.
+
+
+---
+### Run all Tests & Linting
+
 
 ```bash
-docker compose run --rm web python manage.py <command>
+clear && \
+echo "Running all tests and linting across services..." && \
+docker compose run --rm web python manage.py test ; \
+docker compose run --rm projects pytest ; \
+docker compose run --rm time-tracking pytest ; \
+docker compose run --rm web flake8 ; \
+docker compose run --rm projects flake8 ; \
+docker compose run --rm time-tracking flake8
 ```
 
-**Explanation:**
-
-- `docker compose run` → runs a one-off command in a new container
-- `--rm` → removes the container after execution
-- `web` → service name
-- `manage.py` → Django CLI
-- `sh -c` → runs the command through a shell, enabling features like command chaining (&&)
----
-
-## Common Commands
-
-```bash
-docker compose run --rm web python manage.py test
-
-docker compose run --rm web python manage.py createsuperuser
-
-docker compose run --rm web python manage.py makemigrations
-
-docker compose run --rm web python manage.py migrate
-
-docker compose run --rm web python manage.py shell
-
-docker compose run --rm web flake8
-```
-
-###  Multiple Commands
-
-```Bash
-docker compose run --rm web sh -c "python manage.py test && flake8" && \
-docker compose run --rm projects sh -c "pytest && flake8" && \
-docker compose run --rm time-tracking sh -c "pytest && flake8"
-```
-
----
-
-## Development (VS Code Dev Container)
-
-1. Install the "Dev Containers" extension in VS Code
-2. Open the project folder
-3. Run: "Dev Containers: Reopen in Container"
-
-This will start the development environment inside Docker.
-
-### Workflow
-
-- **Planning** – organise issues by phase and define scope
-- **Work** – track active development using a Kanban board
-- **Roadmap** – visualise progress and phases over time

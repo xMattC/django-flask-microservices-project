@@ -14,36 +14,35 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./services/web:/web # Enable live reload during development
+      - ./services/web:/web
     command: >
       sh -c "python manage.py wait_for_db &&
              python manage.py runserver 0.0.0.0:8000"
     environment:
-      # TODO: rename db → web-db for consistency later
-      - DB_HOST=db
-      - DB_NAME=devdb
-      - DB_USER=devuser
+      - DB_HOST=web-db
+      - DB_NAME=web_db
+      - DB_USER=web_user
       - DB_PASSWORD=changeme
       - DB_PORT=5432
       - DEBUG=1
     depends_on:
-      db:
+      web-db:
         condition: service_healthy
 
   # ------------------------------------------------------------------
   # Django BFF - PostgreSQL database
   # ------------------------------------------------------------------
-  db:
+  web-db:
     image: postgres:15-alpine
     restart: unless-stopped
     volumes:
-      - dev-db-data:/var/lib/postgresql/data # Persist Django DB data
+      - web-db-data:/var/lib/postgresql/data
     environment:
-      - POSTGRES_DB=devdb
-      - POSTGRES_USER=devuser
+      - POSTGRES_DB=web_db
+      - POSTGRES_USER=web_user
       - POSTGRES_PASSWORD=changeme
     healthcheck:
-      test: [ "CMD", "pg_isready", "-q", "-d", "devdb", "-U", "devuser" ]
+      test: [ "CMD", "pg_isready", "-q", "-d", "web_db", "-U", "web_user" ]
 
   # ------------------------------------------------------------------
   # Flask Projects Microservice (owns project data + logic)
@@ -58,19 +57,19 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      - ./services/projects:/app # Live reload
+      - ./services/projects:/app
     command: >
-      sh -c "flask --app app.main:create_app run --host=0.0.0.0 --port=5000
-      --debug"
+      sh -c "
+        flask --app app.main:create_app db upgrade &&
+        flask --app app.main:create_app run --host=0.0.0.0 --port=5000 --debug
+      "
     environment:
       - FLASK_ENV=development
       - FLASK_DEBUG=1
       - PYTHONPATH=/app
-
-      # Database config (projects-db service)
       - DB_HOST=projects-db
-      - DB_NAME=projectsdb
-      - DB_USER=projectsuser
+      - DB_NAME=projects_db
+      - DB_USER=projects_user
       - DB_PASSWORD=changeme
       - DB_PORT=5432
     depends_on:
@@ -84,13 +83,13 @@ services:
     image: postgres:15-alpine
     restart: unless-stopped
     volumes:
-      - projects-db-data:/var/lib/postgresql/data # Persist projects DB data
+      - projects-db-data:/var/lib/postgresql/data
     environment:
-      - POSTGRES_DB=projectsdb
-      - POSTGRES_USER=projectsuser
+      - POSTGRES_DB=projects_db
+      - POSTGRES_USER=projects_user
       - POSTGRES_PASSWORD=changeme
     healthcheck:
-      test: [ "CMD", "pg_isready", "-q", "-d", "projectsdb", "-U", "projectsuser" ]
+      test: [ "CMD", "pg_isready", "-q", "-d", "projects_db", "-U", "projects_user" ]
 
   # ------------------------------------------------------------------
   # Flask Time Tracking Microservice (owns time tracking data + logic)
@@ -107,8 +106,10 @@ services:
     volumes:
       - ./services/time-tracking:/app
     command: >
-      sh -c "flask --app app.main:create_app run --host=0.0.0.0 --port=5000
-      --debug"
+      sh -c "
+        flask --app app.main:create_app db upgrade &&
+        flask --app app.main:create_app run --host=0.0.0.0 --port=5000 --debug
+      "
     environment:
       - FLASK_ENV=development
       - FLASK_DEBUG=1
@@ -135,13 +136,12 @@ services:
       - POSTGRES_USER=time_tracking_user
       - POSTGRES_PASSWORD=changeme
     healthcheck:
-      test:
-        [ "CMD", "pg_isready", "-q", "-d", "time_tracking_db", "-U", "time_tracking_user"]
+      test: [ "CMD", "pg_isready", "-q", "-d", "time_tracking_db", "-U", "time_tracking_user" ]
 
 # ------------------------------------------------------------------
 # Docker volumes for data persistence
 # ------------------------------------------------------------------
 volumes:
-  dev-db-data:
+  web-db-data:
   projects-db-data:
   time-tracking-db-data:

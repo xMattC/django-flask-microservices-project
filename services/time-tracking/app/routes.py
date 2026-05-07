@@ -16,7 +16,7 @@ from app.schemas import (
 routes = Blueprint("routes", __name__, description="Time tracking service endpoints")
 
 # ---------------------------------------------------------------------------------------------------------------------
-# Helper functions for route handlers
+# Health check and error handlers
 # ---------------------------------------------------------------------------------------------------------------------
 
 
