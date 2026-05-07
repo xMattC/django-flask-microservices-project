@@ -173,7 +173,10 @@ def stop_time_entry(user_id: int, time_entry_id: int):
 def update_time_entry(user_id: int, time_entry_id: int, payload: dict):
     url = f"{settings.TIME_TRACKING_SERVICE_URL}/api/time-entries/{time_entry_id}"
 
-    response = requests.patch(url, json=payload, headers={"X-User-ID": str(user_id)}, timeout=5)
+    try:
+        response = requests.patch(url, json=payload, headers={"X-User-ID": str(user_id)}, timeout=5)
+    except requests.RequestException as exc:
+        raise TimeTrackingServiceUnavailable("Time tracking service is unavailable.") from exc
 
     data = response.json()
 
