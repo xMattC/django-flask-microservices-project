@@ -579,7 +579,22 @@ class TimeTrackingClientTests(SimpleTestCase):
         with self.assertRaises(TimeTrackingServiceUnavailable):
             update_time_entry(user_id=user_id, time_entry_id=time_entry_id, payload={})
 
-    # def test_update_time_entry_raises_error_on_non_2xx_response(self):
+    @responses.activate
+    @override_settings(TIME_TRACKING_SERVICE_URL="http://time-tracking:5000")
+    def test_update_time_entry_raises_error_on_non_2xx_response(self):
+        """Test update_time_entry raises TimeTrackingServiceError on 4xx/5xx response."""
+        user_id = 123
+        time_entry_id = 10
+
+        responses.add(
+            method=responses.PATCH,
+            url=f"http://time-tracking:5000/api/time-entries/{time_entry_id}",
+            json={"message": "Error"},
+            status=500,
+        )
+
+        with self.assertRaises(TimeTrackingServiceError):
+            update_time_entry(user_id=user_id, time_entry_id=time_entry_id, payload={})
 
     # def test_update_time_entry_raises_error_on_invalid_response_schema(self):
     # -----------------------------------------------------------------------------------------------------------------
