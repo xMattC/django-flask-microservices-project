@@ -101,13 +101,26 @@ class TimeTrackingClientTests(SimpleTestCase):
         with self.assertRaises(TimeTrackingServiceError):
             create_time_entry(user_id=user_id, payload=request_payload)
 
-    # def test_create_time_entry_raises_error_on_invalid_json_response(self):
+    def test_create_time_entry_raises_error_on_invalid_json_response(self):
+        """Test create_time_entry raises TimeTrackingServiceError on invalid JSON response."""
+        user_id = 123
+        request_payload = {"project_id": 42, "description": "Test"}
+
+        with responses.RequestsMock() as rsps:
+            rsps.add(
+                method=responses.POST,
+                url="http://time-tracking:5000/api/time-entries",
+                body="Not a JSON",
+                status=201,
+            )
+
+            with self.assertRaises(TimeTrackingServiceError):
+                create_time_entry(user_id=user_id, payload=request_payload)
 
     # def test_create_time_entry_raises_error_when_results_key_missing(self):
 
     # def test_create_time_entry_raises_error_when_results_is_not_list(self):
 
-    # def test_create_time_entry_raises_error_when_results_contains_invalid_project_count(self):
 
     # -----------------------------------------------------------------------------------------------------------------
     # Test cases for get_time_entries
