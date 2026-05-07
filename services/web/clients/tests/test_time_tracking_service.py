@@ -539,7 +539,29 @@ class TimeTrackingClientTests(SimpleTestCase):
 
         self.assertEqual(result, mock_response_payload["results"][0])
 
-    # def test_update_time_entry_sends_user_id_header_and_payload(self):
+    @responses.activate
+    @override_settings(TIME_TRACKING_SERVICE_URL="http://time-tracking:5000")
+    def test_update_time_entry_sends_user_id_header_and_payload(self):
+        """Test update_time_entry sends X-User-ID header and JSON payload."""
+        user_id = 123
+        time_entry_id = 10
+        request_payload = {"description": "Updated"}
+
+        responses.add(
+            method=responses.PATCH,
+            url=f"http://time-tracking:5000/api/time-entries/{time_entry_id}",
+            json={"results": [{}]},
+            status=200,
+        )
+
+        update_time_entry(user_id=user_id, time_entry_id=time_entry_id, payload=request_payload)
+
+        request = responses.calls[0].request
+
+        self.assertEqual(request.headers.get("X-User-ID"), str(user_id))
+        self.assertEqual(request.headers.get("Content-Type"), "application/json")
+        self.assertIsNotNone(request.body)
+        self.assertEqual(json.loads(request.body), request_payload)
 
     # def test_update_time_entry_raises_service_unavailable_on_request_exception(self):
 
