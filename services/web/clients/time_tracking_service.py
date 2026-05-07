@@ -91,18 +91,39 @@ def get_time_entries(user_id: int, project_id: int | None = None, running_only: 
 
 
 def get_time_entry(user_id: int, time_entry_id: int):
-    """Get a single time entry for a given user."""
+    """Get a single time entry for a given user.
+
+    Sends a GET request to the Time Tracking service and returns one time entry.
+
+    Parameters:
+    - user_id : The ID of the authenticated user.
+    - time_entry_id : The ID of the time entry to retrieve.
+
+    Returns:
+    - A dictionary representing the time entry.
+    """
 
     url = f"{settings.TIME_TRACKING_SERVICE_URL}/api/time-entries/{time_entry_id}"
 
     try:
-        response = requests.get( url, headers={"X-User-ID": str(user_id)}, timeout=5)
+        response = requests.get(url, headers={"X-User-ID": str(user_id)}, timeout=5)
     except requests.RequestException as exc:
         raise TimeTrackingServiceUnavailable("Time tracking service is unavailable.") from exc
 
     if response.status_code != 200:
-            raise TimeTrackingServiceError(f"Time tracking service returned {response.status_code}")
+        raise TimeTrackingServiceError(f"Time tracking service returned {response.status_code}")
 
     data = response.json()
 
-    return data["results"][0]
+    try:
+        results = data["results"]
+    except KeyError as exc:
+        raise TimeTrackingServiceError("Time tracking service response missing results.") from exc
+
+    if not isinstance(results, list):
+        raise TimeTrackingServiceError("Time tracking service results must be a list.")
+
+    if len(results) != 1:
+        raise TimeTrackingServiceError("Time tracking service must return exactly one time entry.")
+
+    return results[0]
