@@ -37,4 +37,7 @@ def create_time_entry(user_id: int, payload: dict):
     except ValueError as exc:
         raise TimeTrackingServiceError("Time tracking service returned invalid JSON.") from exc
 
+    if "results" not in data or not isinstance(data["results"], list):
+        raise TimeTrackingServiceError("Time tracking service returned invalid data structure.")
+
     return data["results"][0]
