@@ -171,6 +171,18 @@ def stop_time_entry(user_id: int, time_entry_id: int):
 
 
 def update_time_entry(user_id: int, time_entry_id: int, payload: dict):
+    """Update a time entry for a given user.
+
+    Sends a PATCH request to the Time Tracking service and returns the updated time entry.
+
+    Parameters:
+    - user_id : The ID of the authenticated user.
+    - time_entry_id : The ID of the time entry to update.
+    - payload : The update payload to send to the Time Tracking service.
+
+    Returns:
+    - A dictionary representing the updated time entry.
+    """
     url = f"{settings.TIME_TRACKING_SERVICE_URL}/api/time-entries/{time_entry_id}"
 
     try:
@@ -181,8 +193,21 @@ def update_time_entry(user_id: int, time_entry_id: int, payload: dict):
     if response.status_code != 200:
         raise TimeTrackingServiceError(f"Time tracking service returned {response.status_code}")
 
+    try:
+        data = response.json()
+    except ValueError as exc:
+        raise TimeTrackingServiceError("Time tracking service returned invalid JSON.") from exc
 
-    data = response.json()
+    try:
+        results = data["results"]
+    except KeyError as exc:
+        raise TimeTrackingServiceError("Time tracking service response missing results.") from exc
 
-    return data["results"][0]
+    if not isinstance(results, list):
+        raise TimeTrackingServiceError("Time tracking service results must be a list.")
+
+    if len(results) != 1:
+        raise TimeTrackingServiceError("Time tracking service must return exactly one time entry.")
+
+    return results[0]
 
