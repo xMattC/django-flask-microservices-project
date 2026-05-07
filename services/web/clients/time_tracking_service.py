@@ -42,7 +42,7 @@ def create_time_entry(user_id: int, payload: dict):
 
     return data["results"][0]
 
-def get_time_entries(user_id: int, project_id: int = None, running_only: bool = False):
+def get_time_entries(user_id: int, project_id: int | None = None, running_only: bool = False):
     """Get time entries for a given user, optionally filtered by project and running status.
 
     Sends a GET request to the Time Tracking service and returns a list of time entries.
@@ -64,7 +64,10 @@ def get_time_entries(user_id: int, project_id: int = None, running_only: bool = 
     if running_only:
         params["running_only"] = "true"
 
-    response = requests.get(url, headers={"X-User-ID": str(user_id)}, params=params, timeout=5)
+    try:
+        response = requests.get(url, headers={"X-User-ID": str(user_id)}, params=params, timeout=5)
+    except requests.RequestException as exc:
+        raise TimeTrackingServiceUnavailable("Time tracking service is unavailable.") from exc
 
     data = response.json()
 
