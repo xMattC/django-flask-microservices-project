@@ -29,10 +29,12 @@ def create_time_entry(user_id: int, payload: dict):
     except requests.RequestException as exc:
         raise TimeTrackingServiceUnavailable("Time tracking service is unavailable.") from exc
 
-
     if response.status_code != 201:
         raise TimeTrackingServiceError(f"Time tracking service returned {response.status_code}")
 
-    data = response.json()
+    try:
+        data = response.json()
+    except ValueError as exc:
+        raise TimeTrackingServiceError("Time tracking service returned invalid JSON.") from exc
 
     return data["results"][0]
