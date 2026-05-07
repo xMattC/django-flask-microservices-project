@@ -129,4 +129,21 @@ def get_time_entry(user_id: int, time_entry_id: int):
     return results[0]
 
 def stop_time_entry(user_id: int, time_entry_id: int):
-    pass
+    """Stop a running time entry for a given user.
+
+    Sends a POST request to the Time Tracking service and returns the stopped time entry.
+
+    Parameters:
+    - user_id : The ID of the authenticated user.
+    - time_entry_id : The ID of the time entry to stop.
+
+    Returns:
+    - A dictionary representing the stopped time entry.
+    """
+    url = f"{settings.TIME_TRACKING_SERVICE_URL}/api/time-entries/{time_entry_id}/stop"
+
+    response = requests.post(url, headers={"X-User-ID": str(user_id)}, timeout=5)
+
+    data = response.json()
+
+    return data["results"][0]
