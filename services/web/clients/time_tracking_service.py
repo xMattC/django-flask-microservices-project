@@ -151,6 +151,20 @@ def stop_time_entry(user_id: int, time_entry_id: int):
     if response.status_code != 200:
         raise TimeTrackingServiceError(f"Time tracking service returned {response.status_code}")
 
-    data = response.json()
+    try:
+        data = response.json()
+    except ValueError as exc:
+        raise TimeTrackingServiceError("Time tracking service returned invalid JSON.") from exc
 
-    return data["results"][0]
+    try:
+        results = data["results"]
+    except KeyError as exc:
+        raise TimeTrackingServiceError("Time tracking service response missing results.") from exc
+
+    if not isinstance(results, list):
+        raise TimeTrackingServiceError("Time tracking service results must be a list.")
+
+    if len(results) != 1:
+        raise TimeTrackingServiceError("Time tracking service must return exactly one time entry.")
+
+    return results[0]
