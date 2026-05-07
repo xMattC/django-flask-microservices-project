@@ -84,7 +84,22 @@ class TimeTrackingClientTests(SimpleTestCase):
         with self.assertRaises(TimeTrackingServiceUnavailable):
             create_time_entry(user_id=user_id, payload=request_payload)
 
-    # def test_create_time_entry_raises_error_on_non_2xx_response(self):
+    @responses.activate
+    @override_settings(TIME_TRACKING_SERVICE_URL="http://time-tracking:5000")
+    def test_create_time_entry_raises_error_on_non_2xx_response(self):
+        """Test create_time_entry raises TimeTrackingServiceError on 4xx/5xx response."""
+        user_id = 123
+        request_payload = {"project_id": 42, "description": "Test"}
+
+        responses.add(
+            method=responses.POST,
+            url="http://time-tracking:5000/api/time-entries",
+            json={"message": "Error"},
+            status=500,
+        )
+
+        with self.assertRaises(TimeTrackingServiceError):
+            create_time_entry(user_id=user_id, payload=request_payload)
 
     # def test_create_time_entry_raises_error_on_invalid_json_response(self):
 
