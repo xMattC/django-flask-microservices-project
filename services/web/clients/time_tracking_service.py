@@ -171,4 +171,11 @@ def stop_time_entry(user_id: int, time_entry_id: int):
 
 
 def update_time_entry(user_id: int, time_entry_id: int, payload: dict):
-    pass
+    url = f"{settings.TIME_TRACKING_SERVICE_URL}/api/time-entries/{time_entry_id}"
+
+    response = requests.patch(url, json=payload, headers={"X-User-ID": str(user_id)}, timeout=5)
+
+    data = response.json()
+
+    return data["results"][0]
+
