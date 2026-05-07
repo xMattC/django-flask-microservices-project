@@ -7,6 +7,7 @@ from clients.time_tracking_service import (
     TimeTrackingServiceError,
     TimeTrackingServiceUnavailable,
     create_time_entry,
+    get_time_entries,
 )
 
 

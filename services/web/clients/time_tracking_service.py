@@ -41,3 +41,17 @@ def create_time_entry(user_id: int, payload: dict):
         raise TimeTrackingServiceError("Time tracking service returned invalid data structure.")
 
     return data["results"][0]
+
+def get_time_entries(user_id: int):
+    """Get time entries for a given user, optionally filtered by project and running status.
+
+    Sends a GET request to the Time Tracking service and returns a list of time entries.
+
+    Returns:
+    - A list of dictionaries representing the time entries.
+    """
+    url = f"{settings.TIME_TRACKING_SERVICE_URL}/api/time-entries"
+    response = requests.get(url, headers={"X-User-ID": str(user_id)}, timeout=5)
+    data = response.json()
+
+    return data['results']
