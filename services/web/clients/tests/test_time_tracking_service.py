@@ -101,6 +101,8 @@ class TimeTrackingClientTests(SimpleTestCase):
         with self.assertRaises(TimeTrackingServiceError):
             create_time_entry(user_id=user_id, payload=request_payload)
 
+    @responses.activate
+    @override_settings(TIME_TRACKING_SERVICE_URL="http://time-tracking:5000")
     def test_create_time_entry_raises_error_on_invalid_json_response(self):
         """Test create_time_entry raises TimeTrackingServiceError on invalid JSON response."""
         user_id = 123
@@ -117,7 +119,23 @@ class TimeTrackingClientTests(SimpleTestCase):
             with self.assertRaises(TimeTrackingServiceError):
                 create_time_entry(user_id=user_id, payload=request_payload)
 
-    # def test_create_time_entry_raises_error_when_results_key_missing(self):
+    @responses.activate
+    @override_settings(TIME_TRACKING_SERVICE_URL="http://time-tracking:5000")
+    def test_create_time_entry_raises_error_when_results_key_missing(self):
+        """Test create_time_entry raises TimeTrackingServiceError when 'results' key is missing."""
+        user_id = 123
+        request_payload = {"project_id": 42, "description": "Test"}
+        mock_response_payload = {"unexpected_key": []}
+
+        responses.add(
+            method=responses.POST,
+            url="http://time-tracking:5000/api/time-entries",
+            json=mock_response_payload,
+            status=201,
+        )
+
+        with self.assertRaises(TimeTrackingServiceError):
+            create_time_entry(user_id=user_id, payload=request_payload)
 
     # def test_create_time_entry_raises_error_when_results_is_not_list(self):
 
