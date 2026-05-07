@@ -100,6 +100,9 @@ def get_time_entry(user_id: int, time_entry_id: int):
     except requests.RequestException as exc:
         raise TimeTrackingServiceUnavailable("Time tracking service is unavailable.") from exc
 
+    if response.status_code != 200:
+            raise TimeTrackingServiceError(f"Time tracking service returned {response.status_code}")
+
     data = response.json()
 
     return data["results"][0]
