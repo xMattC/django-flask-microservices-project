@@ -4,6 +4,8 @@ import json
 from django.test import SimpleTestCase, override_settings
 
 from clients.time_tracking_service import (
+    TimeTrackingServiceError,
+    TimeTrackingServiceUnavailable,
     create_time_entry,
 )
 
@@ -29,10 +31,7 @@ class TimeTrackingClientTests(SimpleTestCase):
     def test_create_time_entry_sends_user_id_header_payload_and_returns_time_entry(self):
         """Test create_time_entry calls upstream with user header, payload, and returns one time entry."""
         user_id = 123
-        request_payload = {
-            "project_id": 42,
-            "description": "Test",
-        }
+        request_payload = {"project_id": 42, "description": "Test"}
         mock_response_payload = {
             "results": [
                 {
@@ -65,6 +64,35 @@ class TimeTrackingClientTests(SimpleTestCase):
         self.assertEqual(request.headers.get("Content-Type"), "application/json")
         self.assertEqual(request.headers.get("Content-Type"), "application/json")
         self.assertEqual(json.loads(request.body), request_payload)
+
+    @responses.activate
+    @override_settings(TIME_TRACKING_SERVICE_URL="http://time-tracking:5000")
+    def test_create_time_entry_raises_service_unavailable_on_request_exception(self):
+        """Test create_time_entry raises TimeTrackingServiceUnavailable on network failure."""
+        user_id = 123
+        request_payload = {"project_id": 42, "description": "Test"}
+
+        def raise_error(request):
+            raise requests.ConnectionError("Service down")
+
+        responses.add_callback(
+            method=responses.POST,
+            url="http://time-tracking:5000/api/time-entries",
+            callback=raise_error,
+        )
+
+        with self.assertRaises(TimeTrackingServiceUnavailable):
+            create_time_entry(user_id=user_id, payload=request_payload)
+
+    # def test_create_time_entry_raises_error_on_non_2xx_response(self):
+
+    # def test_create_time_entry_raises_error_on_invalid_json_response(self):
+
+    # def test_create_time_entry_raises_error_when_results_key_missing(self):
+
+    # def test_create_time_entry_raises_error_when_results_is_not_list(self):
+
+    # def test_create_time_entry_raises_error_when_results_contains_invalid_project_count(self):
 
     # -----------------------------------------------------------------------------------------------------------------
     # Test cases for get_time_entries
