@@ -211,6 +211,7 @@ def update_time_entry(user_id: int, time_entry_id: int, payload: dict):
 
     return results[0]
 
+
 def delete_time_entry(user_id: int, time_entry_id: int):
     """Delete a time entry for a given user.
 
@@ -219,6 +220,9 @@ def delete_time_entry(user_id: int, time_entry_id: int):
     Parameters:
     - user_id : The ID of the authenticated user.
     - time_entry_id : The ID of the time entry to delete.
+
+    Returns:
+    - True when the time entry is deleted successfully.
     """
     url = f"{settings.TIME_TRACKING_SERVICE_URL}/api/time-entries/{time_entry_id}"
 
@@ -227,5 +231,7 @@ def delete_time_entry(user_id: int, time_entry_id: int):
     except requests.RequestException as exc:
         raise TimeTrackingServiceUnavailable("Time tracking service is unavailable.") from exc
 
+    if response.status_code != 204:
+        raise TimeTrackingServiceError(f"Time tracking service returned {response.status_code}")
 
     return True
