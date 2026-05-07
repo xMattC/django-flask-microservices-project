@@ -242,7 +242,21 @@ class TimeTrackingClientTests(SimpleTestCase):
         self.assertIn("project_id=42", request.url)
         self.assertIn("running_only=true", request.url)
 
-    # def test_get_time_entries_raises_service_unavailable_on_request_exception(self):
+    @responses.activate
+    @override_settings(TIME_TRACKING_SERVICE_URL="http://time-tracking:5000")
+    def test_get_time_entries_raises_service_unavailable_on_request_exception(self):
+        """Test get_time_entries raises TimeTrackingServiceUnavailable on request exception."""
+        user_id = 123
+
+        responses.add(
+            method=responses.GET,
+            url="http://time-tracking:5000/api/time-entries",
+            body=requests.RequestException("Network error"),
+            status=500,
+        )
+
+        with self.assertRaises(TimeTrackingServiceUnavailable):
+            get_time_entries(user_id=user_id)
 
     # def test_get_time_entries_raises_error_on_non_2xx_response(self):
 
