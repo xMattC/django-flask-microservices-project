@@ -211,3 +211,5 @@ def update_time_entry(user_id: int, time_entry_id: int, payload: dict):
 
     return results[0]
 
+def delete_time_entry(user_id: int, time_entry_id: int):
+    pass

@@ -11,6 +11,7 @@ from clients.time_tracking_service import (
     get_time_entry,
     stop_time_entry,
     update_time_entry,
+    delete_time_entry,
 )
 
 
@@ -612,6 +613,30 @@ class TimeTrackingClientTests(SimpleTestCase):
 
         with self.assertRaises(TimeTrackingServiceError):
             update_time_entry(user_id=user_id, time_entry_id=time_entry_id, payload={})
+
     # -----------------------------------------------------------------------------------------------------------------
     # Test cases for delete_time_entry
     # -----------------------------------------------------------------------------------------------------------------
+    @responses.activate
+    @override_settings(TIME_TRACKING_SERVICE_URL="http://time-tracking:5000")
+    def test_delete_time_entry_returns_success(self):
+        """Test delete_time_entry returns True on successful delete."""
+        user_id = 123
+        time_entry_id = 10
+
+        responses.add(
+            method=responses.DELETE,
+            url=f"http://time-tracking:5000/api/time-entries/{time_entry_id}",
+            status=204,
+        )
+
+        result = delete_time_entry(user_id=user_id, time_entry_id=time_entry_id)
+
+        self.assertTrue(result)
+        self.assertEqual(len(responses.calls), 1)
+
+    # def test_delete_time_entry_sends_user_id_header(self):
+
+    # def test_delete_time_entry_raises_service_unavailable_on_request_exception(self):
+
+    # def test_delete_time_entry_raises_error_on_non_2xx_response(self):
