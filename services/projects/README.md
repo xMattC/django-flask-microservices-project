@@ -1,69 +1,49 @@
-# Projects Service (Flask)
+# Projects service (Flask)
 
-Lightweight Flask microservice responsible for **project CRUD**.
+Lightweight Flask microservice responsible for **Projects CRUD**.
 
 This service:
 
-* Owns project data and logic
+* Owns Projects data and logic
 * Uses `X-User-ID` for ownership
 * Has its own database (`projects-db`)
 * Is completely independent from Django (`web/`)
 
 ---
 
+## Tech Stack
+
+- **Microservice Backend:** Python, Flask
+- **API Documentation Layer:** Flask-Smorest — adds OpenAPI/Swagger docs and API route metadata
+- **Request Validation / Serialization:** Marshmallow — schema-based request validation and API response serialization
+- **Database Access:** SQLAlchemy — ORM for defining models and querying PostgreSQL
+- **Database Migrations:** Flask-Migrate / Alembic — manages database schema changes
+- **Database:** PostgreSQL
+- **Infrastructure:** Docker, Docker Compose
+- **Integration Pattern:** Django BFF → Flask microservice using `X-User-ID` request headers
+
+---
+
 ## Running the Service
 
-### 1. Run the full system (recommended)
+From the **repository root**:
 
-From the **project root**:
-
+### 1. Run the full system
 ```bash
 docker compose up --build
 ```
 
-This starts:
-
-* Django (`web`)
-* Projects service (`projects`)
-* Databases (`db`, `projects-db`)
-
----
-
-### 2. Run ONLY the projects service
-
+### 2. Run ONLY the Projects service
 ```bash
 docker compose up --build projects
 ```
 
-Starts:
-
-* `projects`
-* `projects-db`
-
----
-
-### 3. Stop everything
-
-```bash
-docker compose down
-```
-
-Reset DBs (deletes data):
-
-```bash
-docker compose down -v
-```
-
----
-
-## Service URL
+### Service URL
 
 http://localhost:5000
 
----
 
-
-## Service API Docs
+### Service API Docs
 
 http://localhost:5000/docs
 
@@ -82,10 +62,7 @@ Expected:
 ```json
 {"status": "ok"}
 ```
-
----
-
-### Database health
+### DB health
 
 ```bash
 curl http://localhost:5000/db-health
@@ -101,29 +78,22 @@ Expected:
 
 ## Database & Migrations
 
-### Start DB only
+### Start database only
 
 ```bash
 docker compose up -d projects-db
 ```
 
----
-
-### Initialise migrations (run once first thime then ignore)
-
+### Initialise migrations (run once)
 ```bash
 docker compose run --rm projects flask --app app.main:create_app db init
 ```
-
----
 
 ### Create a migration
 
 ```bash
 docker compose run --rm projects flask --app app.main:create_app db migrate -m "message"
 ```
-
----
 
 ### Apply migrations
 
@@ -132,25 +102,18 @@ docker compose run --rm projects flask --app app.main:create_app db upgrade
 ```
 
 ---
-
-### Notes
-
-* DB must be running for migrations
-* App does NOT need to be running
-* Migration files are auto-generated (safe to exclude from linting)
-
----
-
 ## Docker Notes
 
-* Runs on port `5000`
+* Exposed on host port `5000`
+* Runs internally on port `5000`
+
 * Mounted volume for live reload:
 
 ```yaml
-- ./services/projects:/app
+./services/projects:/app
 ```
 
-* Flask runs via:
+Flask runs via:
 
 ```bash
 flask --app app.main:create_app run --host=0.0.0.0 --port=5000 --debug
@@ -161,22 +124,8 @@ flask --app app.main:create_app run --host=0.0.0.0 --port=5000 --debug
 ## Tests & Linting
 
 ```bash
-docker compose run --rm projects python -m pytest
-docker compose run --rm projects flake8
-docker compose run --rm projects sh -c "python -m pytest && flake8"
+docker compose run --rm Projects python -m pytest
+docker compose run --rm Projects flake8
+docker compose run --rm Projects sh -c "python -m pytest && flake8"
 ```
-
----
-
-## Dev Notes
-
-* Use service name for internal calls:
-
-```
-http://projects:5000
-```
-
-* Never use `localhost` between containers
-* DB config comes from environment variables
-* Models define DB schema → migrations apply it
 

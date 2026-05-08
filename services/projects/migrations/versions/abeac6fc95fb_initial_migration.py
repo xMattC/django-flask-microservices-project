@@ -1,8 +1,8 @@
-"""create projects table
+"""Initial migration
 
-Revision ID: 58835f0dcd99
+Revision ID: abeac6fc95fb
 Revises: 
-Create Date: 2026-05-01 11:31:10.225084
+Create Date: 2026-05-07 15:03:34.340628
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '58835f0dcd99'
+revision = 'abeac6fc95fb'
 down_revision = None
 branch_labels = None
 depends_on = None

@@ -16,7 +16,7 @@ from app.schemas import (
 routes = Blueprint("routes", __name__, description="Time tracking service endpoints")
 
 # ---------------------------------------------------------------------------------------------------------------------
-# Helper functions for route handlers
+# Health check and error handlers
 # ---------------------------------------------------------------------------------------------------------------------
 
 
@@ -53,13 +53,18 @@ def db_health():
 
 @routes.post("/time-entries")
 @routes.arguments(TimeEntryCreateSchema)
-@endpoint_docs(routes, success_code=201, response_schema=TimeEntryResultsSchema, errors=(400,))
+@endpoint_docs(routes, success_code=201, response_schema=TimeEntryResultsSchema, errors=(400, 409))
 def create_time_entry(data):
     """Create a new time entry."""
 
     user_id = request.headers.get("X-User-ID")
     if not user_id:
         return jsonify({"message": "Missing X-User-ID header"}), 400
+
+    running_entry = TimeEntry.query.filter_by(owner_user_id=user_id).filter(TimeEntry.ended_at.is_(None)).first()
+
+    if running_entry:
+        return (jsonify({"message": "User already has a running time entry."}), 409)
 
     entry = TimeEntry(
         owner_user_id=user_id,
@@ -93,7 +98,7 @@ def list_time_entries():
     if running_only == "true":
         query = query.filter(TimeEntry.ended_at.is_(None))
 
-    entries = query.all()
+    entries = query.order_by(TimeEntry.started_at.desc()).all()
 
     return jsonify({"results": [entry.to_dict() for entry in entries]}), 200
 
@@ -159,6 +164,12 @@ def update_time_entry(data, entry_id):
 
     if "project_id" in data:
         entry.project_id = data["project_id"]
+
+    if "started_at" in data:
+        entry.started_at = data["started_at"]
+
+    if "ended_at" in data:
+        entry.ended_at = data["ended_at"]
 
     db.session.commit()
 

@@ -67,10 +67,6 @@
             <p class="text-warning small">{{ project_update_error }}</p>
           {% endif %}
 
-          {% if project_delete_error %}
-            <p class="text-warning small">{{ project_delete_error }}</p>
-          {% endif %}
-
           <div class="projects-scroll-window">
             {% for project in projects|dictsort:"name" %}
               <div class="border rounded p-3 mb-3">
@@ -94,7 +90,7 @@
                   </div>
                 </form>
 
-                <form method="post">
+                <form method="post" class="d-flex align-items-center gap-2">
                   {% csrf_token %}
                   <input type="hidden" name="form_type" value="delete_project">
                   <input type="hidden" name="project_id" value="{{ project.id }}">
@@ -102,6 +98,12 @@
                   <button type="submit" class="btn btn-outline-danger btn-sm">
                     Delete
                   </button>
+
+                  {% if project_delete_error and project_delete_id == project.id %}
+                    <span class="text-warning small">
+                      {{ project_delete_error }}
+                    </span>
+                  {% endif %}
                 </form>
               </div>
             {% endfor %}

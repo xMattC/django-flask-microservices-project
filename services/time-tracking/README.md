@@ -26,7 +26,7 @@ This service:
 
 ## Running the Service
 
-From the **project root**:
+From the **repository root**:
 
 ### 1. Run the full system
 ```bash
