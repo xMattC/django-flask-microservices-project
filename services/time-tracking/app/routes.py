@@ -53,13 +53,18 @@ def db_health():
 
 @routes.post("/time-entries")
 @routes.arguments(TimeEntryCreateSchema)
-@endpoint_docs(routes, success_code=201, response_schema=TimeEntryResultsSchema, errors=(400,))
+@endpoint_docs(routes, success_code=201, response_schema=TimeEntryResultsSchema, errors=(400, 409))
 def create_time_entry(data):
     """Create a new time entry."""
 
     user_id = request.headers.get("X-User-ID")
     if not user_id:
         return jsonify({"message": "Missing X-User-ID header"}), 400
+
+    running_entry = TimeEntry.query.filter_by(owner_user_id=user_id).filter(TimeEntry.ended_at.is_(None)).first()
+
+    if running_entry:
+        return (jsonify({"message": "User already has a running time entry."}), 409)
 
     entry = TimeEntry(
         owner_user_id=user_id,

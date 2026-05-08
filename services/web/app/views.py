@@ -75,6 +75,7 @@ def dashboard_view(request) -> HttpResponse:
         },
     )
 
+
 @login_required
 def projects_view(request) -> HttpResponse:
     projects = []
@@ -161,14 +162,16 @@ def projects_view(request) -> HttpResponse:
 
 
 @login_required
-def clock_in_view(request):
+def clock_in_view(request) -> HttpResponse:
     selected_project_id = request.session.get("selected_project_id")
 
-    if selected_project_id:
-        create_time_entry(
-            request.user.id,
-            {"project_id": selected_project_id},
-        )
+    if not selected_project_id:
+        return redirect("app:dashboard")
+
+    try:
+        create_time_entry(request.user.id, {"project_id": selected_project_id})
+    except TimeTrackingServiceError:
+        pass
 
     return redirect("app:dashboard")
 

@@ -15,7 +15,7 @@ This service:
 
 ### 1. Run the full system (recommended)
 
-From the **project root**:
+From the **repository root**:
 
 ```bash
 docker compose up --build
