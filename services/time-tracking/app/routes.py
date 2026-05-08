@@ -165,6 +165,12 @@ def update_time_entry(data, entry_id):
     if "project_id" in data:
         entry.project_id = data["project_id"]
 
+    if "started_at" in data:
+        entry.started_at = data["started_at"]
+
+    if "ended_at" in data:
+        entry.ended_at = data["ended_at"]
+
     db.session.commit()
 
     return jsonify({"results": [entry.to_dict()]}), 200

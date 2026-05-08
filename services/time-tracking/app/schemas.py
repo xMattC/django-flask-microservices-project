@@ -13,7 +13,8 @@ class TimeEntryUpdateSchema(Schema):
 
     project_id = fields.Integer()
     description = fields.String(allow_none=True)
-
+    started_at = fields.DateTime(required=False)
+    ended_at = fields.DateTime(required=False, allow_none=True)
 
 class TimeEntryResponseSchema(Schema):
     """Schema representing a time entry object in API responses."""

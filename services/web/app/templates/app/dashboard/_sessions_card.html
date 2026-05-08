@@ -1,24 +1,22 @@
 <div class="card">
 
   <div class="card-header">
-    <h3>Sessions</h3>
+    <h3 class="mb-0">Sessions</h3>
   </div>
 
   <div class="card-body">
 
-    <style>
-      table {
-        width: 100%;
-        border-collapse: collapse;
-      }
+    {% if session_update_error %}
+    <div class="alert alert-danger">
+      {{ session_update_error }}
+    </div>
+    {% endif %}
 
-      th,
-      td {
-        text-align: left;
-        padding: 0.5rem;
-        border-bottom: 1px solid #ddd;
-      }
-    </style>
+    {% if session_delete_error %}
+    <div class="alert alert-danger">
+      {{ session_delete_error }}
+    </div>
+    {% endif %}
 
     {% if sessions_error %}
 
@@ -26,51 +24,101 @@
 
     {% elif sessions %}
 
-    <table>
+    <div class="sessions-scroll-window">
 
-      <thead>
-        <tr>
-          <th>Project</th>
-          <th>Start</th>
-          <th>End</th>
-          <th>Duration</th>
-        </tr>
-      </thead>
+      <table class="sessions-table">
+        <thead>
+          <tr>
+            <th>Project</th>
+            <th>Start</th>
+            <th>End</th>
+            <th>Duration</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
 
-      <tbody>
+        <tbody>
 
-        {% for session in sessions %}
-        <tr>
+          {% for session in sessions %}
 
-          <td>
-            {{ session.project_id }}
-          </td>
+          <tr>
+            <td class="sessions-project-cell" title="{{ session.project_name }}">
+              {{ session.project_name }}
+            </td>
+            <td>{{ session.created_at_display }}</td>
+            <td>{{ session.ended_at_display }}</td>
+            <td>{{ session.duration_display }}</td>
 
-          <td>
-            {{ session.created_at }}
-          </td>
+            <td>
+              {% if session.ended_at %}
+              <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse"
+                data-bs-target="#edit-session-{{ session.id }}">
+                Edit
+              </button>
+              {% else %}
+              <span class="text-muted">Running</span>
+              {% endif %}
+            </td>
+          </tr>
 
-          <td>
-            {{ session.ended_at|default:"Running" }}
-          </td>
+          {% if session.ended_at %}
+          <tr class="collapse" id="edit-session-{{ session.id }}">
+            <td colspan="5">
 
-          <td>
-            {{ session.duration_seconds|default:"-" }}
-          </td>
+              <form method="post">
+                {% csrf_token %}
 
-        </tr>
-        {% endfor %}
+                <input type="hidden" name="form_type" value="update_session">
+                <input type="hidden" name="session_id" value="{{ session.id }}">
 
-      </tbody>
 
-    </table>
+                <div class="d-flex gap-2 align-items-end">
 
-    {% else %}
+                  <div style="width: 260px;">
+                    <label class="form-label">Start</label>
 
-    <p>No sessions found.</p>
+                    <input type="datetime-local" name="started_at" class="form-control"
+                      value="{{ session.started_at_form }}">
+                  </div>
 
+                  <div style="width: 260px;">
+                    <label class="form-label">End</label>
+
+                    <input type="datetime-local" name="ended_at" class="form-control"
+                      value="{{ session.ended_at_form }}">
+                  </div>
+
+                  <button type="submit" class="btn btn-sm btn-success">
+                    Save
+                  </button>
+
+                  <button type="submit" class="btn btn-sm btn-danger" name="form_type" value="delete_session">
+                    Delete
+                  </button>
+
+                </div>
+
+    </div>
+
+    </form>
+
+    </td>
+    </tr>
     {% endif %}
 
+    {% endfor %}
+
+    </tbody>
+    </table>
+
   </div>
+
+  {% else %}
+
+  <p>No sessions found.</p>
+
+  {% endif %}
+
+</div>
 
 </div>
