@@ -39,6 +39,7 @@ def init_extensions(app):
     # Ensure SQLAlchemy models are imported so Flask-Migrate detects tables
     import app.models  # noqa: F401
 
+
 def register_routes(api):
     """Register application routes."""
     api.register_blueprint(routes, url_prefix="/api")

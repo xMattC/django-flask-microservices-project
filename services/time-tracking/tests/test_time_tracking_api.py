@@ -1,7 +1,4 @@
-from datetime import datetime, timezone
-
 from app.models import TimeEntry
-from app.extensions import db
 
 USER_HEADERS = {"X-User-ID": "123"}
 OTHER_USER_HEADERS = {"X-User-ID": "999"}
@@ -120,7 +117,11 @@ def test_get_all_time_entries(client):
     payload_1 = {"project_id": 1, "description": "Initial work session"}
     payload_2 = {"project_id": 2, "description": "Second work session"}
 
-    client.post("/api/time-entries", json=payload_1, headers=USER_HEADERS)
+    response_1 = client.post("/api/time-entries", json=payload_1, headers=USER_HEADERS)
+    entry_1 = get_first_result(response_1)
+
+    client.patch(f"/api/time-entries/{entry_1['id']}/stop", headers=USER_HEADERS)
+
     client.post("/api/time-entries", json=payload_2, headers=USER_HEADERS)
 
     response = client.get("/api/time-entries", headers=USER_HEADERS)
@@ -163,7 +164,11 @@ def test_get_time_entries_filtered_by_project_id(client):
     payload_1 = {"project_id": 1, "description": "Project one session"}
     payload_2 = {"project_id": 2, "description": "Project two session"}
 
-    client.post("/api/time-entries", json=payload_1, headers=USER_HEADERS)
+    response_1 = client.post("/api/time-entries", json=payload_1, headers=USER_HEADERS)
+    entry_1 = get_first_result(response_1)
+
+    client.patch(f"/api/time-entries/{entry_1['id']}/stop", headers=USER_HEADERS)
+
     client.post("/api/time-entries", json=payload_2, headers=USER_HEADERS)
 
     response = client.get("/api/time-entries?project_id=2", headers=USER_HEADERS)
@@ -177,19 +182,16 @@ def test_get_time_entries_filtered_by_project_id(client):
     assert entries[0]["description"] == payload_2["description"]
 
 
-def test_get_time_entries_filtered_by_running_only(app, client):
-    running_payload = {"project_id": 1, "description": "Running session"}
+def test_get_time_entries_filtered_by_running_only(client):
     stopped_payload = {"project_id": 1, "description": "Stopped session"}
+    running_payload = {"project_id": 1, "description": "Running session"}
 
-    running_response = client.post("/api/time-entries", json=running_payload, headers=USER_HEADERS)
     stopped_response = client.post("/api/time-entries", json=stopped_payload, headers=USER_HEADERS)
-
     stopped_entry_id = get_first_result(stopped_response)["id"]
 
-    with app.app_context():
-        stopped_entry = TimeEntry.query.get(stopped_entry_id)
-        stopped_entry.ended_at = datetime.now(timezone.utc)
-        db.session.commit()
+    client.patch(f"/api/time-entries/{stopped_entry_id}/stop", headers=USER_HEADERS)
+
+    running_response = client.post("/api/time-entries", json=running_payload, headers=USER_HEADERS)
 
     response = client.get("/api/time-entries?running_only=true", headers=USER_HEADERS)
 

@@ -104,10 +104,7 @@ def dashboard_view(request) -> HttpResponse:
     except TimeTrackingServiceError:
         sessions_error = "Could not load sessions."
 
-    project_names = {
-        project["id"]: project["name"]
-        for project in projects
-    }
+    project_names = {project["id"]: project["name"] for project in projects}
 
     dashboard_sessions = []
 
@@ -136,34 +133,19 @@ def dashboard_view(request) -> HttpResponse:
                     f"Project {session['project_id']}",
                 ),
                 "created_at_display": created_at.strftime("%d %b %Y %H:%M"),
-                "ended_at_display": (
-                    ended_at.strftime("%d %b %Y %H:%M")
-                    if ended_at
-                    else "Running"
-                ),
+                "ended_at_display": (ended_at.strftime("%d %b %Y %H:%M") if ended_at else "Running"),
                 "duration_display": duration_display,
                 "started_at_form": created_at.strftime("%Y-%m-%dT%H:%M"),
-                "ended_at_form": (
-                    ended_at.strftime("%Y-%m-%dT%H:%M")
-                    if ended_at
-                    else ""
-                ),
+                "ended_at_form": (ended_at.strftime("%Y-%m-%dT%H:%M") if ended_at else ""),
             }
         )
 
-    has_running_session = any(
-        session["ended_at"] is None
-        for session in dashboard_sessions
-    )
+    has_running_session = any(session["ended_at"] is None for session in dashboard_sessions)
 
     running_duration_display = None
 
     running_session = next(
-        (
-            session
-            for session in dashboard_sessions
-            if session["ended_at"] is None
-        ),
+        (session for session in dashboard_sessions if session["ended_at"] is None),
         None,
     )
 
@@ -197,6 +179,7 @@ def dashboard_view(request) -> HttpResponse:
             "running_duration_display": running_duration_display,
         },
     )
+
 
 @login_required
 def projects_view(request) -> HttpResponse:
@@ -301,6 +284,7 @@ def projects_view(request) -> HttpResponse:
         },
     )
 
+
 @login_required
 def clock_in_view(request) -> HttpResponse:
     selected_project_id = request.session.get("selected_project_id")
@@ -330,4 +314,3 @@ def clock_out_view(request):
         stop_time_entry(request.user.id, running_entries[0]["id"])
 
     return redirect("app:dashboard")
-

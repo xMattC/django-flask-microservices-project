@@ -436,7 +436,7 @@ class TimeTrackingClientTests(SimpleTestCase):
         }
 
         responses.add(
-            method=responses.POST,
+            method=responses.PATCH,
             url=f"http://time-tracking:5000/api/time-entries/{time_entry_id}/stop",
             json=mock_response_payload,
             status=200,
@@ -455,7 +455,7 @@ class TimeTrackingClientTests(SimpleTestCase):
         time_entry_id = 10
 
         responses.add(
-            method=responses.POST,
+            method=responses.PATCH,
             url=f"http://time-tracking:5000/api/time-entries/{time_entry_id}/stop",
             json={"results": [{}]},
             status=200,
