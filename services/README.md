@@ -5,6 +5,8 @@ This directory contains all backend application services used by the system.
 ---
 ## Web — Django BFF
 
+The Web service acts as the backend-for-frontend (BFF) layer.
+
 Responsible for:
 
 - Authentication
@@ -13,7 +15,8 @@ Responsible for:
 - Service orchestration
 - Calling downstream microservices
 
-The `web` service acts as the backend-for-frontend (BFF) layer.
+Owns:
+- `web-db`
 
 
 ---
