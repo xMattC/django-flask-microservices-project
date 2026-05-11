@@ -1,6 +1,38 @@
+![Python](https://img.shields.io/badge/Python-3.x-blue?logo=python)
+![Django](https://img.shields.io/badge/Django-5.x-092E20?logo=django)
+![Flask](https://img.shields.io/badge/Flask-3.x-black?logo=flask)
+![Docker](https://img.shields.io/badge/Docker-Containerised-2496ED?logo=docker)
+![AWS](https://img.shields.io/badge/AWS-EC2%20Deployment-FF9900?logo=amazonaws)
+![CI](https://img.shields.io/badge/CI-GitHub_Actions-2088FF?logo=githubactions)
+
 # Productivity Microservices Platform
 
 A multi-service backend platform designed to demonstrate modern backend architecture using Django, Flask, Docker, and service-oriented application design.
+
+The application allows users to:
+
+- Create and manage projects
+- Track work sessions against projects
+- Manage productivity workflows through a Django Backend-for-Frontend (BFF)
+- Interact with independent Flask microservices through a unified web interface
+
+The platform is designed as a backend engineering portfolio project focused on service-oriented architecture, Docker-based workflows, API design, and multi-service orchestration.
+
+---
+
+## Contents
+
+- [Project Goal](#-project-goal)
+- [Tech Stack](#-tech-stack)
+- [Key Features](#-key-features)
+- [Engineering Practices](#-engineering-practices)
+- [Application Screenshots](#️-application-screenshots)
+- [Service Architecture](#-service-architecture)
+- [Service API Documentation](#-service-api-documentation)
+- [Authentication & Permissions](#-authentication--permissions)
+- [Validation & Error Handling](#️-validation--error-handling)
+- [Known Limitations](#️-known-limitations)
+- [Running Locally](#-running-locally)
 
 ---
 
@@ -16,10 +48,6 @@ This backend engineering portfolio project was built to demonstrate:
 - Database migration management across services
 - Automated testing and code quality practices
 - Production-style deployment patterns
-
-The application is designed to showcase practical backend engineering skills, scalable service architecture, and real-world development workflows in a multi-service environment.
-
-A live deployed version of the application is also available for demonstration purposes.
 
 ---
 
@@ -67,9 +95,10 @@ A live deployed version of the application is also available for demonstration p
 - GitHub Actions for continuous integration (testing + linting)
     - [Action History](https://github.com/xMattC/django-flask-microservices-project/actions)
 - Kanban-based project management
-    - [Project board](https://github.com/users/xMattC/projects/4/views/1)
+    - [Project board: Planning](https://github.com/users/xMattC/projects/4/views/1)
+    - [Project board: Tasks](https://github.com/users/xMattC/projects/4/views/7)
 - Docker-based deployment to AWS
-    - [Deployment strategy document]()
+    - [Deployment strategy document - TODO]
 ---
 
 ## 🖼️ Application Screenshots
@@ -139,6 +168,8 @@ The Django service acts as the primary web/BFF layer, while Flask services handl
 
 [See the full architecture document](https://github.com/xMattC/django-flask-microservices-project/blob/refactor/docs/architecture.md)
 
+---
+
 ## 📚 Service API Documentation
 
 Each backend service includes its own dedicated API documentation.
@@ -178,8 +209,6 @@ This ensures users only access project and time-tracking data associated with th
 
 ## ⚠️ Validation & Error Handling
 
-The application includes structured validation and error handling across the Django BFF and Flask services.
-
 This includes:
 
 - Request validation using Marshmallow schemas in Flask services
@@ -193,8 +222,6 @@ Common responses include:
 - `400 Bad Request` → Missing required request data or user context
 - `404 Not Found` → Requested resource does not exist or does not belong to the user
 - `5xx Service Error` → Downstream service unavailable or unexpected response
-
----
 
 ---
 
