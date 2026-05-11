@@ -3,7 +3,7 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 
-from user.forms.register_form import RegisterForm
+from user.forms import RegisterForm
 
 
 class RegisterFormTests(TestCase):

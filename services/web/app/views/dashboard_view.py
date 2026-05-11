@@ -13,6 +13,7 @@ from clients.time_tracking_service import (
     update_time_entry,
 )
 
+
 def _handle_select_project(request: HttpRequest) -> HttpResponse:
     """Handle selected project session state."""
     project_id = request.POST.get("project_id")

@@ -81,7 +81,6 @@ class ClockOutViewTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse("app:dashboard"))
 
-
     @patch("app.views.time_tracking_views.stop_time_entry")
     @patch("app.views.time_tracking_views.get_time_entries")
     def test_clock_out_does_nothing_when_no_running_entries(self, mock_get_time_entries, mock_stop_time_entry):
