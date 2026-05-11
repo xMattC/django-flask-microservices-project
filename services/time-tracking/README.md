@@ -101,6 +101,12 @@ docker compose run --rm time-tracking flask --app app.main:create_app db migrate
 docker compose run --rm time-tracking flask --app app.main:create_app db upgrade
 ```
 
+### Quick diagnostic:
+```bash
+docker compose exec time-tracking -db psql -U time_tracking_user -d time_tracking_db -c "\dt"
+docker compose exec time-tracking -db psql -U time_tracking_user -d time_tracking_db -c "select * from alembic_version;"
+```
+
 ---
 ## Docker Notes
 

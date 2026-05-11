@@ -142,6 +142,8 @@ class TimeTrackingClientTests(SimpleTestCase):
         with self.assertRaises(TimeTrackingServiceError):
             create_time_entry(user_id=user_id, payload=request_payload)
 
+    @responses.activate
+    @override_settings(TIME_TRACKING_SERVICE_URL="http://time-tracking:5000")
     def test_create_time_entry_raises_error_when_results_is_not_list(self):
         """Test create_time_entry raises TimeTrackingServiceError when 'results' is not a list."""
         user_id = 123
@@ -278,6 +280,8 @@ class TimeTrackingClientTests(SimpleTestCase):
         with self.assertRaises(TimeTrackingServiceError):
             get_time_entries(user_id=user_id)
 
+    @responses.activate
+    @override_settings(TIME_TRACKING_SERVICE_URL="http://time-tracking:5000")
     def test_get_time_entries_raises_error_on_invalid_response_schema(self):
         """Test get_time_entries raises TimeTrackingServiceError when response schema is invalid."""
         user_id = 123
