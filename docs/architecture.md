@@ -26,36 +26,9 @@ The system uses:
 ---
 
 ## 2. High-Level Architecture
-```mermaid
-flowchart TD
-    browser[🌐 Web Browser]
 
-    web[🟢 Django Web Service<br/>BFF / Auth / Sessions]
+![System Architecture](docs/architecture-diagram.png)
 
-    projects[🔵 Flask Projects Service<br/>Project CRUD / Validation]
-    time[🟣 Flask Time Tracking Service<br/>Time Entries / Validation]
-
-    projects_db[(🗄️ Projects PostgreSQL)]
-    time_db[(🗄️ Time Tracking PostgreSQL)]
-
-    browser -->|HTTP| web
-
-    web -->|HTTP + X-User-ID| projects
-    web -->|HTTP + X-User-ID| time
-
-    projects -->|SQLAlchemy| projects_db
-    time -->|SQLAlchemy| time_db
-
-    classDef django fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
-    classDef flask fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
-    classDef db fill:#fff3e0,stroke:#ef6c00,stroke-width:2px;
-    classDef client fill:#f5f5f5,stroke:#555,stroke-width:1px;
-
-    class browser client;
-    class web django;
-    class projects,time flask;
-    class projects_db,time_db db;
-```
 
 The Django service acts as the entry point for users and communicates with downstream Flask services over HTTP.
 
