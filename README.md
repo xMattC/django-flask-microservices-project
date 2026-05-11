@@ -71,13 +71,13 @@ This backend engineering portfolio project was built to demonstrate:
 ### Development Workflow
 
 - Feature branches used for isolated TDD workflows
-    - [Example TDD commit history](https://github.com/xMattC/django-flask-microservices-project/commits/time-tracking-bff-client-TDD/)
+    - [Example TDD commit history](https://github.com/xMattC/productivity-microservices-platform/commits/time-tracking-bff-client-TDD/)
 - Pull request workflow for review and integration
-    - [Closed PRs](https://github.com/xMattC/django-flask-microservices-project/pulls?q=is%3Apr+is%3Aclosed)
+    - [Closed PRs](https://github.com/xMattC/productivity-microservices-platform/pulls?q=is%3Apr+is%3Aclosed)
 - Documented testing strategy and system guarantees
-    - [Testing guarantees document](https://github.com/xMattC/django-flask-microservices-project/blob/refactor/docs/testing_and_system_guarantees.md)
+    - [Testing guarantees document](https://github.com/xMattC/productivity-microservices-platform/blob/refactor/docs/testing_and_system_guarantees.md)
 - GitHub Actions for continuous integration (testing + linting)
-    - [Action History](https://github.com/xMattC/django-flask-microservices-project/actions)
+    - [Action History](https://github.com/xMattC/productivity-microservices-platform/actions)
 - Kanban-based project management
     - [Project board: Planning](https://github.com/users/xMattC/projects/4/views/1)
     - [Project board: Tasks](https://github.com/users/xMattC/projects/4/views/7)
@@ -104,31 +104,13 @@ Features demonstrated include:
 
 ### Projects Service API Documentation
 
-OpenAPI / Swagger documentation for the Projects microservice.
-
-This demonstrates:
-
-- Structured REST API design
-- Request and response validation
-- Project ownership enforcement
-- Service-specific endpoint organisation
-
-> Projects service Swagger screenshot placeholder
+![Projects service Swagger](docs/images/projects_service_api_docs.PNG)
 
 ---
 
 ### Time Tracking Service API Documentation
 
-OpenAPI / Swagger documentation for the Time Tracking microservice.
-
-This demonstrates:
-
-- Time entry management APIs
-- Service-level validation
-- User-scoped tracking operations
-- Consistent API response structures
-
-> Time tracking service Swagger screenshot placeholder
+![Time-Tracking service Swagger](docs/images/time_tracking_service_api_docs.PNG)
 
 ---
 
@@ -138,7 +120,7 @@ A key focus of this project was designing clear boundaries between services whil
 
 The system is split into independent backend services:
 
-![System Architecture](https://github.com/xMattC/django-flask-microservices-project/blob/refactor/docs/architecture-diagram.png)
+![System Architecture](docs/images/architecture-diagram.png)
 
 This architecture allows:
 
@@ -150,7 +132,7 @@ This architecture allows:
 
 The Django service acts as the primary web/BFF layer, while Flask services handle domain-specific functionality such as project management and time tracking.
 
-[See the full architecture document](https://github.com/xMattC/django-flask-microservices-project/blob/refactor/docs/architecture.md)
+[See the full architecture document](/docs/architecture.md)
 
 ---
 
@@ -160,8 +142,8 @@ Each backend service includes its own dedicated API documentation.
 
 | Service | API Documentation |
 |---|---|
-| Projects Service | [View API Docs](https://github.com/xMattC/django-flask-microservices-project/blob/main/services/projects/docs/API.md) |
-| Time Tracking Service | [View API Docs](https://github.com/xMattC/django-flask-microservices-project/blob/main/services/time-tracking/docs/API.md) |
+| Projects Service | [View API Docs](services/projects/docs/API.md) |
+| Time Tracking Service | [View API Docs](services/time-tracking/docs/API.md) |
 
 These documents include:
 
