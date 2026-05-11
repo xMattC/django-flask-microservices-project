@@ -26,12 +26,12 @@ The platform is designed as a backend engineering portfolio project focused on s
 - [Tech Stack](#-tech-stack)
 - [Key Features](#-key-features)
 - [Engineering Practices](#-engineering-practices)
-- [Application Screenshots](#️-application-screenshots)
+- [Application Screenshots](#-application-screenshots)
 - [Service Architecture](#-service-architecture)
 - [Service API Documentation](#-service-api-documentation)
 - [Authentication & Permissions](#-authentication--permissions)
-- [Validation & Error Handling](#️-validation--error-handling)
-- [Known Limitations](#️-known-limitations)
+- [Validation & Error Handling](#-validation--error-handling)
+- [Known Limitations](#-known-limitations)
 - [Running Locally](#-running-locally)
 
 ---
