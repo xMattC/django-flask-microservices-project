@@ -102,13 +102,9 @@ Features demonstrated include:
 
 ---
 
-### Projects Service API Documentation
-
 ![Projects service Swagger](docs/images/projects_service_api_docs.PNG)
 
 ---
-
-### Time Tracking Service API Documentation
 
 ![Time-Tracking service Swagger](docs/images/time_tracking_service_api_docs.PNG)
 
