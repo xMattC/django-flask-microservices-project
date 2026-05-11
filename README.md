@@ -1,44 +1,213 @@
-# django-flask-microservices-project
+# Productivity Microservices Platform
 
-## Overview
-
-This project is a microservice-based time tracking system designed to demonstrate modern backend architecture using Django, Flask, and FastAPI.
-
-The system will allow users to:
-
-- Create and manage projects
-- Clock in and out of work sessions
-- Track time across projects
-- Manage tasks associated with projects
-- View aggregated metrics and insights
-
-The architecture follows a **backend-for-frontend (BFF)** pattern using Django, with domain-specific logic split across independent services.
+A multi-service backend platform designed to demonstrate modern backend architecture using Django, Flask, Docker, and service-oriented application design.
 
 ---
 
-## Architecture
+## 🎯 Project Goal
 
-The system will be composed of multiple services:
+This backend engineering portfolio project was built to demonstrate:
 
-- **Django (Web / BFF)** *(later phase)*
-  Handles authentication, user interaction, and orchestration between services
+- Microservice architecture design
+- Django + Flask interoperability
+- REST API development
+- Docker-based development workflows
+- Service orchestration and isolation
+- Database migration management across services
+- Automated testing and code quality practices
+- Production-style deployment patterns
 
-- **Projects Service (Flask)** *(later phase)*
-  Manages project creation, updates, and lifecycle (active/archived)
+The application is designed to showcase practical backend engineering skills, scalable service architecture, and real-world development workflows in a multi-service environment.
 
-- **Time Tracking Service (Flask)** *(later phase)*
-  Handles clock-in/clock-out and time entry management
-
-- **Tasks Service (Flask)** *(later phase)*
-  Manages project tasks and status tracking
-
-- **Metrics Service (FastAPI)** *(later phase)*
-  Provides aggregated reporting and analytics
-
-Each service owns its own data and communicates via HTTP APIs.
+A live deployed version of the application is also available for demonstration purposes.
 
 ---
 
+## 🛠️ Tech Stack
+
+- **Backend:** Python, Django, Flask
+- **Databases:** PostgreSQL
+- **Architecture:** Microservices, REST APIs, Backend-for-Frontend, Service-Oriented Design
+- **Infrastructure:** Docker, Docker Compose, AWS EC2
+- **API Documentation:** OpenAPI / Swagger via flask-smorest
+- **Testing & Quality:** Pytest, Django Test Framework, flake8
+
+---
+
+## 🔑 Key Features
+
+- Django web service
+- Flask projects service
+- Flask time-tracking service
+- Dedicated per-service API documentation
+- Dockerised development environment
+- Independent service migrations
+- Local admin access
+- Test and linting workflow across services
+
+---
+
+## 🧱 Engineering Practices
+
+- Automated testing covering API and model behaviour
+- Dockerised development environment
+- Environment-based configuration management
+- Code quality enforcement using flake8
+- Modular service-oriented application structure
+- Test-Driven Development (TDD) applied to core features
+
+### Development Workflow
+
+- Feature branches used for isolated TDD workflows
+    - [Example TDD commit history](https://github.com/xMattC/django-flask-microservices-project/commits/time-tracking-bff-client-TDD/)
+- Pull request workflow for review and integration
+    - [Closed PRs](https://github.com/xMattC/django-flask-microservices-project/pulls?q=is%3Apr+is%3Aclosed)
+- Documented testing strategy and system guarantees
+    - [Testing guarantees document](https://github.com/xMattC/django-flask-microservices-project/blob/refactor/docs/testing_and_system_guarantees.md)
+- GitHub Actions for continuous integration (testing + linting)
+    - [Action History](https://github.com/xMattC/django-flask-microservices-project/actions)
+- Kanban-based project management
+    - [Project board](https://github.com/users/xMattC/projects/4/views/1)
+- Docker-based deployment to AWS
+    - [Deployment strategy document]()
+---
+
+## 🖼️ Application Screenshots
+
+### Django Web Service
+
+The Django web application acts as the primary Backend-for-Frontend (BFF) layer for the platform.
+
+Features demonstrated include:
+
+- User authentication and session management
+- Project management workflows
+- Integration with downstream Flask services
+- User-scoped application behaviour
+
+> Django web interface screenshot placeholder
+
+---
+
+### Projects Service API Documentation
+
+OpenAPI / Swagger documentation for the Projects microservice.
+
+This demonstrates:
+
+- Structured REST API design
+- Request and response validation
+- Project ownership enforcement
+- Service-specific endpoint organisation
+
+> Projects service Swagger screenshot placeholder
+
+---
+
+### Time Tracking Service API Documentation
+
+OpenAPI / Swagger documentation for the Time Tracking microservice.
+
+This demonstrates:
+
+- Time entry management APIs
+- Service-level validation
+- User-scoped tracking operations
+- Consistent API response structures
+
+> Time tracking service Swagger screenshot placeholder
+
+---
+
+## 📈 Service Architecture
+
+A key focus of this project was designing clear boundaries between services while maintaining a simple local development workflow.
+
+The system is split into independent backend services:
+
+`Django Web Service → Flask Microservices → Service Databases`
+
+This architecture allows:
+
+- Separation of business domains across services
+- Independent database migrations per service
+- Isolated API logic and responsibilities
+- Easier scalability and maintainability
+- Containerised local development with Docker Compose
+
+The Django service acts as the primary web/BFF layer, while Flask services handle domain-specific functionality such as project management and time tracking.
+
+## 📚 Service API Documentation
+
+Each backend service includes its own dedicated API documentation.
+
+| Service | API Documentation |
+|---|---|
+| Projects Service | [View API Docs](https://github.com/xMattC/django-flask-microservices-project/blob/main/services/projects/docs/API.md) |
+| Time Tracking Service | [View API Docs](https://github.com/xMattC/django-flask-microservices-project/blob/main/services/time-tracking/docs/API.md) |
+
+These documents include:
+
+- Endpoint definitions
+- Request/response examples
+- Validation behaviour
+- Error responses
+- Service-specific API workflows
+
+---
+
+## 🔐 Authentication & Permissions
+
+Authentication is handled by the Django web service using Django’s built-in authentication and session-based login flow.
+
+Downstream Flask services receive the authenticated user context from the Django BFF via the `X-User-ID` request header.
+
+Permissions and ownership are enforced through:
+
+- Protected Django views for authenticated users
+- User-scoped service requests from the Django BFF
+- `X-User-ID` ownership checks in Flask services
+- Database queries filtered by the authenticated user ID
+- Service-level boundaries between web, projects, and time-tracking data
+
+This ensures users only access project and time-tracking data associated with their own account while keeping service responsibilities separated.
+
+---
+
+## ⚠️ Validation & Error Handling
+
+The application includes structured validation and error handling across the Django BFF and Flask services.
+
+This includes:
+
+- Request validation using Marshmallow schemas in Flask services
+- Consistent service response structures using `results`
+- Ownership checks using the authenticated user context
+- User-scoped access validation through `X-User-ID`
+- Service-client error handling in the Django BFF
+
+Common responses include:
+
+- `400 Bad Request` → Missing required request data or user context
+- `404 Not Found` → Requested resource does not exist or does not belong to the user
+- `5xx Service Error` → Downstream service unavailable or unexpected response
+
+---
+
+---
+
+## ⚙️ Known Limitations
+
+- Service-to-service communication is simplified for development and portfolio demonstration purposes
+- Authentication and authorisation flows are intentionally lightweight
+- Infrastructure focuses on Docker-based deployment rather than full production orchestration
+- Advanced observability tooling (distributed tracing, metrics aggregation, alerting) is not implemented
+- No horizontal scaling or container orchestration layer (e.g. Kubernetes)
+- CI/CD pipelines focus on automated testing and linting rather than full deployment automation
+- APIs are internally structured but not versioned for public consumption
+- Demo deployment may be reset or updated without notice
+
+---
 
 ## 📦 Running Locally
 
@@ -83,10 +252,10 @@ TODO
 Run the following command to create a superuser (non-interactive):
 
 ```bash
-docker-compose run --rm \
+docker compose run --rm \
   -e DJANGO_SUPERUSER_EMAIL=admin@example.com \
   -e DJANGO_SUPERUSER_PASSWORD=change-me \
-  app python manage.py createsuperuser --noinput
+  web python manage.py createsuperuser --noinput
 ```
 
 Example local admin:
