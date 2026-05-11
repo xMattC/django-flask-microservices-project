@@ -102,52 +102,48 @@ Features demonstrated include:
 
 ---
 
-![Projects service Swagger](docs/images/projects_service_api_docs.PNG)
-
----
-
-![Time-Tracking service Swagger](docs/images/time_tracking_service_api_docs.PNG)
-
----
-
 ## 📈 Service Architecture
 
-A key focus of this project was designing clear boundaries between services while maintaining a simple local development workflow.
+A core focus of this project was designing clear service boundaries while maintaining a simple local development workflow.
 
-The system is split into independent backend services:
+The platform is structured as independent backend services:
 
-![System Architecture](docs/images/architecture-diagram.png)
+<p align="center">
+  <img src="docs/images/architecture-diagram.png" width="700">
+</p>
 
-This architecture allows:
+This architecture provides:
 
-- Separation of business domains across services
-- Independent database migrations per service
+- Separation of business domains
+- Independent database ownership and migrations
 - Isolated API logic and responsibilities
-- Easier scalability and maintainability
-- Containerised local development with Docker Compose
+- Improved maintainability and scalability
+- Containerised local development using Docker Compose
 
-The Django service acts as the primary web/BFF layer, while Flask services handle domain-specific functionality such as project management and time tracking.
+The Django application acts as the primary Backend-for-Frontend (BFF) layer, while Flask services handle domain-specific functionality such as project management and time tracking.
 
-[See the full architecture document](/docs/architecture.md)
+[See the full architecture document](docs/ARCHITECTURE.md)
 
 ---
 
 ## 📚 Service API Documentation
 
-Each backend service includes its own dedicated API documentation.
+Each backend service includes dedicated API documentation and live Swagger/OpenAPI interfaces.
 
-| Service | API Documentation |
+| Service | Documentation |
 |---|---|
-| Projects Service | [View API Docs](services/projects/docs/API.md) |
-| Time Tracking Service | [View API Docs](services/time-tracking/docs/API.md) |
+| Projects Service | [API Documentation](services/projects/docs/API.md) |
+| Time Tracking Service | [API Documentation](services/time-tracking/docs/API.md) |
 
-These documents include:
+The APIs are documented using OpenAPI / Swagger via `flask-smorest`.
 
-- Endpoint definitions
-- Request/response examples
-- Validation behaviour
-- Error responses
-- Service-specific API workflows
+### Projects Service Swagger
+
+![Projects Service Swagger](docs/images/projects_service_api_docs.PNG)
+
+### Time Tracking Service Swagger
+
+![Time Tracking Service Swagger](docs/images/time_tracking_service_api_docs.PNG)
 
 ---
 
