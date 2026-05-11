@@ -23,9 +23,9 @@ The platform is designed as a backend engineering portfolio project focused on s
 ## Contents
 ## Contents
 
-- [Project Goal](#project-goal)
-- [Tech Stack](#tech-stack)
-- [Key Features](#key-features)
+- [Project Goal](#-project-goal)
+- [Tech Stack](#-tech-stack)
+- [Key Features](#-key-features)
 - [Engineering Practices](#engineering-practices)
 - [Application Screenshots](#application-screenshots)
 - [Service Architecture](#service-architecture)
