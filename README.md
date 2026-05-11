@@ -125,7 +125,7 @@ A key focus of this project was designing clear boundaries between services whil
 
 The system is split into independent backend services:
 
-`Django Web Service → Flask Microservices → Service Databases`
+![System Architecture](https://github.com/xMattC/django-flask-microservices-project/blob/refactor/docs/architecture-diagram.png)
 
 This architecture allows:
 
@@ -136,6 +136,8 @@ This architecture allows:
 - Containerised local development with Docker Compose
 
 The Django service acts as the primary web/BFF layer, while Flask services handle domain-specific functionality such as project management and time tracking.
+
+[See the full architecture document](https://github.com/xMattC/django-flask-microservices-project/blob/refactor/docs/architecture.md)
 
 ## 📚 Service API Documentation
 
