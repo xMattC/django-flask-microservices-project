@@ -27,7 +27,7 @@ The system uses:
 
 ## 2. High-Level Architecture
 
-![System Architecture](docs/architecture-diagram.png)
+![System Architecture](architecture-diagram.png)
 
 
 The Django service acts as the entry point for users and communicates with downstream Flask services over HTTP.
