@@ -101,6 +101,14 @@ docker compose run --rm projects flask --app app.main:create_app db migrate -m "
 docker compose run --rm projects flask --app app.main:create_app db upgrade
 ```
 
+
+### Quick diagnostic:
+```bash
+docker compose exec projects-db psql -U projects_user -d projects_db -c "\dt"
+docker compose exec projects-db psql -U projects_user -d projects_db -c "select * from alembic_version;"
+```
+
+
 ---
 ## Docker Notes
 
