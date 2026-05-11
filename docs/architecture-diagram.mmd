@@ -17,7 +17,7 @@ flowchart TD
     projects --> projects_db
     time --> time_db
 
-    time_db -.->|Stores project_id reference| projects_db
+    time_db -.->|Stores external project_id| projects_db
     web -.->|Checks time entries before project deletion| time
 
     classDef django fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
