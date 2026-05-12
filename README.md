@@ -214,29 +214,29 @@ Before running this project, ensure you have:
 ### 1. Clone Repository
 
 ```bash
-git clone https://github.com/xMattC/..........
-cd .............
+git clone https://github.com/xMattC/productivity-microservices-platform.git
+cd productivity-microservices-platform
 ```
 
-### 2. Run migrations for all services:
 
+### 2. Run Migrations For All Services
+
+Apply existing migrations before starting the application:
 
 ```bash
-docker compose up --build -d && \
-docker compose run --rm web python manage.py migrate && \
-docker compose run --rm projects flask --app app.main:create_app db init && \
-docker compose run --rm projects flask --app app.main:create_app db migrate -m "Initial migration" && \
-docker compose run --rm projects flask --app app.main:create_app db upgrade && \
-docker compose run --rm time-tracking flask --app app.main:create_app db init && \
-docker compose run --rm time-tracking flask --app app.main:create_app db migrate -m "Initial migration" && \
+docker compose run --rm web python manage.py migrate
+docker compose run --rm projects flask --app app.main:create_app db upgrade
 docker compose run --rm time-tracking flask --app app.main:create_app db upgrade
 ```
 
-### 3. Seed Data
+### 3. Seed Demo User Data
 
 ```bash
-TODO
+docker compose run --rm web python manage.py seed_demo_data --reset
 ```
+Demo user login:
+> Email: demo@example.com<br>
+> Password: demo12345<br>
 
 ### 4. Create Superuser
 

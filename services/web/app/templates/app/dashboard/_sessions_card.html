@@ -24,7 +24,11 @@
 
     {% elif sessions %}
 
-    <div class="sessions-scroll-window">
+    <div class="sessions-scroll-window" style="
+        display: block;
+        max-height: 500px;
+        overflow-y: auto;
+      ">
 
       <table class="sessions-table">
         <thead>
@@ -45,6 +49,7 @@
             <td class="sessions-project-cell" title="{{ session.project_name }}">
               {{ session.project_name }}
             </td>
+
             <td>{{ session.created_at_display }}</td>
             <td>{{ session.ended_at_display }}</td>
             <td>{{ session.duration_display }}</td>
@@ -70,7 +75,6 @@
 
                 <input type="hidden" name="form_type" value="update_session">
                 <input type="hidden" name="session_id" value="{{ session.id }}">
-
 
                 <div class="d-flex gap-2 align-items-end">
 
@@ -98,27 +102,25 @@
 
                 </div>
 
+              </form>
+
+            </td>
+          </tr>
+          {% endif %}
+
+          {% endfor %}
+
+        </tbody>
+      </table>
+
     </div>
 
-    </form>
+    {% else %}
 
-    </td>
-    </tr>
+    <p>No sessions found.</p>
+
     {% endif %}
 
-    {% endfor %}
-
-    </tbody>
-    </table>
-
   </div>
-
-  {% else %}
-
-  <p>No sessions found.</p>
-
-  {% endif %}
-
-</div>
 
 </div>

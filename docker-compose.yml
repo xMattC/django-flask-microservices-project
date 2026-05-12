@@ -60,7 +60,6 @@ services:
       - ./services/projects:/app
     command: >
       sh -c "
-        flask --app app.main:create_app db upgrade &&
         flask --app app.main:create_app run --host=0.0.0.0 --port=5000 --debug
       "
     environment:
@@ -107,7 +106,6 @@ services:
       - ./services/time-tracking:/app
     command: >
       sh -c "
-        flask --app app.main:create_app db upgrade &&
         flask --app app.main:create_app run --host=0.0.0.0 --port=5000 --debug
       "
     environment:
