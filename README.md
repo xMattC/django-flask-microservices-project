@@ -78,7 +78,7 @@ This project was built to demonstrate:
 - Pull request workflow for review and integration
     - [Closed PRs](https://github.com/xMattC/productivity-microservices-platform/pulls?q=is%3Apr+is%3Aclosed)
 - Documented testing strategy and system guarantees
-    - [Testing guarantees document](https://github.com/xMattC/productivity-microservices-platform/blob/refactor/docs/testing_and_system_guarantees.md)
+    - [Testing guarantees document](docs/testing_and_system_guarantees.md)
 - GitHub Actions for continuous integration (testing + linting)
     - [Action History](https://github.com/xMattC/productivity-microservices-platform/actions)
 - Kanban-based project management
