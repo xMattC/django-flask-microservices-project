@@ -1,25 +1,321 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block content %}
 
-<div class="text-center mt-5">
-  <h1 class="display-5 mb-3">Welcome to Project</h1>
+<!-- ------------------------------------------------------------------ -->
+<!-- Hero Section                                                       -->
+<!-- ------------------------------------------------------------------ -->
+
+<div class="text-center mt-5 mb-5">
+
+  <h1 class="display-5 mb-3">
+    Productivity Microservices Platform
+  </h1>
+
   <p class="lead text-muted mb-4">
-    A few words about the project.
+    Backend engineering portfolio project demonstrating
+    Django Backend-for-Frontend architecture, Flask microservices,
+    Docker-based deployment, PostgreSQL service isolation,
+    and API-driven workflows.
   </p>
 
   {% if not request.user.is_authenticated %}
-    <a href="{% url 'user:login' %}" class="btn btn-primary me-2">
+
+    <a
+      href="{% url 'user:login' %}"
+      class="btn btn-primary me-2"
+    >
       Login
     </a>
-    <a href="{% url 'user:register' %}" class="btn btn-outline-primary">
+
+    <a
+      href="{% url 'user:register' %}"
+      class="btn btn-outline-primary"
+    >
       Register
     </a>
+
   {% else %}
-    <a href="{% url 'app:dashboard' %}" class="btn btn-primary">
+
+    <a
+      href="{% url 'app:dashboard' %}"
+      class="btn btn-primary"
+    >
       Go to Dashboard
     </a>
+
   {% endif %}
+
+</div>
+
+<!-- ------------------------------------------------------------------ -->
+<!-- System Architecture                                                 -->
+<!-- ------------------------------------------------------------------ -->
+
+<div class="container py-5">
+
+  <div class="text-center mb-4">
+
+    <h2 class="mb-3">
+      System Architecture
+    </h2>
+
+    <p class="text-muted">
+      The platform is deployed using Docker Compose on AWS EC2,
+      with Django acting as the Backend-for-Frontend layer for
+      independent Flask microservices.
+    </p>
+
+  </div>
+
+  <div class="text-center">
+
+    <img
+      src="{% static 'images/architecture.png' %}"
+      alt="System Architecture Diagram"
+      class="img-fluid rounded shadow-sm"
+      style="max-width: 95%;"
+    >
+
+  </div>
+
+</div>
+
+<!-- ------------------------------------------------------------------ -->
+<!-- Engineering Workflow                                                -->
+<!-- ------------------------------------------------------------------ -->
+
+<div class="container py-5">
+
+  <div class="text-center mb-4">
+
+    <h2 class="mb-3">
+      Engineering Workflow
+    </h2>
+
+    <p class="text-muted">
+      Development workflow demonstrating testing, CI/CD,
+      and incremental feature delivery.
+    </p>
+
+  </div>
+
+  <div class="row g-4">
+
+    <!-- GitHub Actions -->
+    <div class="col-md-6">
+
+      <div class="card h-100 shadow-sm">
+
+        <div class="card-body">
+
+          <h5 class="card-title">
+            GitHub Actions CI/CD
+          </h5>
+
+          <p class="card-text text-muted">
+            Automated test and lint workflows across services.
+          </p>
+
+          <img
+            src="{% static 'images/github-actions.png' %}"
+            alt="GitHub Actions CI/CD Screenshot"
+            class="img-fluid rounded border"
+          >
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- TDD Commit History -->
+    <div class="col-md-6">
+
+      <div class="card h-100 shadow-sm">
+
+        <div class="card-body">
+
+          <h5 class="card-title">
+            Incremental TDD Workflow
+          </h5>
+
+          <p class="card-text text-muted">
+            Feature branch history showing test-first development.
+          </p>
+
+          <img
+            src="{% static 'images/tdd-commit-history.png' %}"
+            alt="TDD Commit History Screenshot"
+            class="img-fluid rounded border"
+          >
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- ------------------------------------------------------------------ -->
+<!-- API Documentation                                                   -->
+<!-- ------------------------------------------------------------------ -->
+
+<div class="container py-5">
+
+  <div class="text-center mb-4">
+
+    <h2 class="mb-3">
+      API Documentation
+    </h2>
+
+    <p class="text-muted">
+      Each Flask microservice exposes dedicated OpenAPI / Swagger
+      documentation.
+    </p>
+
+  </div>
+
+  <div class="row g-4">
+
+    <!-- Projects Service Swagger -->
+    <div class="col-md-6">
+
+      <div class="card h-100 shadow-sm">
+
+        <div class="card-body">
+
+          <h5 class="card-title">
+            Projects Service API
+          </h5>
+
+          <p class="card-text text-muted">
+            Swagger documentation for project management endpoints.
+          </p>
+
+          <img
+            src="{% static 'images/projects-service-swagger.png' %}"
+            alt="Projects Service Swagger Documentation Screenshot"
+            class="img-fluid rounded border"
+          >
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Time Tracking Service Swagger -->
+    <div class="col-md-6">
+
+      <div class="card h-100 shadow-sm">
+
+        <div class="card-body">
+
+          <h5 class="card-title">
+            Time Tracking Service API
+          </h5>
+
+          <p class="card-text text-muted">
+            Swagger documentation for time entry endpoints.
+          </p>
+
+          <img
+            src="{% static 'images/time-tracking-service-swagger.png' %}"
+            alt="Time Tracking Service Swagger Documentation Screenshot"
+            class="img-fluid rounded border"
+          >
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- ------------------------------------------------------------------ -->
+<!-- Project Management Workflow                                         -->
+<!-- ------------------------------------------------------------------ -->
+
+<div class="container py-5">
+
+  <div class="text-center mb-4">
+
+    <h2 class="mb-3">
+      Project Management Workflow
+    </h2>
+
+    <p class="text-muted">
+      GitHub Projects used to track architecture planning,
+      feature delivery, testing, documentation,
+      and CI/CD implementation.
+    </p>
+
+  </div>
+
+  <div class="text-center">
+
+    <img
+      src="{% static 'images/project-management-workflow.png' %}"
+      alt="GitHub Projects project management workflow screenshot"
+      class="img-fluid rounded shadow-sm"
+      style="max-width: 95%;"
+    >
+
+  </div>
+
+</div>
+
+<!-- ------------------------------------------------------------------ -->
+<!-- Footer / External Links                                             -->
+<!-- ------------------------------------------------------------------ -->
+
+<div class="container py-5">
+
+  <div class="text-center">
+
+    <h2 class="mb-3">
+      Explore the Project
+    </h2>
+
+    <p class="text-muted mb-4">
+      View the source code, architecture documentation,
+      and engineering workflow on GitHub.
+    </p>
+
+    <div class="d-flex justify-content-center gap-3 flex-wrap">
+
+      <a
+        href="https://github.com/xMattC/productivity-microservices-platform"
+        target="_blank"
+        class="btn btn-outline-dark"
+      >
+        GitHub Repository
+      </a>
+
+      <a
+        href="https://www.linkedin.com/in/YOUR_LINKEDIN/"
+        target="_blank"
+        class="btn btn-outline-primary"
+      >
+        LinkedIn
+      </a>
+
+    </div>
+
+    <p class="text-muted mt-4 small">
+      Built with Python (Django & Flask), PostgreSQL, Docker, and AWS.
+    </p>
+
+  </div>
+
 </div>
 
 {% endblock %}
