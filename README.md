@@ -1,37 +1,38 @@
 ![Python](https://img.shields.io/badge/Python-3.x-blue?logo=python)
 ![Django](https://img.shields.io/badge/Django-5.x-092E20?logo=django)
 ![Flask](https://img.shields.io/badge/Flask-3.x-black?logo=flask)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16.x-336791?logo=postgresql)
 ![Docker](https://img.shields.io/badge/Docker-Containerised-2496ED?logo=docker)
+![NGINX](https://img.shields.io/badge/NGINX-Reverse_Proxy-009639?logo=nginx&logoColor=white)
 ![AWS](https://img.shields.io/badge/AWS-EC2%20Deployment-FF9900?logo=amazonaws)
-![CI](https://img.shields.io/badge/CI-GitHub_Actions-2088FF?logo=githubactions)
+![OpenAPI](https://img.shields.io/badge/OpenAPI-Swagger-85EA2D?logo=swagger)
+![Testing](https://img.shields.io/badge/Testing-pytest%20%7C%20Django_Test_Framework-0A9EDC)
+![flake8](https://img.shields.io/badge/flake8-Code_Quality-306998)
+![CI/CD](https://img.shields.io/badge/CI/CD-GitHub_Actions-2088FF?logo=githubactions&logoColor=white)
 
 # Productivity Microservices Platform
 
-A multi-service backend platform designed to demonstrate modern backend architecture using Django, Flask, Docker, and service-oriented application design.
+A multi-service backend platform designed to demonstrate modern backend engineering using Django, Flask, Docker, and service-oriented architecture.
 
-The application allows users to:
+The platform enables users to manage projects, track work sessions, and interact with multiple backend services through a unified Django web interface.
 
-- Create and manage projects
-- Track work sessions against projects
-- Manage productivity workflows through a Django Backend-for-Frontend (BFF)
-- Interact with independent Flask microservices through a unified web interface
 
-The platform is designed as a backend engineering portfolio project focused on service-oriented architecture, Docker-based workflows, API design, and multi-service orchestration.
+This project focuses on scalable backend architecture, API-driven service communication, containerised development workflows, and production-style deployment practices.
 
 ---
 
-## 🎯 Project Goal
+## 🎯 Engineering Focus
 
-This backend engineering portfolio project was built to demonstrate:
+This project was built to demonstrate:
 
-- Microservice architecture design
+- Microservice architecture and service isolation
 - Django + Flask interoperability
-- REST API development
-- Docker-based development workflows
-- Service orchestration and isolation
+- REST API design and inter-service communication
+- Docker-based local development workflows
+- AWS EC2 deployment using Docker and Docker Compose
 - Database migration management across services
-- Automated testing and code quality practices
-- Production-style deployment patterns
+- Automated testing and code quality pipelines
+- Production-oriented deployment patterns
 
 ---
 
@@ -48,14 +49,16 @@ This backend engineering portfolio project was built to demonstrate:
 
 ## 🔑 Key Features
 
-- Django web service
-- Flask projects service
-- Flask time-tracking service
-- Dedicated per-service API documentation
-- Dockerised development environment
+- Django Backend-for-Frontend (BFF) web service
+- Independent Flask microservices
+- Project management API
+- Time-tracking API
+- PostgreSQL-backed services
+- Per-service OpenAPI / Swagger documentation
+- Docker Compose development environment
 - Independent service migrations
-- Local admin access
-- Test and linting workflow across services
+- Local admin tooling
+- Automated testing and linting workflows
 
 ---
 
@@ -70,8 +73,8 @@ This backend engineering portfolio project was built to demonstrate:
 
 ### Development Workflow
 
-- Feature branches used for isolated TDD workflows
-    - [Example TDD commit history](https://github.com/xMattC/productivity-microservices-platform/commits/time-tracking-bff-client-TDD/)
+- Test-Driven Development (TDD) workflows using feature branches
+    - [Example incremental TDD commit history](https://github.com/xMattC/productivity-microservices-platform/commits/time-tracking-bff-client-TDD/)
 - Pull request workflow for review and integration
     - [Closed PRs](https://github.com/xMattC/productivity-microservices-platform/pulls?q=is%3Apr+is%3Aclosed)
 - Documented testing strategy and system guarantees
@@ -84,24 +87,6 @@ This backend engineering portfolio project was built to demonstrate:
 - Docker-based deployment to AWS
     - [Deployment strategy document - TODO]
 ---
-
-## 🖼️ Application Screenshots
-
-### Django Web Service
-
-The Django web application acts as the primary Backend-for-Frontend (BFF) layer for the platform.
-
-Features demonstrated include:
-
-- User authentication and session management
-- Project management workflows
-- Integration with downstream Flask services
-- User-scoped application behaviour
-
-> Django web interface screenshot placeholder
-
----
-
 ## 📈 Service Architecture
 
 A core focus of this project was designing clear service boundaries while maintaining a simple local development workflow.
@@ -122,20 +107,39 @@ This architecture provides:
 
 The Django application acts as the primary Backend-for-Frontend (BFF) layer, while Flask services handle domain-specific functionality such as project management and time tracking.
 
-[See the full architecture document](docs/ARCHITECTURE.md)
+[See the full architecture document](docs/architecture.md)
 
 ---
 
+## 🖼️ Application Screenshots
+
+### Django Web Service
+
+The Django web application acts as the primary Backend-for-Frontend (BFF) layer for the platform.
+
+Features demonstrated include:
+
+- User authentication and session management
+- Project management workflows
+- Integration with downstream Flask services
+- User-scoped application behaviour
+
+> Django web interface screenshot placeholder
+
+---
+
+
+
 ## 📚 Service API Documentation
 
-Each backend service includes dedicated API documentation and live Swagger/OpenAPI interfaces.
+Each backend service includes dedicated API documentation.
 
-| Service | Documentation |
-|---|---|
-| Projects Service | [API Documentation](services/projects/docs/API.md) |
+| Service               | Documentation                                           |
+| --------------------- | ------------------------------------------------------- |
+| Projects Service      | [API Documentation](services/projects/docs/API.md)      |
 | Time Tracking Service | [API Documentation](services/time-tracking/docs/API.md) |
 
-The APIs are documented using OpenAPI / Swagger via `flask-smorest`.
+The APIs are also documented using live OpenAPI / Swagger interfaces via `flask-smorest`.
 
 ### Projects Service Swagger
 
