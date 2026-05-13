@@ -4,3 +4,4 @@ flask-migrate
 psycopg2-binary
 flask-smorest
 marshmallow
+gunicorn>=22.0.0,<23.0.0

@@ -29,4 +29,12 @@ RUN python -m venv /py && \
 
 ENV PATH="/py/bin:$PATH"
 
+COPY ./scripts/run-django.sh /scripts/run-django.sh
+
+RUN chmod +x /scripts/run-django.sh
+
+EXPOSE 9000
+
 USER django-user
+
+CMD ["/scripts/run-django.sh"]
