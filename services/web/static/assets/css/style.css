@@ -64,7 +64,7 @@ h6 {
 }
 
 .projects-scroll-window {
-  max-height: 100px;
+  max-height: 50px;
   overflow-y: auto;
   padding-right: 0.5rem;
 }
@@ -131,7 +131,7 @@ h6 {
 }
 
 .sessions-scroll-window {
-  max-height: 600px;
+  max-height: 260px;
   overflow-y: auto;
 }
 

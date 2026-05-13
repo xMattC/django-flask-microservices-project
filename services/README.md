@@ -79,3 +79,20 @@ Time-tracking service:   http://localhost:5001/docs
 - Services must communicate via HTTP APIs.
 - Services should not directly query another service's database.
 - User ownership is passed using the X-User-ID request header.
+
+### Run all Tests & Linting
+
+
+```bash
+# all-tests:
+printf "\nRunning all tests...\n\n"
+docker compose run --rm web python manage.py test && printf "\n---\n" && \
+docker compose run --rm projects pytest && printf "\n---\n" && \
+docker compose run --rm time-tracking pytest && printf "\n---\n"
+
+# all-linting:
+printf "\nRunning all linting...\n\n"
+docker compose run --rm web flake8 && printf "\n---\n" && \
+docker compose run --rm projects flake8 && printf "\n---\n" &&\
+docker compose run --rm time-tracking flake8 && printf "\n---\n"
+```

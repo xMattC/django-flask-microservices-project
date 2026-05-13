@@ -76,38 +76,57 @@ Expected:
 
 ---
 
+
 ## Database & Migrations
 
-### Start database only
+### Apply existing migrations
 
-```bash
-docker compose up -d time-tracking-db
-```
-
-### Initialise migrations (run once)
-```bash
-docker compose run --rm time-tracking flask --app app.main:create_app db init
-```
-
-### Create a migration
-
-```bash
-docker compose run --rm time-tracking flask --app app.main:create_app db migrate -m "message"
-```
-
-### Apply migrations
+Run this during normal setup, branch switching and deployment.
 
 ```bash
 docker compose run --rm time-tracking flask --app app.main:create_app db upgrade
 ```
 
-### Quick diagnostic:
+### Create a new migration
+
+Only run this when SQLAlchemy models change.
+
 ```bash
-docker compose exec time-tracking -db psql -U time_tracking_user -d time_tracking_db -c "\dt"
-docker compose exec time-tracking -db psql -U time_tracking_user -d time_tracking_db -c "select * from alembic_version;"
+docker compose run --rm time-tracking flask --app app.main:create_app db migrate -m "message"
+```
+
+After creating a migration, apply it with:
+
+```bash
+docker compose run --rm time-tracking flask --app app.main:create_app db upgrade
+```
+
+### Initialise Alembic (run once only)
+
+This should only ever be run when creating the migration environment for a brand-new service.
+Do NOT run this during normal project setup.
+
+```bash
+docker compose run --rm time-tracking flask --app app.main:create_app db init
+```
+
+### Quick diagnostics
+
+List database tables:
+
+```bash
+docker compose exec time-tracking-db psql -U time_tracking_user -d time_tracking_db -c "\dt"
+```
+
+Check current Alembic revision:
+
+```bash
+docker compose exec time-tracking-db psql -U time_tracking_user -d time_tracking_db -c "select * from alembic_version"
 ```
 
 ---
+
+
 ## Docker Notes
 
 * Exposed on host port `5001`
