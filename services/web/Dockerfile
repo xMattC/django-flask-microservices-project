@@ -24,7 +24,9 @@ RUN python -m venv /py && \
     fi && \
     rm -rf /tmp && \
     apk del .tmp-build-deps && \
-    adduser -D -H django-user
+    adduser -D -H django-user && \
+    mkdir -p /vol/web/static && \
+    chown -R django-user:django-user /vol
 
 ENV PATH="/py/bin:$PATH"
 
