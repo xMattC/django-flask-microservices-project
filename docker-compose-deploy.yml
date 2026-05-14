@@ -1,0 +1,161 @@
+# ------------------------------------------------------------------
+# Docker Services Configuration for Django + Flask Microservices Project
+# ------------------------------------------------------------------
+services:
+  # ------------------------------------------------------------------
+  # Django BFF (auth, UI, orchestration)
+  # ------------------------------------------------------------------
+  web:
+    build:
+      context: ./services/web
+      dockerfile: Dockerfile
+      args:
+        DEV: "false"
+    restart: always
+    expose:
+      - "8000"
+    command: >
+      sh -c "python manage.py wait_for_db &&
+             python manage.py migrate &&
+             python manage.py collectstatic --noinput &&
+             gunicorn config.wsgi:application --bind 0.0.0.0:8000"
+    environment:
+      - DB_HOST=web-db
+      - DB_NAME=${WEB_DB_NAME}
+      - DB_USER=${WEB_DB_USER}
+      - DB_PASSWORD=${WEB_DB_PASSWORD}
+      - DB_PORT=5432
+      - DEBUG=0
+      - SECRET_KEY=${DJANGO_SECRET_KEY}
+      - ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS}
+    depends_on:
+      web-db:
+        condition: service_healthy
+    volumes:
+      - static-data:/vol/web/static
+  # ------------------------------------------------------------------
+  # Django BFF - PostgreSQL database
+  # ------------------------------------------------------------------
+  web-db:
+    image: postgres:15-alpine
+    restart: always
+    volumes:
+      - web-db-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=${WEB_DB_NAME}
+      - POSTGRES_USER=${WEB_DB_USER}
+      - POSTGRES_PASSWORD=${WEB_DB_PASSWORD}
+    healthcheck:
+      test: ["CMD", "pg_isready", "-q", "-d", "${WEB_DB_NAME}", "-U", "${WEB_DB_USER}"]
+
+  # ------------------------------------------------------------------
+  # Flask Projects Microservice (owns project data + logic)
+  # ------------------------------------------------------------------
+  projects:
+    build:
+      context: ./services/projects
+      dockerfile: dockerfile
+      args:
+        DEV: "false"
+    restart: always
+    working_dir: /app
+    expose:
+      - "5000"
+    command: >
+      sh -c "gunicorn 'app.main:create_app()' --bind 0.0.0.0:5000"
+    environment:
+      - FLASK_ENV=production
+      - PYTHONPATH=/app
+      - DB_HOST=projects-db
+      - DB_NAME=${PROJECTS_DB_NAME}
+      - DB_USER=${PROJECTS_DB_USER}
+      - DB_PASSWORD=${PROJECTS_DB_PASSWORD}
+      - DB_PORT=5432
+    depends_on:
+      projects-db:
+        condition: service_healthy
+
+  # ------------------------------------------------------------------
+  # Flask Projects Microservice - PostgreSQL Database
+  # ------------------------------------------------------------------
+  projects-db:
+    image: postgres:15-alpine
+    restart: always
+    volumes:
+      - projects-db-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=${PROJECTS_DB_NAME}
+      - POSTGRES_USER=${PROJECTS_DB_USER}
+      - POSTGRES_PASSWORD=${PROJECTS_DB_PASSWORD}
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-d", "${PROJECTS_DB_NAME}", "-U", "${PROJECTS_DB_USER}" ]
+
+  # Flask Time Tracking Microservice (owns time tracking data + logic)
+  # ------------------------------------------------------------------
+  time-tracking:
+    build:
+      context: ./services/time-tracking
+      dockerfile: dockerfile
+      args:
+        DEV: "false"
+    restart: always
+    working_dir: /app
+    expose:
+      - "5000"
+    command: >
+      sh -c "gunicorn 'app.main:create_app()' --bind 0.0.0.0:5000"
+    environment:
+      - FLASK_ENV=production
+      - PYTHONPATH=/app
+      - DB_HOST=time-tracking-db
+      - DB_NAME=${TIME_TRACKING_DB_NAME}
+      - DB_USER=${TIME_TRACKING_DB_USER}
+      - DB_PASSWORD=${TIME_TRACKING_DB_PASSWORD}
+      - DB_PORT=5432
+    depends_on:
+      time-tracking-db:
+        condition: service_healthy
+
+  # ------------------------------------------------------------------
+  # Flask Time Tracking Microservice - PostgreSQL Database
+  # ------------------------------------------------------------------
+  time-tracking-db:
+    image: postgres:15-alpine
+    restart: always
+    volumes:
+      - time-tracking-db-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=${TIME_TRACKING_DB_NAME}
+      - POSTGRES_USER=${TIME_TRACKING_DB_USER}
+      - POSTGRES_PASSWORD=${TIME_TRACKING_DB_PASSWORD}
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-d", "${TIME_TRACKING_DB_NAME}", "-U", "${TIME_TRACKING_DB_USER}" ]
+
+  # ------------------------------------------------------------------
+  # Reverse Proxy
+  # ------------------------------------------------------------------
+  proxy:
+    build:
+      context: ./proxy
+    restart: always
+    depends_on:
+      - web
+      - projects
+      - time-tracking
+    ports:
+      - "80:8000"
+      - "443:8443"
+    environment:
+      - APP_HOST=web
+      - APP_PORT=8000
+    volumes:
+      - static-data:/vol/web/static
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+# ------------------------------------------------------------------
+# Docker volumes for data persistence
+# ------------------------------------------------------------------
+volumes:
+  web-db-data:
+  projects-db-data:
+  time-tracking-db-data:
+  static-data:
