@@ -19,7 +19,7 @@ The platform enables users to manage projects, track work sessions, and interact
 
 This project focuses on scalable backend architecture, API-driven service communication, containerised development workflows, and production-style deployment practices.
 
-**Live Productivity App:** http://productivity-app.xmattc.com
+**Live Productivity App:** https://productivity-app.xmattc.com/
 
 ---
 
