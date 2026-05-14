@@ -9,7 +9,7 @@
 ![Testing](https://img.shields.io/badge/Testing-pytest%20%7C%20Django_Test_Framework-0A9EDC)
 ![flake8](https://img.shields.io/badge/flake8-Code_Quality-306998)
 ![CI/CD](https://img.shields.io/badge/CI/CD-GitHub_Actions-2088FF?logo=githubactions&logoColor=white)
-
+![CD](https://img.shields.io/badge/CD-Automated_Deployment-success?logo=githubactions&logoColor=white)
 # Productivity Microservices Platform
 
 A multi-service backend platform designed to demonstrate modern backend engineering using Django, Flask, Docker, and service-oriented architecture.
@@ -31,10 +31,11 @@ This project was built to demonstrate:
 - Django + Flask interoperability
 - REST API design and inter-service communication
 - Docker-based local development workflows
-- AWS EC2 deployment using Docker and Docker Compose
+- AWS EC2 deployment with automated CI/CD pipelines
 - Database migration management across services
 - Automated testing and code quality pipelines
-- Production-oriented deployment patterns
+- Production-oriented deployment and release automation
+- Continuous Integration and Continuous Deployment (CI/CD)
 
 ---
 
@@ -81,13 +82,16 @@ This project was built to demonstrate:
     - [Closed PRs](https://github.com/xMattC/productivity-microservices-platform/pulls?q=is%3Apr+is%3Aclosed)
 - Documented testing strategy and system guarantees
     - [Testing guarantees document](docs/testing_and_system_guarantees.md)
-- GitHub Actions for continuous integration (testing + linting)
+- GitHub Actions CI/CD pipelines
+    - Automated testing and linting on pull requests
+    - Protected `main` branch with required status checks
+    - Automated AWS EC2 deployment on merge to `main`
     - [Action History](https://github.com/xMattC/productivity-microservices-platform/actions)
+
 - Kanban-based project management
     - [Project board: Planning](https://github.com/users/xMattC/projects/4/views/1)
     - [Project board: Tasks](https://github.com/users/xMattC/projects/4/views/7)
-- Docker-based deployment to AWS
-    - [Deployment strategy document - TODO]
+
 ---
 ## 📈 Service Architecture
 
@@ -194,7 +198,7 @@ Common responses include:
 - Infrastructure focuses on Docker-based deployment rather than full production orchestration
 - Advanced observability tooling (distributed tracing, metrics aggregation, alerting) is not implemented
 - No horizontal scaling or container orchestration layer (e.g. Kubernetes)
-- CI/CD pipelines focus on automated testing and linting rather than full deployment automation
+- CI/CD pipelines currently target a single EC2 deployment environment
 - APIs are internally structured but not versioned for public consumption
 - Demo deployment may be reset or updated without notice
 
