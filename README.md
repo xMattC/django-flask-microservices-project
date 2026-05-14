@@ -19,6 +19,8 @@ The platform enables users to manage projects, track work sessions, and interact
 
 This project focuses on scalable backend architecture, API-driven service communication, containerised development workflows, and production-style deployment practices.
 
+**Live Productivity App:** http://productivity-app.xmattc.com
+
 ---
 
 ## 🎯 Engineering Focus
@@ -89,9 +91,7 @@ This project was built to demonstrate:
 ---
 ## 📈 Service Architecture
 
-A core focus of this project was designing clear service boundaries while maintaining a simple local development workflow.
-
-The platform is structured as independent backend services:
+A core focus of this project was designing clear service boundaries while maintaining a simple local development workflow. The platform is structured as independent backend services:
 
 <p align="center">
   <img src="services\web\static\images\architecture.png" width="700">
