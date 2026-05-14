@@ -12,6 +12,7 @@
 ![CD](https://img.shields.io/badge/CD-Automated_Deployment-success?logo=githubactions&logoColor=white)
 # Productivity Microservices Platform
 
+
 A multi-service backend platform designed to demonstrate modern backend engineering using Django, Flask, Docker, and service-oriented architecture.
 
 The platform enables users to manage projects, track work sessions, and interact with multiple backend services through a unified Django web interface.
