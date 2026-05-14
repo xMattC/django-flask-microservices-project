@@ -94,7 +94,7 @@ A core focus of this project was designing clear service boundaries while mainta
 The platform is structured as independent backend services:
 
 <p align="center">
-  <img src="docs/images/architecture-diagram.png" width="700">
+  <img src="services\web\static\images\architecture.png" width="700">
 </p>
 
 This architecture provides:
