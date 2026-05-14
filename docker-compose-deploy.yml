@@ -144,11 +144,13 @@ services:
       - time-tracking
     ports:
       - "80:8000"
+      - "443:8443"
     environment:
       - APP_HOST=web
       - APP_PORT=8000
     volumes:
       - static-data:/vol/web/static
+      - /etc/letsencrypt:/etc/letsencrypt:ro
 # ------------------------------------------------------------------
 # Docker volumes for data persistence
 # ------------------------------------------------------------------
