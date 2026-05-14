@@ -8,7 +8,18 @@ Each service is independently deployable and owns its own data.
 
 ---
 
-## 1. System Overview
+## 1. Architecture design
+
+![System Architecture](..\services\web\static\images\architecture.png)
+
+
+The Django service acts as the entry point for users and communicates with downstream Flask services over HTTP.
+
+Each service owns its own database, migrations, and business logic.
+
+---
+
+## 2. System Overview
 
 The platform is designed as a multi-service backend application for productivity workflows such as:
 
@@ -24,18 +35,6 @@ The system uses:
 - Docker Compose for local orchestration
 
 ---
-
-## 2. High-Level Architecture
-
-![System Architecture](images/architecture-diagram.png)
-
-
-The Django service acts as the entry point for users and communicates with downstream Flask services over HTTP.
-
-Each service owns its own database, migrations, and business logic.
-
----
-
 ## 3. Services
 
 | Service | Responsibility |

@@ -84,13 +84,18 @@ Time-tracking service:   http://localhost:5001/docs
 
 
 ```bash
-# all-tests:
+# clear local dev:
+docker compose down --remove-orphans
+docker compose build --no-cache
+docker compose up -d
+
+# All-tests:
 printf "\nRunning all tests...\n\n"
 docker compose run --rm web python manage.py test && printf "\n---\n" && \
 docker compose run --rm projects pytest && printf "\n---\n" && \
 docker compose run --rm time-tracking pytest && printf "\n---\n"
 
-# all-linting:
+# All-linting:
 printf "\nRunning all linting...\n\n"
 docker compose run --rm web flake8 && printf "\n---\n" && \
 docker compose run --rm projects flake8 && printf "\n---\n" &&\
