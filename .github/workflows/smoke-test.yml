@@ -17,7 +17,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Ensure smoke test is executable
-        run: chmod +x tests/smoke/smoke-test.sh
+        run: chmod +x tests/smoke/smoke-tests.sh
 
       - name: Run platform smoke test
         run: tests/smoke/smoke-test.sh
