@@ -3,7 +3,7 @@ import os
 from flask import Flask
 from flask_smorest import Api
 
-from app.extensions import api, db, migrate
+from app.extensions import db, migrate
 from app.routes import routes
 
 
