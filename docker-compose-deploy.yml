@@ -149,7 +149,7 @@ services:
     environment:
       APP_HOST: web
       APP_PORT: "8000"
-      ENABLE_SSL: "true"
+      ENABLE_SSL: "${ENABLE_SSL:-false}"
     volumes:
       - static-data:/vol/web/static
       - /etc/letsencrypt:/etc/letsencrypt:ro
