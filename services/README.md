@@ -82,6 +82,7 @@ Local Development URLs
 Django web app:          http://localhost:8000
 Projects service:        http://localhost:5000
 Time-tracking service:   http://localhost:5001
+Tasks service:           http://localhost:5002
 ```
 
  API Docs
@@ -104,21 +105,33 @@ Tasks service:           http://localhost:5002/docs
 
 
 ```bash
-# Clear local dev:
+# ------------------------------------------------------------------
+# Clear local dev
+# ------------------------------------------------------------------
 docker compose down --remove-orphans
-docker compose build --no-cache
+docker compose build --no-cache web projects time-tracking tasks
 docker compose up -d
 
-# All-tests:
-printf "\nRunning all tests...\n\n"
+# ------------------------------------------------------------------
+# Run all Unit/API tests
+# ------------------------------------------------------------------
+printf "\nRunning all unit tests...\n\n"
 docker compose run --rm web python manage.py test && printf "\n---\n" && \
 docker compose run --rm projects pytest && printf "\n---\n" && \
-docker compose run --rm time-tracking pytest && printf "\n---\n"
+docker compose run --rm time-tracking pytest && printf "\n---\n" && \
 docker compose run --rm tasks pytest && printf "\n---\n"
 
-# All-linting:
+# ------------------------------------------------------------------
+# Run all linting
+# ------------------------------------------------------------------
 printf "\nRunning all linting...\n\n"
 docker compose run --rm web flake8 && printf "\n---\n" && \
-docker compose run --rm projects flake8 && printf "\n---\n" &&\
+docker compose run --rm projects flake8 && printf "\n---\n" && \
+docker compose run --rm time-tracking flake8 && printf "\n---\n" && \
 docker compose run --rm tasks flake8 && printf "\n---\n"
+
+# ------------------------------------------------------------------
+# Smoke test
+# ------------------------------------------------------------------
+./tests/smoke/smoke-tests.sh
 ```

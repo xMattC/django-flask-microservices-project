@@ -1,3 +1,4 @@
+import os
 from flask import Flask
 from flask_smorest import Api
 
@@ -7,7 +8,13 @@ from app.routes import routes
 
 def build_db_uri():
     """Build the SQLAlchemy database URI from environment variables."""
-    return
+    db_host = os.environ.get("DB_HOST")
+    db_name = os.environ.get("DB_NAME")
+    db_user = os.environ.get("DB_USER")
+    db_password = os.environ.get("DB_PASSWORD")
+    db_port = os.environ.get("DB_PORT", "5432")
+
+    return f"postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
 
 
 def configure_app(app):
@@ -22,6 +29,7 @@ def configure_app(app):
     # API metadata used by flask-smorest/OpenAPI documentation
     app.config["API_TITLE"] = "Tasks Service API"
     app.config["API_VERSION"] = "v1"
+    app.config["OPENAPI_VERSION"] = "3.0.3"
 
 
 def init_extensions(app):

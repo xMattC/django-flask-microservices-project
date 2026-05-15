@@ -7,7 +7,7 @@ ENV PYTHONUNBUFFERED=1
 COPY ./requirements.txt /tmp/requirements.txt
 COPY ./requirements.dev.txt /tmp/requirements.dev.txt
 COPY . /app
-# COPY ./scripts/run-tasks.sh /scripts/run-tasks.sh
+COPY ./scripts/run-tasks.sh /scripts/run-tasks.sh
 
 WORKDIR /app
 
@@ -26,11 +26,11 @@ RUN python -m venv /py && \
     fi && \
     rm -rf /tmp && \
     apk del .tmp-build-deps && \
-    # chmod +x /scripts/run-tasks.sh && \
+    chmod +x /scripts/run-tasks.sh && \
     adduser -D -H flask-user
 
 ENV PATH="/py/bin:$PATH"
 
 USER flask-user
 
-# CMD ["/scripts/run-tasks.sh"]
+CMD ["/scripts/run-tasks.sh"]

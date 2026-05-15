@@ -90,10 +90,9 @@ This project was built to demonstrate:
     - [Testing guarantees document](docs/testing_and_system_guarantees.md)
 - GitHub Actions CI/CD pipelines
     - Automated testing and linting on pull requests
-    - Protected `main` branch with required status checks
     - Automated AWS EC2 deployment on merge to `main`
     - [Action History](https://github.com/xMattC/productivity-microservices-platform/actions)
-
+    - [Example workflows](.github\workflows)
 - Kanban-based project management
     - [Project board: Planning](https://github.com/users/xMattC/projects/4/views/1)
     - [Project board: Tasks](https://github.com/users/xMattC/projects/4/views/7)

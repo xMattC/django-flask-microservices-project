@@ -10,6 +10,8 @@ The test suite focuses on validating business behaviour rather than framework in
 
 The project uses multiple layers of testing to validate both isolated components and full system workflows.
 
+See:
+- [Test Directory Structure](../tests/README.md)
 ---
 
 ## Unit Tests

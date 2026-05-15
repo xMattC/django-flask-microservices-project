@@ -1,11 +1,9 @@
-from datetime import datetime, timezone
-
-from flask import jsonify, request
+from flask import jsonify
 from flask_smorest import Blueprint
 from werkzeug.exceptions import HTTPException
 
-from app.extensions import db
-from app.models import Tasks
+# from app.extensions import db
+# from app.models import Tasks
 
 routes = Blueprint("routes", __name__, description="Tasks service endpoints")
 

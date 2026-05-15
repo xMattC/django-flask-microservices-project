@@ -147,7 +147,7 @@ services:
         DEV: "true"
     working_dir: /app
     ports:
-      - "5001:5000"
+      - "5002:5000"
     volumes:
       - ./services/tasks:/app
     command: >
@@ -163,24 +163,24 @@ services:
       - DB_USER=tasks_user
       - DB_PASSWORD=changeme
       - DB_PORT=5432
-    # depends_on:
-      # tasks-db:
-      #   condition: service_healthy
+    depends_on:
+      tasks-db:
+        condition: service_healthy
 
   # ------------------------------------------------------------------
   # Flask Tasks Microservice - PostgreSQL Database
   # ------------------------------------------------------------------
-  # tasks-db:
-  #   image: postgres:15-alpine
-  #   restart: unless-stopped
-  #   volumes:
-  #     - tasks-db-data:/var/lib/postgresql/data
-  #   environment:
-  #     - POSTGRES_DB=tasks_db
-  #     - POSTGRES_USER=tasks_user
-  #     - POSTGRES_PASSWORD=changeme
-  #   healthcheck:
-  #     test: [ "CMD", "pg_isready", "-q", "-d", "tasks_db", "-U", "tasks_user" ]
+  tasks-db:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    volumes:
+      - tasks-db-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=tasks_db
+      - POSTGRES_USER=tasks_user
+      - POSTGRES_PASSWORD=changeme
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-d", "tasks_db", "-U", "tasks_user" ]
 
 # ------------------------------------------------------------------
 # Docker volumes for data persistence
@@ -189,3 +189,4 @@ volumes:
   web-db-data:
   projects-db-data:
   time-tracking-db-data:
+  tasks-db-data:
