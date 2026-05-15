@@ -94,7 +94,7 @@ echo "=================================================="
 echo "Run health checks"
 echo "=================================================="
 
-curl -fsS -o /dev/null http://localhost
+curl -fsS -o /dev/null http://localhost:8000
 curl -fsS http://localhost:5000/api/health
 curl -fsS http://localhost:5001/api/health
 curl -fsS http://localhost:5002/api/health
