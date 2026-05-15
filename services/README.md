@@ -82,7 +82,7 @@ Local Development URLs
 Django web app:          http://localhost:8000
 Projects service:        http://localhost:5000
 Time-tracking service:   http://localhost:5001
-Tasks service:           http://localhost:5001
+Tasks service:           http://localhost:5002
 ```
 
  API Docs
