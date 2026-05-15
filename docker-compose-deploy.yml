@@ -147,8 +147,9 @@ services:
       - "80:8000"
       - "443:8443"
     environment:
-      - APP_HOST=web
-      - APP_PORT=8000
+      APP_HOST: web
+      APP_PORT: "8000"
+      ENABLE_SSL: "true"
     volumes:
       - static-data:/vol/web/static
       - /etc/letsencrypt:/etc/letsencrypt:ro
