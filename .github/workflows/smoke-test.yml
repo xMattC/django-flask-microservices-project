@@ -20,4 +20,4 @@ jobs:
         run: chmod +x tests/smoke/smoke-tests.sh
 
       - name: Run platform smoke test
-        run: tests/smoke/smoke-test.sh
+        run: tests/smoke/smoke-tests.sh
