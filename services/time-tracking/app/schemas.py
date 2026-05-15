@@ -37,7 +37,7 @@ class TimeEntryResultsSchema(Schema):
     results = fields.List(fields.Nested(TimeEntryResponseSchema))
 
 
-class ErrorSchema(Schema):
+class TimeEntryErrorSchema(Schema):
     """Schema representing a simple error response."""
 
     message = fields.String(required=True)

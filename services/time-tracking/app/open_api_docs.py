@@ -1,6 +1,6 @@
 from flask_smorest import Blueprint
 
-from app.schemas import ErrorSchema
+from app.schemas import TimeEntryErrorSchema
 
 USER_ID_HEADER = {
     "in": "header",
@@ -45,7 +45,7 @@ def endpoint_docs(routes: Blueprint, *, success_code=200, response_schema=None, 
             fn = routes.response(success_code)(fn)
 
         for status_code in reversed(errors):
-            fn = routes.alt_response(status_code, schema=ErrorSchema)(fn)
+            fn = routes.alt_response(status_code, schema=TimeEntryErrorSchema)(fn)
 
         return fn
 

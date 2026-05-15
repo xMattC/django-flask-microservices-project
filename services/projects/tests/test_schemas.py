@@ -2,7 +2,7 @@ import pytest
 from marshmallow import ValidationError
 
 from app.schemas import (
-    ErrorSchema,
+    ProjectErrorSchema,
     ProjectCreateSchema,
     ProjectResponseSchema,
     ProjectResultsSchema,
@@ -137,7 +137,7 @@ def test_project_results_schema_dumps_results_list():
 
 
 def test_error_schema_dumps_error():
-    schema = ErrorSchema()
+    schema = ProjectErrorSchema()
 
     data = schema.dump({"error": "Project not found."})
 

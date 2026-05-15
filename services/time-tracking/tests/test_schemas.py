@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from marshmallow import ValidationError
 
 from app.schemas import (
-    ErrorSchema,
+    TimeEntryErrorSchema,
     TimeEntryCreateSchema,
     TimeEntryResponseSchema,
     TimeEntryResultsSchema,
@@ -143,7 +143,7 @@ def test_time_entry_results_schema_dumps_results_list():
 
 
 def test_error_schema_dumps_message():
-    schema = ErrorSchema()
+    schema = TimeEntryErrorSchema()
 
     data = schema.dump({"message": "Time entry not found"})
 

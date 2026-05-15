@@ -76,7 +76,7 @@ class ProjectResultsSchema(Schema):
     results = fields.List(fields.Nested(ProjectResponseSchema))
 
 
-class ErrorSchema(Schema):
+class ProjectErrorSchema(Schema):
     """Schema representing a simple error response.
 
     This schema defines the structure for custom error responses returned
