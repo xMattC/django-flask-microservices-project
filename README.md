@@ -272,3 +272,21 @@ Admin panel: http://localhost:8000/admin/
 > Password: change-me<br>
 
 ---
+
+
+## 4. Test Deployment Configuration Locally
+
+Run the platform locally using the deployment Docker Compose configuration.
+
+```bash
+# Run deployment compose:
+docker compose -f docker-compose.yml -f docker-compose-deploy.yml up --build -d
+
+# View running containers:
+docker compose -f docker-compose.yml -f docker-compose-deploy.yml ps
+
+# Stop the deployment stack:
+docker compose -f docker-compose.yml -f docker-compose-deploy.yml down --remove-orphans
+```
+
+---

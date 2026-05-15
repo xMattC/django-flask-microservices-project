@@ -30,46 +30,49 @@ jobs:
 
               set -e
 
+              COMPOSE_FILES="-f docker-compose.yml -f docker-compose-deploy.yml"
+
               cd ${{ secrets.EC2_PROJECT_DIR }}
 
               git fetch origin main
               git reset --hard origin/main
 
-              docker compose \
-                -f docker-compose.yml \
-                -f docker-compose-deploy.yml \
-                up --build -d
+              docker compose ${COMPOSE_FILES} config
 
-              docker compose \
-                -f docker-compose.yml \
-                -f docker-compose-deploy.yml \
-                ps
+              test -f /etc/letsencrypt/live/productivity-app.xmattc.com/fullchain.pem
+              test -f /etc/letsencrypt/live/productivity-app.xmattc.com/privkey.pem
 
-              docker compose \
-                -f docker-compose.yml \
-                -f docker-compose-deploy.yml \
-                run --rm web \
+              docker compose ${COMPOSE_FILES} up --build -d
+
+              sleep 10
+
+              FAILED_CONTAINERS=$(docker compose ${COMPOSE_FILES} ps \
+                --format '{{.Name}} {{.State}}' \
+                | grep -E 'exited|restarting|dead' || true)
+
+              if [ -n "$FAILED_CONTAINERS" ]; then
+                echo "ERROR: One or more containers failed after startup:"
+                echo "$FAILED_CONTAINERS"
+                docker compose ${COMPOSE_FILES} logs --tail=100
+                exit 1
+              fi
+
+              docker compose ${COMPOSE_FILES} ps
+
+              docker compose ${COMPOSE_FILES} run --rm web \
                 python manage.py migrate
 
-              docker compose \
-                -f docker-compose.yml \
-                -f docker-compose-deploy.yml \
-                run --rm projects \
+              docker compose ${COMPOSE_FILES} run --rm projects \
                 flask --app app.main:create_app db upgrade
 
-              docker compose \
-                -f docker-compose.yml \
-                -f docker-compose-deploy.yml \
-                run --rm time-tracking \
+              docker compose ${COMPOSE_FILES} run --rm time-tracking \
                 flask --app app.main:create_app db upgrade
 
-              docker compose \
-                -f docker-compose.yml \
-                -f docker-compose-deploy.yml \
-                up -d
+              docker compose ${COMPOSE_FILES} run --rm tasks \
+                flask --app app.main:create_app db upgrade
 
-              curl -I http://localhost
-              curl -I https://productivity-app.xmattc.com
+              curl -fI http://localhost
+              curl -fI https://productivity-app.xmattc.com
 
               docker image prune -f
 

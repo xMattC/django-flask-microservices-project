@@ -2,7 +2,8 @@ FROM nginxinc/nginx-unprivileged:1-alpine
 
 LABEL maintainer="xMattC"
 
-COPY ./default.conf.tpl /etc/nginx/default.conf.tpl
+COPY ./default-http.conf.tpl /etc/nginx/default-http.conf.tpl
+COPY ./default-ssl.conf.tpl /etc/nginx/default-ssl.conf.tpl
 COPY ./run.sh /run.sh
 
 ENV LISTEN_PORT=8000

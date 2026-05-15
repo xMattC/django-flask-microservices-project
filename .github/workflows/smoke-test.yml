@@ -1,0 +1,23 @@
+name: Platform Smoke Test
+
+on:
+  pull_request:
+
+  push:
+    branches:
+      - main
+
+jobs:
+  smoke-test:
+    name: Platform Smoke Test
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Ensure smoke test is executable
+        run: chmod +x tests/smoke/smoke-test.sh
+
+      - name: Run platform smoke test
+        run: tests/smoke/smoke-test.sh
