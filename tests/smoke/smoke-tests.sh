@@ -6,6 +6,26 @@ COMPOSE_FILES="-f docker-compose.yml -f docker-compose-deploy.yml"
 
 export ENABLE_SSL=false
 
+export WEB_DB_NAME=web_db
+export WEB_DB_USER=web_user
+export WEB_DB_PASSWORD=changeme
+
+export PROJECTS_DB_NAME=projects_db
+export PROJECTS_DB_USER=projects_user
+export PROJECTS_DB_PASSWORD=changeme
+
+export TIME_TRACKING_DB_NAME=time_tracking_db
+export TIME_TRACKING_DB_USER=time_tracking_user
+export TIME_TRACKING_DB_PASSWORD=changeme
+
+export TASKS_DB_NAME=tasks_db
+export TASKS_DB_USER=tasks_user
+export TASKS_DB_PASSWORD=changeme
+
+export DJANGO_SECRET_KEY=smoke-test-secret-key
+export DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1
+export CSRF_TRUSTED_ORIGINS=http://localhost,http://localhost:8000
+
 cleanup() {
   echo ""
   echo "=================================================="
