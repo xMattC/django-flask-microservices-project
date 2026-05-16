@@ -120,7 +120,7 @@ docker compose build --no-cache time-tracking
 docker compose build --no-cache tasks
 
 # ------------------------------------------------------------------
-# Run all Unit/API tests
+# Run all Unit/Intergration tests
 # ------------------------------------------------------------------
 printf "\nRunning all unit tests...\n\n"
 docker compose run --rm web python manage.py test && printf "\n---\n" && \
@@ -136,6 +136,11 @@ docker compose run --rm web flake8 && printf "\n---\n" && \
 docker compose run --rm projects flake8 && printf "\n---\n" && \
 docker compose run --rm time-tracking flake8 && printf "\n---\n" && \
 docker compose run --rm tasks flake8 && printf "\n---\n"
+
+# ------------------------------------------------------------------
+# System End to End test
+# ------------------------------------------------------------------
+./tests/system/run-system-tests.sh
 
 # ------------------------------------------------------------------
 # Smoke test

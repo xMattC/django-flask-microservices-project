@@ -1,0 +1,32 @@
+name: System Checks
+
+on:
+  pull_request:
+    paths:
+      - "services/**"
+      - "tests/system/**"
+      - "docker-compose.yml"
+      - ".github/workflows/system-ci.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "services/**"
+      - "tests/system/**"
+      - "docker-compose.yml"
+      - ".github/workflows/system-ci.yml"
+
+jobs:
+  system-check:
+    name: System E2E Test
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Ensure system test script is executable
+        run: chmod +x tests/system/run-system-tests.sh
+
+      - name: Run system e2e tests
+        run: ./tests/system/run-system-tests.sh
