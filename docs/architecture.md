@@ -2,9 +2,13 @@
 
 This document describes the architecture of the Productivity Microservices Platform, a backend engineering portfolio project built using Django, Flask, PostgreSQL, and Docker.
 
-The system follows a microservice architecture with a Django backend-for-frontend (BFF) layer.
+The system follows a simplified microservice architecture using a Django Backend-for-Frontend (BFF) layer and multiple Flask domain services.
 
-Each service is independently deployable and owns its own data.
+While production systems commonly separate services into independent repositories with dedicated CI/CD pipelines and orchestration platforms such as Kubernetes, this project uses a monorepo structure with Docker Compose for practicality and simplified development workflows.
+
+Despite sharing a repository, services are intentionally designed as self-contained applications with clear ownership boundaries. Each service maintains its own application code, tests, dependencies, Docker configuration, business logic, and database ownership while communicating exclusively through HTTP APIs.
+
+This structure preserves core microservice principles while reducing infrastructure complexity for a portfolio project.
 
 ---
 
@@ -37,12 +41,12 @@ The system uses:
 ---
 ## 3. Services
 
-| Service | Responsibility |
-|---|---|
-| Django Web Service | Authentication, session handling, frontend orchestration |
-| Projects Service | Project CRUD operations |
-| Time Tracking Service | Time entry and tracking workflows |
-| PostgreSQL Databases | Persistent storage per service |
+| Service               | Responsibility                                           |
+| --------------------- | -------------------------------------------------------- |
+| Django Web Service    | Authentication, session handling, frontend orchestration |
+| Projects Service      | Project CRUD operations                                  |
+| Time Tracking Service | Time entry and tracking workflows                        |
+| PostgreSQL Databases  | Persistent storage per service                           |
 
 ---
 
@@ -171,7 +175,6 @@ The infrastructure is intentionally lightweight for portfolio demonstration purp
 
 Planned future improvements include:
 
-- Tasks microservice
 - JWT-based service authentication
 - API versioning
 - Centralised logging
@@ -179,6 +182,9 @@ Planned future improvements include:
 - Asynchronous service communication
 - Deployment automation
 - Container orchestration with Kubernetes or ECS
+- Event-driven messaging (project.deleted events)
+- Service-to-service async communication
+- Observability improvements (metrics, tracing)
 
 ---
 
@@ -194,7 +200,3 @@ The Productivity Microservices Platform demonstrates:
 - Automated testing and CI practices
 
 The project is designed to showcase practical backend engineering skills in a multi-service environment.
-
-- Event-driven messaging (project.deleted events)
-- Service-to-service async communication
-- Observability improvements (metrics, tracing)

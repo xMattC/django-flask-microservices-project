@@ -1,6 +1,11 @@
+
 # Services Overview
 
-This project uses a simplified microservice architecture. In larger real-world systems, services are often separated into independent repositories with their own deployment pipelines and infrastructure management. Production orchestration is commonly handled using platforms such as Kubernetes. For simplicity, this project keeps all services within a single repository and uses Docker Compose to manage both local development and deployments.
+This project uses a simplified microservice architecture. In larger production systems, services are often separated into independent repositories with their own CI/CD pipelines, infrastructure management, and orchestration platforms such as Kubernetes. For practicality, this project uses a monorepo structure with Docker Compose managing local development and deployment workflows.
+
+Despite sharing a repository, each service is designed as a self-contained application with clear ownership boundaries. Services maintain their own application code, tests, Docker configuration, dependencies, and database ownership, and communicate exclusively through HTTP APIs rather than direct database access.
+
+This structure aims to preserve core microservice principles while reducing infrastructure complexity. The services could be separated into independently deployed applications in the future with minimal architectural changes.
 
 ---
 ## Web — Django BFF
@@ -109,8 +114,10 @@ Tasks service:           http://localhost:5002/docs
 # Clear local dev
 # ------------------------------------------------------------------
 docker compose down --remove-orphans
-docker compose build --no-cache web projects time-tracking tasks
-docker compose up -d
+docker compose build --no-cache web
+docker compose build --no-cache projects
+docker compose build --no-cache time-tracking
+docker compose build --no-cache tasks
 
 # ------------------------------------------------------------------
 # Run all Unit/API tests
