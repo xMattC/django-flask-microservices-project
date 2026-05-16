@@ -87,12 +87,12 @@ This project was built to demonstrate:
 - Pull request workflow for review and integration
     - [Closed PRs](https://github.com/xMattC/productivity-microservices-platform/pulls?q=is%3Apr+is%3Aclosed)
 - Documented testing strategy and system guarantees
-    - [Testing guarantees document](docs/testing_and_system_guarantees.md)
+    - [Testing document](docs/testing.md)
 - GitHub Actions CI/CD pipelines
     - Automated testing and linting on pull requests
     - Automated AWS EC2 deployment on merge to `main`
     - [Action History](https://github.com/xMattC/productivity-microservices-platform/actions)
-    - [Example workflows](.github\workflows)
+    - [Example workflows](.github/workflows)
 - Kanban-based project management
     - [Project board: Planning](https://github.com/users/xMattC/projects/4/views/1)
     - [Project board: Tasks](https://github.com/users/xMattC/projects/4/views/7)
