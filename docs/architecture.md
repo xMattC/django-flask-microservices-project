@@ -14,7 +14,7 @@ This structure preserves core microservice principles while reducing infrastruct
 
 ## 1. Architecture design
 
-![System Architecture](..\services\web\static\images\architecture.png)
+![System Architecture](../services/web/static/images/architecture.png)
 
 
 The Django service acts as the entry point for users and communicates with downstream Flask services over HTTP.
