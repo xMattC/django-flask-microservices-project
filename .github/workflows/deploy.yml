@@ -10,6 +10,7 @@ jobs:
   deploy:
     name: Deploy live site
     runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     steps:
       - name: Write SSH key
@@ -44,7 +45,20 @@ jobs:
 
               docker compose ${COMPOSE_FILES} up --build -d
 
-              sleep 10
+              echo "Waiting for services to start..."
+              sleep 15
+
+              docker compose ${COMPOSE_FILES} exec -T web \
+                python manage.py migrate
+
+              docker compose ${COMPOSE_FILES} exec -T projects \
+                flask --app app.main:create_app db upgrade
+
+              docker compose ${COMPOSE_FILES} exec -T time-tracking \
+                flask --app app.main:create_app db upgrade
+
+              docker compose ${COMPOSE_FILES} exec -T tasks \
+                flask --app app.main:create_app db upgrade
 
               FAILED_CONTAINERS=$(docker compose ${COMPOSE_FILES} ps \
                 --format '{{.Name}} {{.State}}' \
@@ -53,23 +67,11 @@ jobs:
               if [ -n "$FAILED_CONTAINERS" ]; then
                 echo "ERROR: One or more containers failed after startup:"
                 echo "$FAILED_CONTAINERS"
-                docker compose ${COMPOSE_FILES} logs --tail=100
+                docker compose ${COMPOSE_FILES} logs --tail=150
                 exit 1
               fi
 
               docker compose ${COMPOSE_FILES} ps
-
-              docker compose ${COMPOSE_FILES} run --rm web \
-                python manage.py migrate
-
-              docker compose ${COMPOSE_FILES} run --rm projects \
-                flask --app app.main:create_app db upgrade
-
-              docker compose ${COMPOSE_FILES} run --rm time-tracking \
-                flask --app app.main:create_app db upgrade
-
-              docker compose ${COMPOSE_FILES} run --rm tasks \
-                flask --app app.main:create_app db upgrade
 
               curl -fI http://localhost
               curl -fI https://productivity-app.xmattc.com
