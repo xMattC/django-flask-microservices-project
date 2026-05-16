@@ -3,10 +3,6 @@ from datetime import datetime, timezone
 from app.extensions import db
 
 
-from datetime import datetime, timezone
-from app.extensions import db
-
-
 class Tasks(db.Model):
     """Database model for a task."""
 
