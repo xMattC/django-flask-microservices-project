@@ -6,15 +6,13 @@ from app.main import create_app
 
 @pytest.fixture
 def app():
-    """Create a Flask test app with a clean database.
-
-    return: Configured Flask application instance.
-    """
     app = create_app()
-    app.config.update({"TESTING": True})
+    app.config.update(
+        TESTING=True,
+        SQLALCHEMY_DATABASE_URI="sqlite:///:memory:",
+    )
 
     with app.app_context():
-        db.drop_all()
         db.create_all()
 
         yield app
@@ -25,9 +23,4 @@ def app():
 
 @pytest.fixture
 def client(app):
-    """Create a Flask test client.
-
-    param app: Flask application instance.
-    return: Flask test client.
-    """
     return app.test_client()

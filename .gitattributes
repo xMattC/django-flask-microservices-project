@@ -1,0 +1,16 @@
+# Shell scripts must use Linux line endings
+*.sh text eol=lf
+
+# Docker files should also use LF
+Dockerfile text eol=lf
+*.Dockerfile text eol=lf
+
+# Python files
+*.py text eol=lf
+
+# YAML
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# Environment/config files
+*.env text eol=lf
