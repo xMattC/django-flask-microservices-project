@@ -1,0 +1,33 @@
+name: tasks Checks
+
+on:
+  pull_request:
+    paths:
+      - "services/tasks/**"
+      - "docker-compose.yml"
+      - ".github/workflows/tasks-ci.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "services/tasks/**"
+      - "docker-compose.yml"
+      - ".github/workflows/tasks-ci.yml"
+
+jobs:
+  tasks-check:
+    name: tasks Lint & Test
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build tasks service
+        run: docker compose build tasks
+
+      - name: Test
+        run: docker compose run --rm tasks python -m pytest
+
+      - name: Lint
+        run: docker compose run --rm tasks flake8
