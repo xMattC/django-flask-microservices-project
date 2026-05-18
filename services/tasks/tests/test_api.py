@@ -361,14 +361,62 @@ def test_update_task_updates_state(client):
 # ---------------------------------------------------------------------------------------------------------------------
 # TASK DELETE TESTS
 # ---------------------------------------------------------------------------------------------------------------------
-def test_delete_task_success(client):
-    payload = {"project_id": 1, "task_name": "Initial task", "description": "Initial work session"}
-    response = client.post("/api/tasks", json=payload, headers=USER_HEADERS)
-    assert response.status_code == 201
+def test_delete_task_success(client, app):
+    payload = {"project_id": 1, "task_name": "Task to delete"}
+    create_response = client.post("/api/tasks", json=payload, headers=USER_HEADERS)
+    task = get_first_result(create_response)
 
-    entry_id = get_first_result(response)["id"]
-    response = client.delete(f"/api/tasks/{entry_id}", headers=USER_HEADERS)
+    response = client.delete(f"/api/tasks/{task['id']}", headers=USER_HEADERS)
+
     assert response.status_code == 204
 
-    response = client.get(f"/api/tasks/{entry_id}", headers=USER_HEADERS)
+    with app.app_context():
+        deleted_task = Tasks.query.filter_by(id=task["id"]).first()
+
+    assert deleted_task is None
+
+
+def test_delete_task_requires_user_id_header(client):
+    response = client.delete("/api/tasks/1")
+
+    assert response.status_code == 400
+    assert get_response_data(response)["error"] == "Missing required header: X-User-ID"
+
+
+def test_delete_task_cannot_delete_other_users_task(client, app):
+    payload = {"project_id": 1, "task_name": "Private task"}
+
+    create_response = client.post("/api/tasks", json=payload, headers={"X-User-ID": "user-1"})
+
+    task = get_first_result(create_response)
+
+    response = client.delete(f"/api/tasks/{task['id']}", headers={"X-User-ID": "user-2"})
+
     assert response.status_code == 404
+
+    with app.app_context():
+        existing_task = Tasks.query.filter_by(id=task["id"]).first()
+
+    assert existing_task is not None
+
+
+def test_delete_task_removes_only_target_task(client, app):
+    payload_1 = {"project_id": 1, "task_name": "First task"}
+    payload_2 = {"project_id": 2, "task_name": "Second task"}
+
+    first_response = client.post("/api/tasks", json=payload_1, headers=USER_HEADERS)
+    second_response = client.post("/api/tasks", json=payload_2, headers=USER_HEADERS)
+
+    first_task = get_first_result(first_response)
+    second_task = get_first_result(second_response)
+
+    response = client.delete(f"/api/tasks/{first_task['id']}", headers=USER_HEADERS)
+
+    assert response.status_code == 204
+
+    with app.app_context():
+        deleted_task = Tasks.query.filter_by(id=first_task["id"]).first()
+        remaining_task = Tasks.query.filter_by(id=second_task["id"]).first()
+
+    assert deleted_task is None
+    assert remaining_task is not None
