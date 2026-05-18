@@ -116,4 +116,14 @@ def test_update_task_success(client):
 # TASK DELETE TESTS
 # ---------------------------------------------------------------------------------------------------------------------
 def test_delete_task_success(client):
-    pass
+    payload = {"project_id": 1, "task_name": "Initial task", "description": "Initial work session"}
+    response = client.post("/api/tasks", json=payload, headers=USER_HEADERS)
+    assert response.status_code == 201
+
+    entry_id = get_first_result(response)["id"]
+    response = client.delete(f"/api/tasks/{entry_id}", headers=USER_HEADERS)
+    assert response.status_code == 204
+
+    response = client.get(f"/api/tasks/{entry_id}", headers=USER_HEADERS)
+    assert response.status_code == 404
+
