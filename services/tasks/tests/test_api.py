@@ -20,11 +20,7 @@ def get_first_result(response):
 
 
 def test_create_task_success(app, client):
-    payload = {
-        "project_id": 1,
-        "task_name": "Initial task",
-        "description": "Initial work session",
-    }
+    payload = {"project_id": 1, "task_name": "Initial task", "description": "Initial work session"}
     response = client.post("/api/tasks", json=payload, headers=USER_HEADERS)
     assert response.status_code == 201
 
@@ -50,7 +46,22 @@ def test_create_task_success(app, client):
 
 
 def test_get_all_tasks(client):
-    pass
+    payload_1 = {"project_id": 1, "task_name": "Initial task", "description": "Initial work session"}
+    payload_2 = {"project_id": 2, "task_name": "Second task", "description": "Second work session"}
+
+    client.post("/api/tasks", json=payload_1, headers=USER_HEADERS)
+    client.post("/api/tasks", json=payload_2, headers=USER_HEADERS)
+
+    response = client.get("/api/tasks", headers=USER_HEADERS)
+
+    assert response.status_code == 200
+
+    entries = get_response_data(response)["results"]
+    descriptions = [entry["description"] for entry in entries]
+
+    assert len(entries) == 2
+    assert payload_1["description"] in descriptions
+    assert payload_2["description"] in descriptions
 
 
 # ---------------------------------------------------------------------------------------------------------------------
