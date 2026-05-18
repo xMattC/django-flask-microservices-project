@@ -1,9 +1,10 @@
-from flask import jsonify
+from datetime import datetime, timezone
+from flask import jsonify, request
 from flask_smorest import Blueprint
 from werkzeug.exceptions import HTTPException
 
-# from app.extensions import db
-# from app.models import Tasks
+from app.extensions import db
+from app.models import Tasks
 
 routes = Blueprint("routes", __name__, description="Tasks service endpoints")
 
@@ -31,5 +32,22 @@ def handle_exception(error):
 # Route handlers
 # ---------------------------------------------------------------------------------------------------------------------
 @routes.post("/tasks")
-def create_task(data):
-    pass
+def create_task():
+    """Create a new task."""
+
+    data = request.get_json()
+    user_id = request.headers.get("X-User-ID")
+
+    entry = Tasks(
+        owner_user_id=user_id,
+        project_id=data["project_id"],
+        task_name=data["task_name"],
+        description=data.get("description"),
+        state="to-do",
+    )
+
+    db.session.add(entry)
+    db.session.commit()
+
+    return jsonify({"results": [entry.to_dict()]}), 201
+

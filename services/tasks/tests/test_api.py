@@ -25,19 +25,16 @@ def test_create_task_success(app, client):
         "task_name": "Initial task",
         "description": "Initial work session",
     }
-    response = client.post("/api/task", json=payload, headers=USER_HEADERS)
-
+    response = client.post("/api/tasks", json=payload, headers=USER_HEADERS)
     assert response.status_code == 201
 
     entry_data = get_first_result(response)
-
     assert entry_data["id"] is not None
     assert entry_data["project_id"] == payload["project_id"]
     assert entry_data["description"] == payload["description"]
     assert entry_data["owner_user_id"] == USER_HEADERS["X-User-ID"]
-
-    assert entry_data["started_at"] is not None
-    assert entry_data["ended_at"] is None
+    assert entry_data["created_at"] is not None
+    assert entry_data["updated_at"] is not None
 
     with app.app_context():
         entry = Tasks.query.filter_by(owner_user_id=USER_HEADERS["X-User-ID"]).first()
@@ -45,20 +42,19 @@ def test_create_task_success(app, client):
     assert entry is not None
     assert entry.project_id == payload["project_id"]
     assert entry.description == payload["description"]
-    assert entry.ended_at is None
 
 
 # ---------------------------------------------------------------------------------------------------------------------
-# TIME ENTRY READ (LIST) TESTS
-# --------------------------------------------------------------------------------------------------------------------
+# TASK READ (LIST) TESTS
+# ---------------------------------------------------------------------------------------------------------------------
 
 
-def test_get_all_time_entries(client):
+def test_get_all_tasks(client):
     pass
 
 
 # ---------------------------------------------------------------------------------------------------------------------
-# TIME ENTRY READ (DETAIL) TESTS
+# TASK READ (DETAIL) TESTS
 # ---------------------------------------------------------------------------------------------------------------------
 
 
@@ -67,7 +63,7 @@ def test_get_task_detail_success(client):
 
 
 # ---------------------------------------------------------------------------------------------------------------------
-# TIME ENTRY UPDATE TESTS
+# TASK UPDATE TESTS
 # ---------------------------------------------------------------------------------------------------------------------
 
 
