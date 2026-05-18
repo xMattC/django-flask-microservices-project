@@ -90,13 +90,30 @@ def test_get_task_detail_success(client):
 # TASK UPDATE TESTS
 # ---------------------------------------------------------------------------------------------------------------------
 
-
 def test_update_task_success(client):
-    pass
+
+    payload = {"project_id": 1, "task_name": "Initial task", "description": "Initial work session"}
+    response = client.post("/api/tasks", json=payload, headers=USER_HEADERS)
+    assert response.status_code == 201
+
+    entry_id = get_first_result(response)["id"]
+    update_payload = {"description": "Updated session description", "state": "in-progress"}
+
+    response = client.patch(f"/api/tasks/{entry_id}", json=update_payload, headers=USER_HEADERS)
+    assert response.status_code == 200
+
+    entry_data = get_first_result(response)
+    assert entry_data["id"] == entry_id
+    assert entry_data["owner_user_id"] == USER_HEADERS["X-User-ID"]
+    assert entry_data["project_id"] == payload["project_id"]
+    assert entry_data["task_name"] == payload["task_name"]
+    assert entry_data["description"] == update_payload["description"]
+    assert entry_data["state"] == update_payload["state"]
+
 
 
 # ---------------------------------------------------------------------------------------------------------------------
-# TIME ENTRY DELETE TESTS
+# TASK DELETE TESTS
 # ---------------------------------------------------------------------------------------------------------------------
 def test_delete_task_success(client):
     pass
