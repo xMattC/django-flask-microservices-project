@@ -124,8 +124,17 @@ def update_task(task_id):
 
 @routes.delete("/tasks/<int:task_id>")
 def delete_task(task_id):
+    """Delete a task owned by the authenticated user."""
+
     user_id = request.headers.get("X-User-ID")
+
+    if not user_id:
+        return jsonify({"error": "Missing required header: X-User-ID"}), 400
+
     task = Tasks.query.filter_by(id=task_id, owner_user_id=user_id).first()
+
+    if task is None:
+        return jsonify({"error": "Task not found"}), 404
 
     db.session.delete(task)
     db.session.commit()
