@@ -1,3 +1,4 @@
+from asyncio import tasks
 from datetime import datetime, timezone
 from flask import jsonify, request
 from flask_smorest import Blueprint
@@ -59,3 +60,15 @@ def get_tasks():
     tasks = Tasks.query.filter_by(owner_user_id=user_id).all()
 
     return jsonify({"results": [task.to_dict() for task in tasks]}), 200
+
+@routes.get("/tasks/<int:task_id>")
+def get_task_detail(task_id):
+    """Get a specific task."""
+
+    user_id = request.headers.get("X-User-ID")
+    task = Tasks.query.filter_by(id=task_id, owner_user_id=user_id).first()
+
+    if task is None:
+        return jsonify({"error": "Task not found"}), 404
+
+    return jsonify({"results": [task.to_dict()]}), 200
