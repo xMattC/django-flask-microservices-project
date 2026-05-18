@@ -1,9 +1,9 @@
-from flask import jsonify
+from flask import jsonify, request
 from flask_smorest import Blueprint
 from werkzeug.exceptions import HTTPException
 
-# from app.extensions import db
-# from app.models import Tasks
+from app.extensions import db
+from app.models import Tasks
 
 routes = Blueprint("routes", __name__, description="Tasks service endpoints")
 
@@ -30,3 +30,111 @@ def handle_exception(error):
 # ---------------------------------------------------------------------------------------------------------------------
 # Route handlers
 # ---------------------------------------------------------------------------------------------------------------------
+@routes.post("/tasks")
+def create_task():
+    """Create a new task."""
+
+    data = request.get_json(silent=True) or {}
+    user_id = request.headers.get("X-User-ID")
+
+    if not user_id:
+        return jsonify({"error": "Missing required header: X-User-ID"}), 400
+
+    for field in ["project_id", "task_name"]:
+        if field not in data:
+            return jsonify({"error": f"Missing required field: {field}"}), 400
+
+    entry = Tasks(
+        owner_user_id=user_id,
+        project_id=data["project_id"],
+        task_name=data["task_name"],
+        description=data.get("description"),
+        state="to-do",
+    )
+
+    db.session.add(entry)
+    db.session.commit()
+
+    return jsonify({"results": [entry.to_dict()]}), 201
+
+
+@routes.get("/tasks")
+def get_tasks():
+    """Get all tasks for the current user."""
+
+    user_id = request.headers.get("X-User-ID")
+
+    if not user_id:
+        return jsonify({"error": "Missing required header: X-User-ID"}), 400
+
+    tasks = Tasks.query.filter_by(owner_user_id=user_id).all()
+
+    return jsonify({"results": [task.to_dict() for task in tasks]}), 200
+
+
+@routes.get("/tasks/<int:task_id>")
+def get_task_detail(task_id):
+    """Get a specific task."""
+
+    user_id = request.headers.get("X-User-ID")
+
+    if not user_id:
+        return jsonify({"error": "Missing required header: X-User-ID"}), 400
+
+    task = Tasks.query.filter_by(id=task_id, owner_user_id=user_id).first()
+
+    if task is None:
+        return jsonify({"error": "Task not found"}), 404
+
+    return jsonify({"results": [task.to_dict()]}), 200
+
+
+@routes.patch("/tasks/<int:task_id>")
+def update_task(task_id):
+    """Update a task owned by the authenticated user."""
+
+    user_id = request.headers.get("X-User-ID")
+
+    if not user_id:
+        return jsonify({"error": "Missing required header: X-User-ID"}), 400
+
+    task = Tasks.query.filter_by(id=task_id, owner_user_id=user_id).first()
+    if task is None:
+        return jsonify({"error": "Task not found"}), 404
+
+    data = request.get_json(silent=True) or {}
+    valid_states = {"to-do", "in-progress", "done"}
+
+    if "state" in data and data["state"] not in valid_states:
+        return jsonify({"error": "Invalid state value"}), 400
+
+    if "task_name" in data and not data["task_name"]:
+        return jsonify({"error": "task_name cannot be empty"}), 400
+
+    task.task_name = data.get("task_name", task.task_name)
+    task.description = data.get("description", task.description)
+    task.state = data.get("state", task.state)
+
+    db.session.commit()
+
+    return jsonify({"results": [task.to_dict()]}), 200
+
+
+@routes.delete("/tasks/<int:task_id>")
+def delete_task(task_id):
+    """Delete a task owned by the authenticated user."""
+
+    user_id = request.headers.get("X-User-ID")
+
+    if not user_id:
+        return jsonify({"error": "Missing required header: X-User-ID"}), 400
+
+    task = Tasks.query.filter_by(id=task_id, owner_user_id=user_id).first()
+
+    if task is None:
+        return jsonify({"error": "Task not found"}), 404
+
+    db.session.delete(task)
+    db.session.commit()
+
+    return "", 204
