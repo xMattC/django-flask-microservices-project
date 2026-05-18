@@ -40,6 +40,54 @@ def test_create_task_success(app, client):
     assert entry.description == payload["description"]
 
 
+def test_create_task_requires_project_id(client):
+    payload = {"task_name": "Initial task", "description": "Initial work session"}
+
+    response = client.post("/api/tasks", json=payload, headers=USER_HEADERS)
+
+    assert response.status_code == 400
+    assert get_response_data(response)["error"] == "Missing required field: project_id"
+
+
+def test_create_task_requires_task_name(client):
+    payload = {"project_id": 1, "description": "Initial work session"}
+    response = client.post("/api/tasks", json=payload, headers=USER_HEADERS)
+
+    assert response.status_code == 400
+    assert get_response_data(response)["error"] == "Missing required field: task_name"
+
+
+def test_create_task_requires_user_id_header(client):
+    payload = {"project_id": 1, "task_name": "Initial task"}
+    response = client.post("/api/tasks", json=payload)
+
+    assert response.status_code == 400
+    assert get_response_data(response)["error"] == "Missing required header: X-User-ID"
+
+
+def test_create_task_allows_missing_description(client):
+    payload = {"project_id": 1, "task_name": "Initial task"}
+    response = client.post("/api/tasks", json=payload, headers=USER_HEADERS)
+
+    assert response.status_code == 201
+
+    entry = get_first_result(response)
+
+    assert entry["task_name"] == payload["task_name"]
+    assert entry["description"] is None
+
+
+def test_create_task_sets_default_state(client):
+    payload = {"project_id": 1, "task_name": "Initial task"}
+    response = client.post("/api/tasks", json=payload, headers=USER_HEADERS)
+
+    assert response.status_code == 201
+
+    entry = get_first_result(response)
+
+    assert entry["state"] == "to-do"
+
+
 # ---------------------------------------------------------------------------------------------------------------------
 # TASK READ (LIST) TESTS
 # ---------------------------------------------------------------------------------------------------------------------
@@ -90,6 +138,7 @@ def test_get_task_detail_success(client):
 # TASK UPDATE TESTS
 # ---------------------------------------------------------------------------------------------------------------------
 
+
 def test_update_task_success(client):
 
     payload = {"project_id": 1, "task_name": "Initial task", "description": "Initial work session"}
@@ -111,7 +160,6 @@ def test_update_task_success(client):
     assert entry_data["state"] == update_payload["state"]
 
 
-
 # ---------------------------------------------------------------------------------------------------------------------
 # TASK DELETE TESTS
 # ---------------------------------------------------------------------------------------------------------------------
@@ -126,4 +174,3 @@ def test_delete_task_success(client):
 
     response = client.get(f"/api/tasks/{entry_id}", headers=USER_HEADERS)
     assert response.status_code == 404
-
