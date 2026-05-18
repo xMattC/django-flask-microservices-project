@@ -209,6 +209,76 @@ def test_get_task_detail_success(client):
     assert entry_data["owner_user_id"] == USER_HEADERS["X-User-ID"]
 
 
+def test_get_task_detail_requires_user_id_header(client):
+    response = client.get("/api/tasks/1")
+
+    assert response.status_code == 400
+    assert get_response_data(response)["error"] == "Missing required header: X-User-ID"
+
+
+def test_get_task_detail_returns_404_for_missing_task(client):
+    response = client.get("/api/tasks/999", headers=USER_HEADERS)
+
+    assert response.status_code == 404
+    assert get_response_data(response)["error"] == "Task not found"
+
+
+def test_get_task_detail_does_not_return_other_users_task(client):
+    payload = {"project_id": 1, "task_name": "Private task"}
+    create_response = client.post("/api/tasks", json=payload, headers={"X-User-ID": "user-1"})
+
+    task = get_first_result(create_response)
+
+    response = client.get(f"/api/tasks/{task['id']}", headers={"X-User-ID": "user-2"})
+
+    assert response.status_code == 404
+    assert get_response_data(response)["error"] == "Task not found"
+
+
+def test_get_task_detail_returns_expected_fields(client):
+    payload = {"project_id": 1, "task_name": "Initial task", "description": "Initial work session"}
+
+    create_response = client.post("/api/tasks", json=payload, headers=USER_HEADERS)
+    created_task = get_first_result(create_response)
+
+    response = client.get(f"/api/tasks/{created_task['id']}", headers=USER_HEADERS)
+
+    task = get_first_result(response)
+
+    expected_fields = {
+        "id",
+        "owner_user_id",
+        "project_id",
+        "task_name",
+        "description",
+        "state",
+        "created_at",
+        "updated_at",
+    }
+
+    assert response.status_code == 200
+    assert set(task.keys()) == expected_fields
+
+
+def test_get_task_detail_returns_correct_task(client):
+    payload_1 = {"project_id": 1, "task_name": "First task"}
+    payload_2 = {"project_id": 2, "task_name": "Second task"}
+
+    client.post("/api/tasks", json=payload_1, headers=USER_HEADERS)
+    create_response = client.post("/api/tasks", json=payload_2, headers=USER_HEADERS)
+
+    created_task = get_first_result(create_response)
+
+    response = client.get(f"/api/tasks/{created_task['id']}", headers=USER_HEADERS)
+
+    task = get_first_result(response)
+
+    assert response.status_code == 200
+    assert task["id"] == created_task["id"]
+    assert task["task_name"] == payload_2["task_name"]
+    assert task["project_id"] == payload_2["project_id"]
+
+
 # ---------------------------------------------------------------------------------------------------------------------
 # TASK UPDATE TESTS
 # ---------------------------------------------------------------------------------------------------------------------
