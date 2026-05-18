@@ -72,3 +72,26 @@ def get_task_detail(task_id):
         return jsonify({"error": "Task not found"}), 404
 
     return jsonify({"results": [task.to_dict()]}), 200
+
+@routes.patch("/tasks/<int:task_id>")
+def update_task(task_id):
+    """Update a task owned by the authenticated user."""
+    user_id = request.headers.get("X-User-ID")
+    task = Tasks.query.filter_by(id=task_id, owner_user_id=user_id).first()
+
+    if task is None:
+        return jsonify({"error": "Task not found"}), 404
+
+    data = request.get_json()
+    task.task_name = data.get("task_name", task.task_name)
+    task.description = data.get("description", task.description)
+    task.state = data.get("state", task.state)
+
+    db.session.commit()
+
+    return jsonify({"results": [task.to_dict()]}), 200
+    project.description = data.get("description", project.description)
+
+    db.session.commit()
+
+    return {"results": [project.to_dict()]}, 200
