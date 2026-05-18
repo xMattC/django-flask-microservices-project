@@ -79,6 +79,10 @@ def get_task_detail(task_id):
     """Get a specific task."""
 
     user_id = request.headers.get("X-User-ID")
+
+    if not user_id:
+        return jsonify({"error": "Missing required header: X-User-ID"}), 400
+
     task = Tasks.query.filter_by(id=task_id, owner_user_id=user_id).first()
 
     if task is None:
