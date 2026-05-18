@@ -51,3 +51,11 @@ def create_task():
 
     return jsonify({"results": [entry.to_dict()]}), 201
 
+@routes.get("/tasks")
+def get_tasks():
+    """Get all tasks."""
+
+    user_id = request.headers.get("X-User-ID")
+    tasks = Tasks.query.filter_by(owner_user_id=user_id).all()
+
+    return jsonify({"results": [task.to_dict() for task in tasks]}), 200
