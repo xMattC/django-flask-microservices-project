@@ -94,13 +94,25 @@ def get_task_detail(task_id):
 @routes.patch("/tasks/<int:task_id>")
 def update_task(task_id):
     """Update a task owned by the authenticated user."""
-    user_id = request.headers.get("X-User-ID")
-    task = Tasks.query.filter_by(id=task_id, owner_user_id=user_id).first()
 
+    user_id = request.headers.get("X-User-ID")
+
+    if not user_id:
+        return jsonify({"error": "Missing required header: X-User-ID"}), 400
+
+    task = Tasks.query.filter_by(id=task_id, owner_user_id=user_id).first()
     if task is None:
         return jsonify({"error": "Task not found"}), 404
 
-    data = request.get_json()
+    data = request.get_json(silent=True) or {}
+    valid_states = {"to-do", "in-progress", "done"}
+
+    if "state" in data and data["state"] not in valid_states:
+        return jsonify({"error": "Invalid state value"}), 400
+
+    if "task_name" in data and not data["task_name"]:
+        return jsonify({"error": "task_name cannot be empty"}), 400
+
     task.task_name = data.get("task_name", task.task_name)
     task.description = data.get("description", task.description)
     task.state = data.get("state", task.state)
