@@ -59,14 +59,20 @@ def create_task():
 
     return jsonify({"results": [entry.to_dict()]}), 201
 
+
 @routes.get("/tasks")
 def get_tasks():
-    """Get all tasks."""
+    """Get all tasks for the current user."""
 
     user_id = request.headers.get("X-User-ID")
+
+    if not user_id:
+        return jsonify({"error": "Missing required header: X-User-ID"}), 400
+
     tasks = Tasks.query.filter_by(owner_user_id=user_id).all()
 
     return jsonify({"results": [task.to_dict() for task in tasks]}), 200
+
 
 @routes.get("/tasks/<int:task_id>")
 def get_task_detail(task_id):
@@ -79,6 +85,7 @@ def get_task_detail(task_id):
         return jsonify({"error": "Task not found"}), 404
 
     return jsonify({"results": [task.to_dict()]}), 200
+
 
 @routes.patch("/tasks/<int:task_id>")
 def update_task(task_id):
@@ -97,6 +104,7 @@ def update_task(task_id):
     db.session.commit()
 
     return jsonify({"results": [task.to_dict()]}), 200
+
 
 @routes.delete("/tasks/<int:task_id>")
 def delete_task(task_id):
