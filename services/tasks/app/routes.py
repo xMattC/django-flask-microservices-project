@@ -90,8 +90,13 @@ def update_task(task_id):
     db.session.commit()
 
     return jsonify({"results": [task.to_dict()]}), 200
-    project.description = data.get("description", project.description)
 
+@routes.delete("/tasks/<int:task_id>")
+def delete_task(task_id):
+    user_id = request.headers.get("X-User-ID")
+    task = Tasks.query.filter_by(id=task_id, owner_user_id=user_id).first()
+
+    db.session.delete(task)
     db.session.commit()
 
-    return {"results": [project.to_dict()]}, 200
+    return "", 204
