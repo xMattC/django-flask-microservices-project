@@ -112,6 +112,81 @@ def test_get_all_tasks(client):
     assert payload_2["description"] in descriptions
 
 
+def test_get_tasks_returns_empty_list_when_no_tasks_exist(client):
+    response = client.get("/api/tasks", headers=USER_HEADERS)
+
+    assert response.status_code == 200
+
+    entries = get_response_data(response)["results"]
+
+    assert entries == []
+
+
+def test_get_tasks_requires_user_id_header(client):
+    response = client.get("/api/tasks")
+
+    assert response.status_code == 400
+    assert get_response_data(response)["error"] == "Missing required header: X-User-ID"
+
+
+def test_get_tasks_only_returns_current_user_tasks(client):
+    payload = {
+        "project_id": 1,
+        "task_name": "User task",
+    }
+
+    client.post("/api/tasks", json=payload, headers={"X-User-ID": "user-1"})
+    client.post("/api/tasks", json=payload, headers={"X-User-ID": "user-2"})
+
+    response = client.get("/api/tasks", headers={"X-User-ID": "user-1"})
+
+    entries = get_response_data(response)["results"]
+
+    assert len(entries) == 1
+    assert entries[0]["owner_user_id"] == "user-1"
+
+
+def test_get_tasks_returns_expected_fields(client):
+    payload = {
+        "project_id": 1,
+        "task_name": "Initial task",
+    }
+
+    client.post("/api/tasks", json=payload, headers=USER_HEADERS)
+
+    response = client.get("/api/tasks", headers=USER_HEADERS)
+
+    entry = get_first_result(response)
+
+    expected_fields = {
+        "id",
+        "owner_user_id",
+        "project_id",
+        "task_name",
+        "description",
+        "state",
+        "created_at",
+        "updated_at",
+    }
+
+    assert set(entry.keys()) == expected_fields
+
+
+def test_get_tasks_returns_default_state(client):
+    payload = {
+        "project_id": 1,
+        "task_name": "Initial task",
+    }
+
+    client.post("/api/tasks", json=payload, headers=USER_HEADERS)
+
+    response = client.get("/api/tasks", headers=USER_HEADERS)
+
+    entry = get_first_result(response)
+
+    assert entry["state"] == "to-do"
+
+
 # ---------------------------------------------------------------------------------------------------------------------
 # TASK READ (DETAIL) TESTS
 # ---------------------------------------------------------------------------------------------------------------------
