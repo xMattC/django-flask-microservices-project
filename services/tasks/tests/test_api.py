@@ -305,6 +305,59 @@ def test_update_task_success(client):
     assert entry_data["state"] == update_payload["state"]
 
 
+def test_update_task_requires_user_id_header(client):
+    response = client.patch("/api/tasks/1", json={"task_name": "Updated task"})
+
+    assert response.status_code == 400
+    assert get_response_data(response)["error"] == "Missing required header: X-User-ID"
+
+
+def test_update_task_returns_404_for_missing_task(client):
+    response = client.patch("/api/tasks/999", json={"task_name": "Updated task"}, headers=USER_HEADERS)
+
+    assert response.status_code == 404
+    assert get_response_data(response)["error"] == "Task not found"
+
+
+def test_update_task_cannot_modify_other_users_task(client):
+    payload = {"project_id": 1, "task_name": "Private task"}
+
+    create_response = client.post("/api/tasks", json=payload, headers={"X-User-ID": "user-1"})
+
+    task = get_first_result(create_response)
+
+    response = client.patch(f"/api/tasks/{task['id']}", json={"task_name": "Hacked"}, headers={"X-User-ID": "user-2"})
+
+    assert response.status_code == 404
+
+
+def test_update_task_updates_only_provided_fields(client):
+    payload = {"project_id": 1, "task_name": "Original", "description": "Original description"}
+
+    create_response = client.post("/api/tasks", json=payload, headers=USER_HEADERS)
+    task = get_first_result(create_response)
+
+    response = client.patch(f"/api/tasks/{task['id']}", json={"task_name": "Updated"}, headers=USER_HEADERS)
+
+    updated = get_first_result(response)
+
+    assert updated["task_name"] == "Updated"
+    assert updated["description"] == "Original description"
+
+
+def test_update_task_updates_state(client):
+    payload = {"project_id": 1, "task_name": "Initial task"}
+
+    create_response = client.post("/api/tasks", json=payload, headers=USER_HEADERS)
+    task = get_first_result(create_response)
+
+    response = client.patch(f"/api/tasks/{task['id']}", json={"state": "done"}, headers=USER_HEADERS)
+
+    updated = get_first_result(response)
+
+    assert updated["state"] == "done"
+
+
 # ---------------------------------------------------------------------------------------------------------------------
 # TASK DELETE TESTS
 # ---------------------------------------------------------------------------------------------------------------------
