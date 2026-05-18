@@ -36,8 +36,15 @@ def handle_exception(error):
 def create_task():
     """Create a new task."""
 
-    data = request.get_json()
+    data = request.get_json(silent=True) or {}
     user_id = request.headers.get("X-User-ID")
+
+    if not user_id:
+        return jsonify({"error": "Missing required header: X-User-ID"}), 400
+
+    for field in ["project_id", "task_name"]:
+        if field not in data:
+            return jsonify({"error": f"Missing required field: {field}"}), 400
 
     entry = Tasks(
         owner_user_id=user_id,
