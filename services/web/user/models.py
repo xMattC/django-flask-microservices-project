@@ -30,7 +30,7 @@ class UserManager(BaseUserManager):
         return self.create_user(email, password, **extra_fields)
 
 
-class User(AbstractBaseUser, PermissionsMixin): # type: ignore
+class User(AbstractBaseUser, PermissionsMixin):  # type: ignore
     """User in the system."""
 
     email = models.EmailField(max_length=255, unique=True)
