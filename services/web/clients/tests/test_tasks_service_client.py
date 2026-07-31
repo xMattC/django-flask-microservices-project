@@ -5,6 +5,8 @@ import responses
 from django.test import SimpleTestCase, override_settings
 
 from clients.tasks_service import (
+    TasksServiceError,
+    TasksServiceUnavailable,
     create_task,
     delete_a_task,
     edit_a_task,
@@ -70,6 +72,123 @@ class TasksClientTests(SimpleTestCase):
         self.assertEqual(request.headers.get("X-User-ID"), str(user_id))
         self.assertEqual(request.headers.get("Content-Type"), "application/json")
         self.assertEqual(json.loads(request.body), request_payload)
+
+    @responses.activate
+    @override_settings(TASKS_SERVICE_URL="http://tasks:5000")
+    def test_create_task_raises_service_unavailable_on_request_exception(self):
+        """Test create_task raises TasksServiceUnavailable on network failure."""
+        user_id = 123
+        request_payload = {
+            "project_id": 42,
+            "task_name": "Task-1",
+            "description": "Get Milk",
+            "state": "to-do",
+        }
+
+        def raise_error(request):
+            raise requests.ConnectionError("Service down")
+
+        responses.add_callback(
+            method=responses.POST,
+            url="http://tasks:5000/api/tasks",
+            callback=raise_error,
+        )
+
+        with self.assertRaises(TasksServiceUnavailable):
+            create_task(user_id=user_id, payload=request_payload)
+
+
+    @responses.activate
+    @override_settings(TASKS_SERVICE_URL="http://tasks:5000")
+    def test_create_task_raises_error_on_non_2xx_response(self):
+        """Test create_task raises TasksServiceError on a non-2xx response."""
+        user_id = 123
+        request_payload = {
+            "project_id": 42,
+            "task_name": "Task-1",
+            "description": "Get Milk",
+            "state": "to-do",
+        }
+
+        responses.add(
+            method=responses.POST,
+            url="http://tasks:5000/api/tasks",
+            json={"message": "Error"},
+            status=500,
+        )
+
+        with self.assertRaises(TasksServiceError):
+            create_task(user_id=user_id, payload=request_payload)
+
+
+    @responses.activate
+    @override_settings(TASKS_SERVICE_URL="http://tasks:5000")
+    def test_create_task_raises_error_on_invalid_json_response(self):
+        """Test create_task raises TasksServiceError on invalid JSON."""
+        user_id = 123
+        request_payload = {
+            "project_id": 42,
+            "task_name": "Task-1",
+            "description": "Get Milk",
+            "state": "to-do",
+        }
+
+        responses.add(
+            method=responses.POST,
+            url="http://tasks:5000/api/tasks",
+            body="Not JSON",
+            status=201,
+            content_type="text/plain",
+        )
+
+        with self.assertRaises(TasksServiceError):
+            create_task(user_id=user_id, payload=request_payload)
+
+
+    @responses.activate
+    @override_settings(TASKS_SERVICE_URL="http://tasks:5000")
+    def test_create_task_raises_error_when_results_key_missing(self):
+        """Test create_task raises TasksServiceError when results is missing."""
+        user_id = 123
+        request_payload = {
+            "project_id": 42,
+            "task_name": "Task-1",
+            "description": "Get Milk",
+            "state": "to-do",
+        }
+
+        responses.add(
+            method=responses.POST,
+            url="http://tasks:5000/api/tasks",
+            json={"unexpected_key": []},
+            status=201,
+        )
+
+        with self.assertRaises(TasksServiceError):
+            create_task(user_id=user_id, payload=request_payload)
+
+
+    @responses.activate
+    @override_settings(TASKS_SERVICE_URL="http://tasks:5000")
+    def test_create_task_raises_error_when_results_is_not_list(self):
+        """Test create_task raises TasksServiceError when results is not a list."""
+        user_id = 123
+        request_payload = {
+            "project_id": 42,
+            "task_name": "Task-1",
+            "description": "Get Milk",
+            "state": "to-do",
+        }
+
+        responses.add(
+            method=responses.POST,
+            url="http://tasks:5000/api/tasks",
+            json={"results": "not a list"},
+            status=201,
+        )
+
+        with self.assertRaises(TasksServiceError):
+            create_task(user_id=user_id, payload=request_payload)
 
     # -----------------------------------------------------------------------------------------------------------------
     # Test cases for get_tasks

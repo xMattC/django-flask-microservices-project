@@ -2,11 +2,11 @@ import requests
 from django.conf import settings
 
 
-class TaskServiceError(Exception):
+class TasksServiceError(Exception):
     pass
 
 
-class TaskServiceUnavailable(TaskServiceError):
+class TasksServiceUnavailable(TasksServiceError):
     pass
 
 def create_task(user_id: int, payload: dict):
