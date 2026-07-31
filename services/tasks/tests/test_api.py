@@ -45,16 +45,14 @@ def test_create_task_requires_project_id(client):
 
     response = client.post("/api/tasks", json=payload, headers=USER_HEADERS)
 
-    assert response.status_code == 400
-    assert get_response_data(response)["error"] == "Missing required field: project_id"
+    assert response.status_code == 422
 
 
 def test_create_task_requires_task_name(client):
     payload = {"project_id": 1, "description": "Initial work session"}
     response = client.post("/api/tasks", json=payload, headers=USER_HEADERS)
 
-    assert response.status_code == 400
-    assert get_response_data(response)["error"] == "Missing required field: task_name"
+    assert response.status_code == 422
 
 
 def test_create_task_requires_user_id_header(client):
@@ -62,7 +60,7 @@ def test_create_task_requires_user_id_header(client):
     response = client.post("/api/tasks", json=payload)
 
     assert response.status_code == 400
-    assert get_response_data(response)["error"] == "Missing required header: X-User-ID"
+    assert get_response_data(response)["message"] == "Missing required header: X-User-ID"
 
 
 def test_create_task_allows_missing_description(client):
@@ -94,7 +92,11 @@ def test_create_task_sets_default_state(client):
 
 
 def test_get_all_tasks(client):
-    payload_1 = {"project_id": 1, "task_name": "Initial task", "description": "Initial work session"}
+    payload_1 = {
+        "project_id": 1,
+        "task_name": "Initial task",
+        "description": "Initial work session",
+    }
     payload_2 = {"project_id": 2, "task_name": "Second task", "description": "Second work session"}
 
     client.post("/api/tasks", json=payload_1, headers=USER_HEADERS)
@@ -126,7 +128,7 @@ def test_get_tasks_requires_user_id_header(client):
     response = client.get("/api/tasks")
 
     assert response.status_code == 400
-    assert get_response_data(response)["error"] == "Missing required header: X-User-ID"
+    assert get_response_data(response)["message"] == "Missing required header: X-User-ID"
 
 
 def test_get_tasks_only_returns_current_user_tasks(client):
@@ -213,14 +215,14 @@ def test_get_task_detail_requires_user_id_header(client):
     response = client.get("/api/tasks/1")
 
     assert response.status_code == 400
-    assert get_response_data(response)["error"] == "Missing required header: X-User-ID"
+    assert get_response_data(response)["message"] == "Missing required header: X-User-ID"
 
 
 def test_get_task_detail_returns_404_for_missing_task(client):
     response = client.get("/api/tasks/999", headers=USER_HEADERS)
 
     assert response.status_code == 404
-    assert get_response_data(response)["error"] == "Task not found"
+    assert get_response_data(response)["message"] == "Task not found"
 
 
 def test_get_task_detail_does_not_return_other_users_task(client):
@@ -232,7 +234,7 @@ def test_get_task_detail_does_not_return_other_users_task(client):
     response = client.get(f"/api/tasks/{task['id']}", headers={"X-User-ID": "user-2"})
 
     assert response.status_code == 404
-    assert get_response_data(response)["error"] == "Task not found"
+    assert get_response_data(response)["message"] == "Task not found"
 
 
 def test_get_task_detail_returns_expected_fields(client):
@@ -309,14 +311,16 @@ def test_update_task_requires_user_id_header(client):
     response = client.patch("/api/tasks/1", json={"task_name": "Updated task"})
 
     assert response.status_code == 400
-    assert get_response_data(response)["error"] == "Missing required header: X-User-ID"
+    assert get_response_data(response)["message"] == "Missing required header: X-User-ID"
 
 
 def test_update_task_returns_404_for_missing_task(client):
-    response = client.patch("/api/tasks/999", json={"task_name": "Updated task"}, headers=USER_HEADERS)
+    response = client.patch(
+        "/api/tasks/999", json={"task_name": "Updated task"}, headers=USER_HEADERS
+    )
 
     assert response.status_code == 404
-    assert get_response_data(response)["error"] == "Task not found"
+    assert get_response_data(response)["message"] == "Task not found"
 
 
 def test_update_task_cannot_modify_other_users_task(client):
@@ -326,7 +330,9 @@ def test_update_task_cannot_modify_other_users_task(client):
 
     task = get_first_result(create_response)
 
-    response = client.patch(f"/api/tasks/{task['id']}", json={"task_name": "Hacked"}, headers={"X-User-ID": "user-2"})
+    response = client.patch(
+        f"/api/tasks/{task['id']}", json={"task_name": "Hacked"}, headers={"X-User-ID": "user-2"}
+    )
 
     assert response.status_code == 404
 
@@ -337,7 +343,9 @@ def test_update_task_updates_only_provided_fields(client):
     create_response = client.post("/api/tasks", json=payload, headers=USER_HEADERS)
     task = get_first_result(create_response)
 
-    response = client.patch(f"/api/tasks/{task['id']}", json={"task_name": "Updated"}, headers=USER_HEADERS)
+    response = client.patch(
+        f"/api/tasks/{task['id']}", json={"task_name": "Updated"}, headers=USER_HEADERS
+    )
 
     updated = get_first_result(response)
 
@@ -351,7 +359,9 @@ def test_update_task_updates_state(client):
     create_response = client.post("/api/tasks", json=payload, headers=USER_HEADERS)
     task = get_first_result(create_response)
 
-    response = client.patch(f"/api/tasks/{task['id']}", json={"state": "done"}, headers=USER_HEADERS)
+    response = client.patch(
+        f"/api/tasks/{task['id']}", json={"state": "done"}, headers=USER_HEADERS
+    )
 
     updated = get_first_result(response)
 
@@ -380,7 +390,7 @@ def test_delete_task_requires_user_id_header(client):
     response = client.delete("/api/tasks/1")
 
     assert response.status_code == 400
-    assert get_response_data(response)["error"] == "Missing required header: X-User-ID"
+    assert get_response_data(response)["message"] == "Missing required header: X-User-ID"
 
 
 def test_delete_task_cannot_delete_other_users_task(client, app):

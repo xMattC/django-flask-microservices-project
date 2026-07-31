@@ -1,9 +1,9 @@
 from django.urls import path
 
 from app.views.dashboard_view import dashboard_view
+from app.views.home_view import home_view
 from app.views.projects_view import projects_view
 from app.views.time_tracking_views import clock_in_view, clock_out_view
-from app.views.home_view import home_view
 
 app_name = "app"
 
