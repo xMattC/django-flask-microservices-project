@@ -10,7 +10,7 @@ jobs:
   deploy:
     name: Deploy live site
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
 
     steps:
       - name: Write SSH key
@@ -27,13 +27,15 @@ jobs:
         run: |
           ssh -i ~/.ssh/ec2_key \
             -o StrictHostKeyChecking=no \
+            -o ServerAliveInterval=30 \
+            -o ServerAliveCountMax=20 \
             ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
 
               set -e
 
               COMPOSE_FILES="-f docker-compose.yml -f docker-compose-deploy.yml"
 
-              cd ${{ secrets.EC2_PROJECT_DIR }}
+              cd "${{ secrets.EC2_PROJECT_DIR }}"
 
               git fetch origin main
               git reset --hard origin/main
@@ -43,7 +45,19 @@ jobs:
               test -f /etc/letsencrypt/live/productivity-app.xmattc.com/fullchain.pem
               test -f /etc/letsencrypt/live/productivity-app.xmattc.com/privkey.pem
 
-              docker compose ${COMPOSE_FILES} up --build -d
+              # Reduce peak memory use on the EC2 instance.
+              export COMPOSE_PARALLEL_LIMIT=1
+
+              echo "Building services sequentially..."
+
+              docker compose ${COMPOSE_FILES} build web
+              docker compose ${COMPOSE_FILES} build projects
+              docker compose ${COMPOSE_FILES} build time-tracking
+              docker compose ${COMPOSE_FILES} build tasks
+
+              echo "Starting containers..."
+
+              docker compose ${COMPOSE_FILES} up -d --no-build
 
               echo "Waiting for services to start..."
               sleep 15
@@ -73,8 +87,8 @@ jobs:
 
               docker compose ${COMPOSE_FILES} ps
 
-              curl -fI http://localhost
-              curl -fI https://productivity-app.xmattc.com
+              curl -fsS http://localhost > /dev/null
+              curl -fsS https://productivity-app.xmattc.com > /dev/null
 
               docker image prune -f
 
