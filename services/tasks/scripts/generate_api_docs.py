@@ -3,9 +3,9 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
-OPENAPI_URL = "http://localhost:5000/openapi.json"
-OPENAPI_PATH = Path("services/projects/docs/openapi.json")
-MARKDOWN_PATH = Path("services/projects/docs/API.md")
+OPENAPI_URL = "http://localhost:5002/openapi.json"
+OPENAPI_PATH = Path("services/tasks/docs/openapi.json")
+MARKDOWN_PATH = Path("services/tasks/docs/API.md")
 
 
 # ---------------------------------------------------------------------------------------------------------------------

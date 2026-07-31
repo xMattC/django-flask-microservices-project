@@ -4,8 +4,15 @@ from werkzeug.exceptions import HTTPException
 
 from app.extensions import db
 from app.models import Tasks
+from app.open_api_docs import endpoint_docs
+from app.schemas import (
+    TaskCreateSchema,
+    TaskResultsSchema,
+    TaskUpdateSchema,
+)
 
 routes = Blueprint("routes", __name__, description="Tasks service endpoints")
+
 
 # ---------------------------------------------------------------------------------------------------------------------
 # Health check and error handlers
@@ -27,45 +34,55 @@ def handle_exception(error):
     return jsonify({"message": "Internal server error"}), 500
 
 
+@routes.get("/db-health")
+@endpoint_docs(routes)
+def db_health():
+    """Check the database connection."""
+    with db.engine.connect() as connection:
+        connection.exec_driver_sql("SELECT 1")
+
+    return jsonify({"database": "ok"}), 200
+
+
 # ---------------------------------------------------------------------------------------------------------------------
 # Route handlers
 # ---------------------------------------------------------------------------------------------------------------------
+
+
 @routes.post("/tasks")
-def create_task():
+@routes.arguments(TaskCreateSchema)
+@endpoint_docs(routes, success_code=201, response_schema=TaskResultsSchema, errors=(400, 422))
+def create_task(data):
     """Create a new task."""
 
-    data = request.get_json(silent=True) or {}
     user_id = request.headers.get("X-User-ID")
 
     if not user_id:
-        return jsonify({"error": "Missing required header: X-User-ID"}), 400
+        return jsonify({"message": "Missing required header: X-User-ID"}), 400
 
-    for field in ["project_id", "task_name"]:
-        if field not in data:
-            return jsonify({"error": f"Missing required field: {field}"}), 400
-
-    entry = Tasks(
+    task = Tasks(
         owner_user_id=user_id,
         project_id=data["project_id"],
         task_name=data["task_name"],
         description=data.get("description"),
-        state="to-do",
+        state=data.get("state", "to-do"),
     )
 
-    db.session.add(entry)
+    db.session.add(task)
     db.session.commit()
 
-    return jsonify({"results": [entry.to_dict()]}), 201
+    return jsonify({"results": [task.to_dict()]}), 201
 
 
 @routes.get("/tasks")
+@endpoint_docs(routes, response_schema=TaskResultsSchema)
 def get_tasks():
     """Get all tasks for the current user."""
 
     user_id = request.headers.get("X-User-ID")
 
     if not user_id:
-        return jsonify({"error": "Missing required header: X-User-ID"}), 400
+        return jsonify({"message": "Missing required header: X-User-ID"}), 400
 
     tasks = Tasks.query.filter_by(owner_user_id=user_id).all()
 
@@ -73,46 +90,48 @@ def get_tasks():
 
 
 @routes.get("/tasks/<int:task_id>")
+@endpoint_docs(routes, response_schema=TaskResultsSchema, errors=(400, 404))
 def get_task_detail(task_id):
     """Get a specific task."""
 
     user_id = request.headers.get("X-User-ID")
 
     if not user_id:
-        return jsonify({"error": "Missing required header: X-User-ID"}), 400
+        return jsonify({"message": "Missing required header: X-User-ID"}), 400
 
-    task = Tasks.query.filter_by(id=task_id, owner_user_id=user_id).first()
+    task = Tasks.query.filter_by(
+        id=task_id,
+        owner_user_id=user_id,
+    ).first()
 
     if task is None:
-        return jsonify({"error": "Task not found"}), 404
+        return jsonify({"message": "Task not found"}), 404
 
     return jsonify({"results": [task.to_dict()]}), 200
 
 
 @routes.patch("/tasks/<int:task_id>")
-def update_task(task_id):
+@routes.arguments(TaskUpdateSchema)
+@endpoint_docs(routes, response_schema=TaskResultsSchema, errors=(400, 404, 422))
+def update_task(data, task_id):
     """Update a task owned by the authenticated user."""
 
     user_id = request.headers.get("X-User-ID")
 
     if not user_id:
-        return jsonify({"error": "Missing required header: X-User-ID"}), 400
+        return jsonify({"message": "Missing required header: X-User-ID"}), 400
 
-    task = Tasks.query.filter_by(id=task_id, owner_user_id=user_id).first()
+    task = Tasks.query.filter_by(
+        id=task_id,
+        owner_user_id=user_id,
+    ).first()
+
     if task is None:
-        return jsonify({"error": "Task not found"}), 404
-
-    data = request.get_json(silent=True) or {}
-    valid_states = {"to-do", "in-progress", "done"}
-
-    if "state" in data and data["state"] not in valid_states:
-        return jsonify({"error": "Invalid state value"}), 400
-
-    if "task_name" in data and not data["task_name"]:
-        return jsonify({"error": "task_name cannot be empty"}), 400
+        return jsonify({"message": "Task not found"}), 404
 
     task.task_name = data.get("task_name", task.task_name)
     task.description = data.get("description", task.description)
+    task.project_id = data.get("project_id", task.project_id)
     task.state = data.get("state", task.state)
 
     db.session.commit()
@@ -121,18 +140,19 @@ def update_task(task_id):
 
 
 @routes.delete("/tasks/<int:task_id>")
+@endpoint_docs(routes, success_code=204, errors=(400, 404))
 def delete_task(task_id):
     """Delete a task owned by the authenticated user."""
 
     user_id = request.headers.get("X-User-ID")
 
     if not user_id:
-        return jsonify({"error": "Missing required header: X-User-ID"}), 400
+        return jsonify({"message": "Missing required header: X-User-ID"}), 400
 
     task = Tasks.query.filter_by(id=task_id, owner_user_id=user_id).first()
 
     if task is None:
-        return jsonify({"error": "Task not found"}), 404
+        return jsonify({"message": "Task not found"}), 404
 
     db.session.delete(task)
     db.session.commit()

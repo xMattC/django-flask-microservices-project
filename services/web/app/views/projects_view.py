@@ -1,7 +1,4 @@
-from django.contrib.auth.decorators import login_required
-from django.http import HttpRequest, HttpResponse
-from django.shortcuts import redirect, render
-
+from app.forms import ProjectCreateForm, ProjectUpdateForm
 from clients.projects_service import (
     ProjectsServiceError,
     ProjectsServiceUnavailable,
@@ -15,8 +12,9 @@ from clients.time_tracking_service import (
     TimeTrackingServiceUnavailable,
     get_time_entries,
 )
-
-from app.forms import ProjectCreateForm, ProjectUpdateForm
+from django.contrib.auth.decorators import login_required
+from django.http import HttpRequest, HttpResponse
+from django.shortcuts import redirect, render
 
 
 def _handle_create_project(request: HttpRequest):
@@ -37,7 +35,7 @@ def _handle_create_project(request: HttpRequest):
         return None
 
     try:
-        create_project(request.user.id, {"name": create_form.cleaned_data["name"]})
+        create_project(request.user.id, {"name": create_form.cleaned_data["name"]}) # type: ignore
 
         return redirect("app:projects")
 
@@ -68,7 +66,7 @@ def _handle_update_project(request: HttpRequest):
     try:
         update_project(
             update_form.cleaned_data["project_id"],
-            request.user.id,
+            request.user.id, # type: ignore
             {"name": update_form.cleaned_data["name"]},
         )
 
@@ -93,6 +91,7 @@ def _handle_delete_project(request: HttpRequest):
         - Redirect response or error message.
         - Project ID being deleted.
     """
+
     project_id = request.POST.get("project_id")
 
     if not project_id:
@@ -101,14 +100,30 @@ def _handle_delete_project(request: HttpRequest):
     project_delete_id = int(project_id)
 
     try:
-        project_sessions = get_time_entries(request.user.id, project_id=project_delete_id)
+        # TODO: This business logic should live in the projects service API
+        project_sessions = get_time_entries(request.user.id, project_id=project_delete_id) # type: ignore
 
         if project_sessions:
             return ("Cannot delete this project because it has time logs.", project_delete_id)
-        delete_project(project_delete_id, request.user.id)
+        delete_project(project_delete_id, request.user.id) # type: ignore
+
 
         if request.session.get("selected_project_id") == project_delete_id:
             request.session.pop("selected_project_id", None)
+
+        # Should be:
+        # try:
+        #     delete_project(
+        #         project_id=project_delete_id,
+        #         user_id=request.user.id,
+        #     )
+        # except ProjectHasTimeEntriesError:
+        #     return (
+        #         "Cannot delete this project because it has time logs.",
+        #         project_delete_id,
+        #     )
+
+        # return None
 
         return redirect("app:projects"), project_delete_id
 
@@ -183,7 +198,7 @@ def projects_view(request: HttpRequest) -> HttpResponse:
 
             project_delete_error = result
 
-    projects, projects_error = _get_projects_for_user(request.user.id)
+    projects, projects_error = _get_projects_for_user(request.user.id) # type: ignore
 
     return render(
         request,

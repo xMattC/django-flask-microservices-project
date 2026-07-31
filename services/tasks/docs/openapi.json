@@ -7,37 +7,31 @@
             "$ref": "#/components/responses/DEFAULT_ERROR"
           }
         },
-        "summary": "Return a basic service health check.",
+        "summary": "Health check endpoint.",
         "tags": [
           "routes"
         ]
       }
     },
-    "/api/db-health": {
-      "get": {
-        "responses": {
-          "default": {
-            "$ref": "#/components/responses/DEFAULT_ERROR"
-          }
-        },
-        "summary": "Return a database connectivity health check.",
-        "tags": [
-          "routes"
-        ]
-      }
-    },
-    "/api/projects": {
+    "/api/tasks": {
       "post": {
         "responses": {
           "422": {
-            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskError"
+                }
+              }
+            }
           },
           "201": {
             "description": "Created",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProjectResults"
+                  "$ref": "#/components/schemas/TaskResults"
                 }
               }
             }
@@ -47,7 +41,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProjectError"
+                  "$ref": "#/components/schemas/TaskError"
                 }
               }
             }
@@ -61,12 +55,12 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ProjectCreate"
+                "$ref": "#/components/schemas/TaskCreate"
               }
             }
           }
         },
-        "summary": "Create a new project for the authenticated user.",
+        "summary": "Create a new task.",
         "tags": [
           "routes"
         ],
@@ -89,7 +83,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProjectResults"
+                  "$ref": "#/components/schemas/TaskResults"
                 }
               }
             }
@@ -99,7 +93,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProjectError"
+                  "$ref": "#/components/schemas/TaskError"
                 }
               }
             }
@@ -108,7 +102,7 @@
             "$ref": "#/components/responses/DEFAULT_ERROR"
           }
         },
-        "summary": "Return all projects owned by the authenticated user.",
+        "summary": "Get all tasks for the current user.",
         "tags": [
           "routes"
         ],
@@ -125,7 +119,7 @@
         ]
       }
     },
-    "/api/projects/{project_id}": {
+    "/api/tasks/{task_id}": {
       "get": {
         "responses": {
           "200": {
@@ -133,7 +127,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProjectResults"
+                  "$ref": "#/components/schemas/TaskResults"
                 }
               }
             }
@@ -143,7 +137,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProjectError"
+                  "$ref": "#/components/schemas/TaskError"
                 }
               }
             }
@@ -153,7 +147,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProjectError"
+                  "$ref": "#/components/schemas/TaskError"
                 }
               }
             }
@@ -162,7 +156,7 @@
             "$ref": "#/components/responses/DEFAULT_ERROR"
           }
         },
-        "summary": "Return a single project owned by the authenticated user.",
+        "summary": "Get a specific task.",
         "tags": [
           "routes"
         ],
@@ -181,7 +175,7 @@
       "parameters": [
         {
           "in": "path",
-          "name": "project_id",
+          "name": "task_id",
           "required": true,
           "schema": {
             "type": "integer",
@@ -192,14 +186,21 @@
       "patch": {
         "responses": {
           "422": {
-            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskError"
+                }
+              }
+            }
           },
           "200": {
             "description": "OK",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProjectResults"
+                  "$ref": "#/components/schemas/TaskResults"
                 }
               }
             }
@@ -209,7 +210,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProjectError"
+                  "$ref": "#/components/schemas/TaskError"
                 }
               }
             }
@@ -219,7 +220,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProjectError"
+                  "$ref": "#/components/schemas/TaskError"
                 }
               }
             }
@@ -233,12 +234,12 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ProjectUpdate"
+                "$ref": "#/components/schemas/TaskUpdate"
               }
             }
           }
         },
-        "summary": "Update a project owned by the authenticated user.",
+        "summary": "Update a task owned by the authenticated user.",
         "tags": [
           "routes"
         ],
@@ -264,7 +265,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProjectError"
+                  "$ref": "#/components/schemas/TaskError"
                 }
               }
             }
@@ -274,7 +275,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProjectError"
+                  "$ref": "#/components/schemas/TaskError"
                 }
               }
             }
@@ -283,7 +284,7 @@
             "$ref": "#/components/responses/DEFAULT_ERROR"
           }
         },
-        "summary": "Delete a project owned by the authenticated user.",
+        "summary": "Delete a task owned by the authenticated user.",
         "tags": [
           "routes"
         ],
@@ -302,13 +303,13 @@
     }
   },
   "info": {
-    "title": "Projects Service API",
+    "title": "Tasks Service API",
     "version": "v1"
   },
   "tags": [
     {
       "name": "routes",
-      "description": "Projects service endpoints"
+      "description": "Tasks service endpoints"
     }
   ],
   "openapi": "3.0.3",
@@ -371,23 +372,48 @@
         },
         "additionalProperties": false
       },
-      "ProjectCreate": {
+      "TaskCreate": {
         "type": "object",
         "properties": {
-          "name": {
+          "project_id": {
+            "type": "integer"
+          },
+          "task_name": {
             "type": "string"
           },
           "description": {
             "type": "string",
             "nullable": true
+          },
+          "state": {
+            "type": "string",
+            "default": "to-do",
+            "enum": [
+              "to-do",
+              "in-progress",
+              "done"
+            ]
           }
         },
         "required": [
-          "name"
+          "project_id",
+          "task_name"
         ],
         "additionalProperties": false
       },
-      "ProjectResponse": {
+      "TaskError": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "message"
+        ],
+        "additionalProperties": false
+      },
+      "TaskResponse": {
         "type": "object",
         "properties": {
           "id": {
@@ -396,54 +422,71 @@
           "owner_user_id": {
             "type": "string"
           },
-          "name": {
+          "project_id": {
+            "type": "integer"
+          },
+          "task_name": {
             "type": "string"
           },
           "description": {
             "type": "string",
             "nullable": true
+          },
+          "state": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
           }
         },
         "required": [
+          "created_at",
           "id",
-          "name",
-          "owner_user_id"
+          "owner_user_id",
+          "project_id",
+          "state",
+          "task_name",
+          "updated_at"
         ],
         "additionalProperties": false
       },
-      "ProjectResults": {
+      "TaskResults": {
         "type": "object",
         "properties": {
           "results": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/ProjectResponse"
+              "$ref": "#/components/schemas/TaskResponse"
             }
           }
         },
         "additionalProperties": false
       },
-      "ProjectError": {
+      "TaskUpdate": {
         "type": "object",
         "properties": {
-          "error": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "error"
-        ],
-        "additionalProperties": false
-      },
-      "ProjectUpdate": {
-        "type": "object",
-        "properties": {
-          "name": {
+          "project_id": {
+            "type": "integer"
+          },
+          "task_name": {
             "type": "string"
           },
           "description": {
             "type": "string",
             "nullable": true
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "to-do",
+              "in-progress",
+              "done"
+            ]
           }
         },
         "additionalProperties": false
@@ -452,16 +495,6 @@
     "responses": {
       "DEFAULT_ERROR": {
         "description": "Default error response",
-        "content": {
-          "application/json": {
-            "schema": {
-              "$ref": "#/components/schemas/Error"
-            }
-          }
-        }
-      },
-      "UNPROCESSABLE_ENTITY": {
-        "description": "Unprocessable Entity",
         "content": {
           "application/json": {
             "schema": {

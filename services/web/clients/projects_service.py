@@ -206,4 +206,3 @@ def delete_project(project_id: int, user_id: int) -> None:
     if response.status_code != 204:
         raise ProjectsServiceError(f"Projects service returned {response.status_code}")
 
-    return None

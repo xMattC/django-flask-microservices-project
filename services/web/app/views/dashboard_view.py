@@ -1,10 +1,10 @@
 from datetime import datetime
 
-from django.contrib.auth.decorators import login_required
-from django.http import HttpRequest, HttpResponse
-from django.shortcuts import redirect, render
-
-from clients.projects_service import ProjectsServiceError, ProjectsServiceUnavailable, get_projects
+from clients.projects_service import (
+    ProjectsServiceError,
+    ProjectsServiceUnavailable,
+    get_projects,
+)
 from clients.time_tracking_service import (
     TimeTrackingServiceError,
     TimeTrackingServiceUnavailable,
@@ -12,6 +12,9 @@ from clients.time_tracking_service import (
     get_time_entries,
     update_time_entry,
 )
+from django.contrib.auth.decorators import login_required
+from django.http import HttpRequest, HttpResponse
+from django.shortcuts import redirect, render
 
 
 def _handle_select_project(request: HttpRequest) -> HttpResponse:
