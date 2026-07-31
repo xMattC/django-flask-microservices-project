@@ -35,7 +35,7 @@ def _handle_create_project(request: HttpRequest):
         return None
 
     try:
-        create_project(request.user.id, {"name": create_form.cleaned_data["name"]}) # type: ignore
+        create_project(request.user.id, {"name": create_form.cleaned_data["name"]})  # type: ignore
 
         return redirect("app:projects")
 
@@ -66,7 +66,7 @@ def _handle_update_project(request: HttpRequest):
     try:
         update_project(
             update_form.cleaned_data["project_id"],
-            request.user.id, # type: ignore
+            request.user.id,  # type: ignore
             {"name": update_form.cleaned_data["name"]},
         )
 
@@ -101,12 +101,11 @@ def _handle_delete_project(request: HttpRequest):
 
     try:
         # TODO: This business logic should live in the projects service API
-        project_sessions = get_time_entries(request.user.id, project_id=project_delete_id) # type: ignore
+        project_sessions = get_time_entries(request.user.id, project_id=project_delete_id)  # type: ignore
 
         if project_sessions:
             return ("Cannot delete this project because it has time logs.", project_delete_id)
-        delete_project(project_delete_id, request.user.id) # type: ignore
-
+        delete_project(project_delete_id, request.user.id)  # type: ignore
 
         if request.session.get("selected_project_id") == project_delete_id:
             request.session.pop("selected_project_id", None)
@@ -198,7 +197,7 @@ def projects_view(request: HttpRequest) -> HttpResponse:
 
             project_delete_error = result
 
-    projects, projects_error = _get_projects_for_user(request.user.id) # type: ignore
+    projects, projects_error = _get_projects_for_user(request.user.id)  # type: ignore
 
     return render(
         request,

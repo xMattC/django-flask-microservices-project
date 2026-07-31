@@ -27,6 +27,7 @@ X-User-ID: <user-id>
 | Method | Path | Description | Auth |
 |---|---|---|---|
 | GET | `/api/health` | Health check endpoint. | No |
+| GET | `/api/db-health` | Check the database connection. | Yes |
 | POST | `/api/tasks` | Create a new task. | Yes |
 | GET | `/api/tasks` | Get all tasks for the current user. | Yes |
 | GET | `/api/tasks/{task_id}` | Get a specific task. | Yes |
