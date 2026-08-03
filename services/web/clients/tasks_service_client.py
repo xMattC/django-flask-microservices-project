@@ -127,7 +127,18 @@ def get_a_task(user_id: int, task_id: int):
 
 
 def edit_a_task(user_id: int, task_id: int, payload: dict):
+    """Update a task for a given user.
 
+    Sends a PATCH request to the Time Tracking service and returns the updated time entry.
+
+    Parameters:
+    - user_id : The ID of the authenticated user.
+    - time_entry_id : The ID of the task to update.
+    - payload : The update payload to send to the Task service.
+
+    Returns:
+    - A dictionary representing the updated time entry.
+    """
     url = f"{settings.TIME_TRACKING_SERVICE_URL}/api/tasks/{task_id}"
 
     try:
