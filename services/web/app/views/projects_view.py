@@ -1,17 +1,5 @@
 from app.forms import ProjectCreateForm, ProjectUpdateForm
-from clients.projects_service import (
-    ProjectsServiceError,
-    ProjectsServiceUnavailable,
-    create_project,
-    delete_project,
-    get_projects,
-    update_project,
-)
-from clients.time_tracking_service import (
-    TimeTrackingServiceError,
-    TimeTrackingServiceUnavailable,
-    get_time_entries,
-)
+from clients import projects_service_client, time_tracking_service_client
 from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
@@ -35,14 +23,13 @@ def _handle_create_project(request: HttpRequest):
         return None
 
     try:
-        create_project(request.user.id, {"name": create_form.cleaned_data["name"]})  # type: ignore
-
+        projects_service_client.create_project(request.user.id, {"name": create_form.cleaned_data["name"]})
         return redirect("app:projects")
 
-    except ProjectsServiceUnavailable:
+    except projects_service_client.ProjectsServiceUnavailable:
         return "Projects service is currently unavailable."
 
-    except ProjectsServiceError:
+    except projects_service_client.ProjectsServiceError:
         return "Could not create project."
 
 
@@ -64,7 +51,7 @@ def _handle_update_project(request: HttpRequest):
         return None
 
     try:
-        update_project(
+        projects_service_client.update_project(
             update_form.cleaned_data["project_id"],
             request.user.id,  # type: ignore
             {"name": update_form.cleaned_data["name"]},
@@ -72,10 +59,10 @@ def _handle_update_project(request: HttpRequest):
 
         return redirect("app:projects")
 
-    except ProjectsServiceUnavailable:
+    except projects_service_client.ProjectsServiceUnavailable:
         return "Projects service is currently unavailable."
 
-    except ProjectsServiceError:
+    except projects_service_client.ProjectsServiceError:
         return "Could not update project."
 
 
@@ -100,42 +87,28 @@ def _handle_delete_project(request: HttpRequest):
     project_delete_id = int(project_id)
 
     try:
-        # TODO: This business logic should live in the projects service API
-        project_sessions = get_time_entries(request.user.id, project_id=project_delete_id)  # type: ignore
+        project_sessions = time_tracking_service_client.get_time_entries(request.user.id, project_id=project_delete_id)
 
         if project_sessions:
             return ("Cannot delete this project because it has time logs.", project_delete_id)
-        delete_project(project_delete_id, request.user.id)  # type: ignore
+
+        projects_service_client.delete_project(project_delete_id, request.user.id)  # type: ignore
 
         if request.session.get("selected_project_id") == project_delete_id:
             request.session.pop("selected_project_id", None)
 
-        # Should be:
-        # try:
-        #     delete_project(
-        #         project_id=project_delete_id,
-        #         user_id=request.user.id,
-        #     )
-        # except ProjectHasTimeEntriesError:
-        #     return (
-        #         "Cannot delete this project because it has time logs.",
-        #         project_delete_id,
-        #     )
-
-        # return None
-
         return redirect("app:projects"), project_delete_id
 
-    except TimeTrackingServiceUnavailable:
+    except time_tracking_service_client.TimeTrackingServiceUnavailable:
         return ("Time tracking service is currently unavailable.", project_delete_id)
 
-    except TimeTrackingServiceError:
+    except time_tracking_service_client.TimeTrackingServiceError:
         return ("Could not check whether this project has time logs.", project_delete_id)
 
-    except ProjectsServiceUnavailable:
+    except projects_service_client.ProjectsServiceUnavailable:
         return ("Projects service is currently unavailable.", project_delete_id)
 
-    except ProjectsServiceError:
+    except projects_service_client.ProjectsServiceError:
         return ("Could not delete project.", project_delete_id)
 
 
@@ -149,12 +122,12 @@ def _get_projects_for_user(user_id: int):
         - Error message or None.
     """
     try:
-        return get_projects(user_id), None
+        return projects_service_client.get_projects(user_id), None
 
-    except ProjectsServiceUnavailable:
+    except projects_service_client.ProjectsServiceUnavailable:
         return [], "Projects service is currently unavailable."
 
-    except ProjectsServiceError:
+    except projects_service_client.ProjectsServiceError:
         return [], "Could not load projects."
 
 

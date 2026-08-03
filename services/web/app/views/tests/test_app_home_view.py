@@ -13,7 +13,7 @@ class HomeViewTests(TestCase):
         self.email = "testuser@example.com"
         self.password = "testpass123"
 
-        self.user = User.objects.create_user(
+        self.user = User.objects.create_user(  # type: ignore
             email=self.email,
             password=self.password,
         )

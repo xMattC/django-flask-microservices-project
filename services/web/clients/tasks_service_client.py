@@ -1,0 +1,193 @@
+import requests
+from django.conf import settings
+
+
+class TasksServiceError(Exception):
+    pass
+
+
+class TasksServiceUnavailable(TasksServiceError):
+    pass
+
+
+def create_task(user_id: int, payload: dict):
+    """Create a new task entry for a given user.
+
+    Sends a POST request to the Task service and returns the created task entry.
+
+    Parameters:
+    - user_id : The ID of the authenticated user.
+    - payload : The data for the new task entry.
+
+    Returns:
+    - A dictionary representing the created task entry.
+    """
+    url = f"{settings.TASK_SERVICE_URL}/api/tasks"
+
+    try:
+        response = requests.post(url, json=payload, headers={"X-User-ID": str(user_id)}, timeout=5)
+    except requests.RequestException as exc:
+        raise TasksServiceUnavailable("Task service is unavailable.") from exc
+
+    if response.status_code != 201:
+        raise TasksServiceError(f"Task service returned {response.status_code}")
+
+    try:
+        data = response.json()
+    except ValueError as exc:
+        raise TasksServiceError("Task service returned invalid JSON.") from exc
+
+    if "results" not in data or not isinstance(data["results"], list):
+        raise TasksServiceError("Task service returned invalid data structure.")
+
+    data = response.json()
+
+    return data["results"][0]
+
+
+def get_tasks(user_id: int, project_id: int | None = None):
+    """Get tasks for a given user, optionally filtered by project.
+
+    Sends a GET request to the Tasks service and returns a list of tasks.
+
+    Parameters:
+    - user_id : The ID of the authenticated user.
+    - project_id : Optional project ID filter.
+
+    Returns:
+    - A list of dictionaries representing the tasks.
+    """
+    url = f"{settings.TASK_SERVICE_URL}/api/tasks"
+
+    params = {}
+
+    if project_id is not None:
+        params["project_id"] = project_id
+
+    try:
+        response = requests.get(url, headers={"X-User-ID": str(user_id)}, params=params, timeout=5)
+    except requests.RequestException as exc:
+        raise TasksServiceUnavailable("Tasks service is unavailable.") from exc
+
+    if response.status_code != 200:
+        raise TasksServiceError(f"Tasks service returned {response.status_code}")
+
+    try:
+        data = response.json()
+    except ValueError as exc:
+        raise TasksServiceError("Tasks service returned invalid JSON.") from exc
+
+    try:
+        results = data["results"]
+    except KeyError as exc:
+        raise TasksServiceError("Tasks service response missing results.") from exc
+
+    if not isinstance(results, list):
+        raise TasksServiceError("Tasks service results must be a list.")
+
+    return results
+
+
+def get_a_task(user_id: int, task_id: int):
+    """Get task for a given user.
+
+    Sends a GET request to the Tasks service and returns a specific task detail.
+
+    Parameters:
+    - user_id : The ID of the authenticated user.
+    - task_id : The ID of the task.
+
+    Returns:
+    - A task.
+    """
+    url = f"{settings.TASK_SERVICE_URL}/api/tasks/{task_id}"
+
+    try:
+        response = requests.get(url, headers={"X-User-ID": str(user_id)}, timeout=5)
+    except requests.RequestException as exc:
+        raise TasksServiceUnavailable("Tasks service is unavailable.") from exc
+
+    if response.status_code != 200:
+        raise TasksServiceError(f"Tasks service returned {response.status_code}")
+
+    try:
+        data = response.json()
+    except ValueError as exc:
+        raise TasksServiceError("Tasks service returned invalid JSON.") from exc
+
+    try:
+        results = data["results"]
+    except KeyError as exc:
+        raise TasksServiceError("Tasks service response missing results.") from exc
+
+    if not isinstance(results, list):
+        raise TasksServiceError("Tasks service results must be a list.")
+
+    return results[0]
+
+
+def edit_a_task(user_id: int, task_id: int, payload: dict):
+    """Update a task for a given user.
+
+    Sends a PATCH request to the Tasks service and returns the updated time entry.
+
+    Parameters:
+    - user_id : The ID of the authenticated user.
+    - time_entry_id : The ID of the task to update.
+    - payload : The update payload to send to the Task service.
+
+    Returns:
+    - A dictionary representing the updated time entry.
+    """
+    url = f"{settings.TIME_TRACKING_SERVICE_URL}/api/tasks/{task_id}"
+
+    try:
+        response = requests.patch(url, json=payload, headers={"X-User-ID": str(user_id)}, timeout=5)
+    except requests.RequestException as exc:
+        raise TasksServiceUnavailable("Tasks service is unavailable.") from exc
+
+    if response.status_code != 200:
+        raise TasksServiceError(f"Tasks service returned {response.status_code}")
+
+    try:
+        data = response.json()
+    except ValueError as exc:
+        raise TasksServiceError("Tasks service returned invalid JSON.") from exc
+
+    try:
+        results = data["results"]
+    except KeyError as exc:
+        raise TasksServiceError("Tasks service response missing results.") from exc
+
+    if not isinstance(results, list):
+        raise TasksServiceError("Tasks service results must be a list.")
+
+    if len(results) != 1:
+        raise TasksServiceError("Tasks service must return exactly one task.")
+
+    return results[0]
+
+
+def delete_a_task(user_id: int, task_id: int):
+    """Delete a task for a given user.
+
+    Sends a DELETE request to the Tasks service.
+
+    Parameters:
+    - user_id : The ID of the authenticated user.
+    - task_id : The ID of the task to delete.
+
+    Returns:
+    - True when the task is deleted successfully.
+    """
+    url = f"{settings.TIME_TRACKING_SERVICE_URL}/api/tasks/{task_id}"
+
+    try:
+        response = requests.delete(url, headers={"X-User-ID": str(user_id)}, timeout=5)
+    except requests.RequestException as exc:
+        raise TasksServiceUnavailable("Tasks service is unavailable.") from exc
+
+    if response.status_code != 204:
+        raise TasksServiceError(f"Tasks service returned {response.status_code}")
+
+    return True

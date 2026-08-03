@@ -1,16 +1,16 @@
 import random
 from datetime import timedelta
 
-from django.contrib.auth import get_user_model
-from django.core.management.base import BaseCommand
-from django.utils import timezone
-
-from clients.projects_service import (
+from clients.projects_service_client import (
     create_project,
     delete_project,
     get_projects,
 )
-from clients.time_tracking_service import (
+from django.contrib.auth import get_user_model
+from django.core.management.base import BaseCommand
+from django.utils import timezone
+
+from services.web.clients.time_tracking_service_client import (
     create_time_entry,
     delete_time_entry,
     get_time_entries,
