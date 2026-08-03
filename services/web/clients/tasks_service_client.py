@@ -67,29 +67,64 @@ def get_tasks(user_id: int, project_id: int | None = None):
     try:
         response = requests.get(url, headers={"X-User-ID": str(user_id)}, params=params, timeout=5)
     except requests.RequestException as exc:
-        raise TasksServiceUnavailable("Time tracking service is unavailable.") from exc
+        raise TasksServiceUnavailable("Tasks service is unavailable.") from exc
 
     if response.status_code != 200:
-        raise TasksServiceError(f"Time tracking service returned {response.status_code}")
+        raise TasksServiceError(f"Tasks service returned {response.status_code}")
 
     try:
         data = response.json()
     except ValueError as exc:
-        raise TasksServiceError("Time tracking service returned invalid JSON.") from exc
+        raise TasksServiceError("Tasks service returned invalid JSON.") from exc
 
     try:
         results = data["results"]
     except KeyError as exc:
-        raise TasksServiceError("Time tracking service response missing results.") from exc
+        raise TasksServiceError("Tasks service response missing results.") from exc
 
     if not isinstance(results, list):
-        raise TasksServiceError("Time tracking service results must be a list.")
+        raise TasksServiceError("Tasks service results must be a list.")
 
     return results
 
 
 def get_a_task(user_id: int, task_id: int):
-    pass
+    """Get task for a given user.
+
+    Sends a GET request to the Tasks service and returns a specific task detail.
+
+    Parameters:
+    - user_id : The ID of the authenticated user.
+    - task_id : The ID of the task.
+
+    Returns:
+    - A task.
+    """
+    url = f"{settings.TASK_SERVICE_URL}/api/tasks/{task_id}"
+
+    response = requests.get(url, headers={"X-User-ID": str(user_id)}, timeout=5)
+
+    data = response.json()
+
+    results = data["results"]
+
+    print(results)
+    # if response.status_code != 200:
+    #     raise TasksServiceError(f"Tasks service returned {response.status_code}")
+
+    # try:
+    #     data = response.json()
+    # except ValueError as exc:
+    #     raise TasksServiceError("Tasks service returned invalid JSON.") from exc
+
+    # try:
+    #     results = data["results"]
+    # except KeyError as exc:
+    #     raise TasksServiceError("Tasks service response missing results.") from exc
+
+    # if not isinstance(results, list):
+    #     raise TasksServiceError("Tasks service results must be a list.")
+    return results[0]
 
 
 def edit_a_task(user_id: int, task_id: int):

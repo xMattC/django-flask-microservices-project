@@ -323,18 +323,17 @@ class TasksClientTests(SimpleTestCase):
     # -----------------------------------------------------------------------------------------------------------------
     @responses.activate
     @override_settings(TIME_TRACKING_SERVICE_URL="http://tasks:5000")
-    def test_get_tasks_returns_time_entry(self):
+    def test_get_task_returns_a_task(self):
         """Test get_tasks returns a single time entry."""
         user_id = 123
         task_id = 10
-        project_id = 42
 
         mock_response_payload = {
             "results": [
                 {
                     "id": task_id,
                     "owner_user_id": user_id,
-                    "project_id": project_id,
+                    "project_id": 42,
                     "task_name": "Task-1",
                     "description": "Get Milk",
                     "state": "to-do",
@@ -351,7 +350,7 @@ class TasksClientTests(SimpleTestCase):
             status=200,
         )
 
-        result = get_tasks(user_id=user_id, project_id=project_id)
+        result = get_a_task(user_id=user_id, task_id=task_id)
 
         self.assertEqual(result, mock_response_payload["results"][0])
         self.assertEqual(len(responses.calls), 1)
