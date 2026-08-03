@@ -23,8 +23,7 @@ def _handle_create_project(request: HttpRequest):
         return None
 
     try:
-        projects_service_client.create_project(request.user.id, {"name": create_form.cleaned_data["name"]})  # type: ignore
-
+        projects_service_client.create_project(request.user.id, {"name": create_form.cleaned_data["name"]})
         return redirect("app:projects")
 
     except projects_service_client.ProjectsServiceUnavailable:
@@ -88,7 +87,7 @@ def _handle_delete_project(request: HttpRequest):
     project_delete_id = int(project_id)
 
     try:
-        project_sessions = time_tracking_service_client.get_time_entries(request.user.id, project_id=project_delete_id)  # type: ignore
+        project_sessions = time_tracking_service_client.get_time_entries(request.user.id, project_id=project_delete_id)
 
         if project_sessions:
             return ("Cannot delete this project because it has time logs.", project_delete_id)

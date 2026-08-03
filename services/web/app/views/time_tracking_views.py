@@ -12,7 +12,9 @@ def clock_in_view(request) -> HttpResponse:
         return redirect("app:dashboard")
 
     try:
-        time_tracking_service_client.create_time_entry(request.user.id, {"project_id": selected_project_id})
+        time_tracking_service_client.create_time_entry(
+            request.user.id, {"project_id": selected_project_id}
+        )
     except time_tracking_service_client.TimeTrackingServiceError:
         pass
 

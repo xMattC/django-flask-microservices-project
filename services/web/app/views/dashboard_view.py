@@ -29,7 +29,7 @@ def _handle_update_session(request: HttpRequest):
 
     try:
         time_tracking_service_client.update_time_entry(
-            request.user.id, # type: ignore
+            request.user.id,  # type: ignore
             int(session_id),
             {
                 "started_at": started_at,
@@ -54,7 +54,7 @@ def _handle_delete_session(request: HttpRequest):
         return None
 
     try:
-        time_tracking_service_client.delete_time_entry(request.user.id, int(session_id)) # type: ignore
+        time_tracking_service_client.delete_time_entry(request.user.id, int(session_id))  # type: ignore
 
         return redirect("app:dashboard")
 
@@ -113,7 +113,9 @@ def _build_dashboard_session(session: dict, project_names: dict[int, str]) -> di
 
     return {
         **session,
-        "project_name": project_names.get(session["project_id"], f"Project {session['project_id']}"),
+        "project_name": project_names.get(
+            session["project_id"], f"Project {session['project_id']}"
+        ),
         "created_at_display": created_at.strftime("%d %b %Y %H:%M"),
         "ended_at_display": ended_at.strftime("%d %b %Y %H:%M") if ended_at else "Running",
         "duration_display": _format_duration(session["duration_seconds"]),
@@ -139,7 +141,9 @@ def _get_selected_project(projects: list[dict], selected_project_id: int | None)
 
 def _get_running_duration_display(dashboard_sessions: list[dict]) -> str | None:
     """Return formatted running duration if a running session exists."""
-    running_session = next((session for session in dashboard_sessions if session["ended_at"] is None), None)
+    running_session = next(
+        (session for session in dashboard_sessions if session["ended_at"] is None), None
+    )
 
     if not running_session:
         return None
@@ -176,8 +180,8 @@ def dashboard_view(request: HttpRequest) -> HttpResponse:
 
             session_delete_error = result
 
-    projects, projects_error = _get_projects_for_user(request.user.id) # type: ignore
-    sessions, sessions_error = _get_sessions_for_user(request.user.id) # type: ignore
+    projects, projects_error = _get_projects_for_user(request.user.id)  # type: ignore
+    sessions, sessions_error = _get_sessions_for_user(request.user.id)  # type: ignore
 
     dashboard_sessions = _build_dashboard_sessions(projects, sessions)
     has_running_session = any(session["ended_at"] is None for session in dashboard_sessions)

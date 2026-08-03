@@ -24,7 +24,7 @@ class ProjectsViewTests(TestCase):
         self.email = "testuser@example.com"
         self.password = "testpass123"
 
-        self.user = User.objects.create_user( # type: ignore
+        self.user = User.objects.create_user(  # type: ignore
             email=self.email,
             password=self.password,
         )
@@ -33,7 +33,6 @@ class ProjectsViewTests(TestCase):
             email=self.email,
             password=self.password,
         )
-
 
     # -----------------------------------------------------------------------------------------------------------------
     # Test cases for projects_view GET

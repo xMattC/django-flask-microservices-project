@@ -25,7 +25,7 @@ class DashboardViewTests(TestCase):
         self.email = "testuser@example.com"
         self.password = "testpass123"
 
-        self.user = User.objects.create_user( # type: ignore
+        self.user = User.objects.create_user(  # type: ignore
             email=self.email,
             password=self.password,
         )
@@ -37,7 +37,9 @@ class DashboardViewTests(TestCase):
 
     @patch.object(dashboard_view.time_tracking_service_client, "get_time_entries")
     @patch.object(dashboard_view.projects_service_client, "get_projects")
-    def test_dashboard_view_loads_projects_and_sessions(self, mock_get_projects, mock_get_time_entries):
+    def test_dashboard_view_loads_projects_and_sessions(
+        self, mock_get_projects, mock_get_time_entries
+    ):
         """Test dashboard loads projects and sessions."""
         mock_get_projects.return_value = [{"id": 1, "name": "Project A"}]
         mock_get_time_entries.return_value = [
@@ -60,7 +62,9 @@ class DashboardViewTests(TestCase):
 
     @patch.object(dashboard_view.time_tracking_service_client, "get_time_entries")
     @patch.object(dashboard_view.projects_service_client, "get_projects")
-    def test_dashboard_view_uses_fallback_project_name(self, mock_get_projects, mock_get_time_entries):
+    def test_dashboard_view_uses_fallback_project_name(
+        self, mock_get_projects, mock_get_time_entries
+    ):
         """Test dashboard uses fallback project name when project is missing."""
         mock_get_projects.return_value = []
         mock_get_time_entries.return_value = [
@@ -82,7 +86,9 @@ class DashboardViewTests(TestCase):
 
     @patch.object(dashboard_view.time_tracking_service_client, "get_time_entries")
     @patch.object(dashboard_view.projects_service_client, "get_projects")
-    def test_dashboard_view_sets_running_session_context(self, mock_get_projects, mock_get_time_entries):
+    def test_dashboard_view_sets_running_session_context(
+        self, mock_get_projects, mock_get_time_entries
+    ):
         """Test dashboard detects running session and formats running duration."""
         mock_get_projects.return_value = [{"id": 1, "name": "Project A"}]
         mock_get_time_entries.return_value = [
@@ -114,11 +120,15 @@ class DashboardViewTests(TestCase):
         response = self.client.get(reverse("app:dashboard"))
 
         self.assertEqual(response.context["projects"], [])
-        self.assertEqual(response.context["projects_error"], "Projects service is currently unavailable.")
+        self.assertEqual(
+            response.context["projects_error"], "Projects service is currently unavailable."
+        )
 
     @patch.object(dashboard_view.time_tracking_service_client, "get_time_entries")
     @patch.object(dashboard_view.projects_service_client, "get_projects")
-    def test_dashboard_view_shows_projects_error_when_service_fails(self, mock_get_projects, mock_get_time_entries):
+    def test_dashboard_view_shows_projects_error_when_service_fails(
+        self, mock_get_projects, mock_get_time_entries
+    ):
         """Test dashboard shows projects service error."""
         mock_get_projects.side_effect = ProjectsServiceError
         mock_get_time_entries.return_value = []
@@ -142,11 +152,15 @@ class DashboardViewTests(TestCase):
         response = self.client.get(reverse("app:dashboard"))
 
         self.assertEqual(response.context["sessions"], [])
-        self.assertEqual(response.context["sessions_error"], "Time tracking service is currently unavailable.")
+        self.assertEqual(
+            response.context["sessions_error"], "Time tracking service is currently unavailable."
+        )
 
     @patch.object(dashboard_view.time_tracking_service_client, "get_time_entries")
     @patch.object(dashboard_view.projects_service_client, "get_projects")
-    def test_dashboard_view_shows_sessions_error_when_service_fails(self, mock_get_projects, mock_get_time_entries):
+    def test_dashboard_view_shows_sessions_error_when_service_fails(
+        self, mock_get_projects, mock_get_time_entries
+    ):
         """Test dashboard shows sessions service error."""
         mock_get_projects.return_value = []
         mock_get_time_entries.side_effect = TimeTrackingServiceError
@@ -260,7 +274,10 @@ class DashboardViewTests(TestCase):
             },
         )
 
-        self.assertEqual(response.context["session_update_error"], "Time tracking service is currently unavailable.")
+        self.assertEqual(
+            response.context["session_update_error"],
+            "Time tracking service is currently unavailable.",
+        )
 
     @patch.object(dashboard_view.time_tracking_service_client, "get_time_entries")
     @patch.object(dashboard_view.projects_service_client, "get_projects")
@@ -325,7 +342,10 @@ class DashboardViewTests(TestCase):
             },
         )
 
-        self.assertEqual(response.context["session_delete_error"], "Time tracking service is currently unavailable.")
+        self.assertEqual(
+            response.context["session_delete_error"],
+            "Time tracking service is currently unavailable.",
+        )
 
     @patch.object(dashboard_view.time_tracking_service_client, "get_time_entries")
     @patch.object(dashboard_view.projects_service_client, "get_projects")

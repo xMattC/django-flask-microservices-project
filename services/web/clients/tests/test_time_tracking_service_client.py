@@ -69,7 +69,7 @@ class TimeTrackingClientTests(SimpleTestCase):
         self.assertEqual(request.headers.get("X-User-ID"), str(user_id))
         self.assertEqual(request.headers.get("Content-Type"), "application/json")
         self.assertEqual(request.headers.get("Content-Type"), "application/json")
-        self.assertEqual(json.loads(request.body), request_payload) # type: ignore
+        self.assertEqual(json.loads(request.body), request_payload)  # type: ignore
 
     @responses.activate
     @override_settings(TIME_TRACKING_SERVICE_URL="http://time-tracking:5000")
@@ -246,8 +246,8 @@ class TimeTrackingClientTests(SimpleTestCase):
 
         request = responses.calls[0].request
 
-        self.assertIn("project_id=42", request.url) # type: ignore
-        self.assertIn("running_only=true", request.url) # type: ignore
+        self.assertIn("project_id=42", request.url)  # type: ignore
+        self.assertIn("running_only=true", request.url)  # type: ignore
 
     @responses.activate
     @override_settings(TIME_TRACKING_SERVICE_URL="http://time-tracking:5000")
@@ -532,7 +532,9 @@ class TimeTrackingClientTests(SimpleTestCase):
         user_id = 123
         time_entry_id = 10
         request_payload = {"description": "Updated"}
-        mock_response_payload = {"results": [{"id": time_entry_id, "owner_user_id": user_id, "description": "Updated"}]}
+        mock_response_payload = {
+            "results": [{"id": time_entry_id, "owner_user_id": user_id, "description": "Updated"}]
+        }
 
         responses.add(
             method=responses.PATCH,
@@ -541,7 +543,9 @@ class TimeTrackingClientTests(SimpleTestCase):
             status=200,
         )
 
-        result = update_time_entry(user_id=user_id, time_entry_id=time_entry_id, payload=request_payload)
+        result = update_time_entry(
+            user_id=user_id, time_entry_id=time_entry_id, payload=request_payload
+        )
 
         self.assertEqual(result, mock_response_payload["results"][0])
 

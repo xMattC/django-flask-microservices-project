@@ -14,7 +14,7 @@ from app.views.time_tracking_views import clock_in_view, clock_out_view
 class ClockInViewTests(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
-        self.user = get_user_model().objects.create_user( # type: ignore
+        self.user = get_user_model().objects.create_user(  # type: ignore
             email="clockin@example.com",
             password="password",
         )
@@ -23,26 +23,26 @@ class ClockInViewTests(TestCase):
     def test_clock_in_creates_time_entry_and_redirects(self, mock_create_time_entry):
         request = self.factory.get("/clock-in/")
         request.user = self.user
-        request.session = {"selected_project_id": 123} # type: ignore
+        request.session = {"selected_project_id": 123}  # type: ignore
 
         response = clock_in_view(request)
 
         mock_create_time_entry.assert_called_once_with(self.user.id, {"project_id": 123})
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("app:dashboard")) # type: ignore
+        self.assertEqual(response.url, reverse("app:dashboard"))  # type: ignore
 
     @patch.object(time_tracking_views.time_tracking_service_client, "create_time_entry")
     def test_clock_in_redirects_when_no_project_selected(self, mock_create_time_entry):
         request = self.factory.get("/clock-in/")
         request.user = self.user
-        request.session = {} # type: ignore
+        request.session = {}  # type: ignore
 
         response = clock_in_view(request)
 
         mock_create_time_entry.assert_not_called()
 
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("app:dashboard")) # type: ignore
+        self.assertEqual(response.url, reverse("app:dashboard"))  # type: ignore
 
     @patch.object(time_tracking_views.time_tracking_service_client, "create_time_entry")
     def test_clock_in_handles_service_error(self, mock_create_time_entry):
@@ -50,20 +50,20 @@ class ClockInViewTests(TestCase):
 
         request = self.factory.get("/clock-in/")
         request.user = self.user
-        request.session = {"selected_project_id": 123} # type: ignore
+        request.session = {"selected_project_id": 123}  # type: ignore
 
         response = clock_in_view(request)
 
         mock_create_time_entry.assert_called_once()
 
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("app:dashboard")) # type: ignore
+        self.assertEqual(response.url, reverse("app:dashboard"))  # type: ignore
 
 
 class ClockOutViewTests(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
-        self.user = get_user_model().objects.create_user(email="clockout@example.com", password="password") # type: ignore
+        self.user = get_user_model().objects.create_user(email="clockout@example.com", password="password")
 
     @patch.object(time_tracking_views.time_tracking_service_client, "stop_time_entry")
     @patch.object(time_tracking_views.time_tracking_service_client, "get_time_entries")
@@ -72,11 +72,13 @@ class ClockOutViewTests(TestCase):
 
         request = self.factory.get("/clock-out/")
         request.user = self.user
-        request.session = {"selected_project_id": 123} # type: ignore
+        request.session = {"selected_project_id": 123}  # type: ignore
 
         response = clock_out_view(request)
 
-        mock_get_time_entries.assert_called_once_with(self.user.id, project_id=123, running_only=True)
+        mock_get_time_entries.assert_called_once_with(
+            self.user.id, project_id=123, running_only=True
+        )
         mock_stop_time_entry.assert_called_once_with(self.user.id, "entry-123")
 
         self.assertEqual(response.status_code, 302)
@@ -84,12 +86,14 @@ class ClockOutViewTests(TestCase):
 
     @patch.object(time_tracking_views.time_tracking_service_client, "stop_time_entry")
     @patch.object(time_tracking_views.time_tracking_service_client, "get_time_entries")
-    def test_clock_out_does_nothing_when_no_running_entries(self, mock_get_time_entries, mock_stop_time_entry):
+    def test_clock_out_does_nothing_when_no_running_entries(
+        self, mock_get_time_entries, mock_stop_time_entry
+    ):
         mock_get_time_entries.return_value = []
 
         request = self.factory.get("/clock-out/")
         request.user = self.user
-        request.session = {"selected_project_id": 123} # type: ignore
+        request.session = {"selected_project_id": 123}  # type: ignore
 
         response = clock_out_view(request)
 

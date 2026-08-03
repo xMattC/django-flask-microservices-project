@@ -129,7 +129,7 @@ def get_a_task(user_id: int, task_id: int):
 def edit_a_task(user_id: int, task_id: int, payload: dict):
     """Update a task for a given user.
 
-    Sends a PATCH request to the Time Tracking service and returns the updated time entry.
+    Sends a PATCH request to the Tasks service and returns the updated time entry.
 
     Parameters:
     - user_id : The ID of the authenticated user.
