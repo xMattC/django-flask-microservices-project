@@ -44,7 +44,12 @@ def create_task(user_id: int, payload: dict):
     return data["results"][0]
 
 def get_tasks(user_id: int):
-    pass
+    url = f"{settings.TASK_SERVICE_URL}/api/tasks"
+    response = requests.get(url, headers={"X-User-ID": str(user_id)}, timeout=5)
+    data = response.json()
+
+    return data["results"]
+
 
 def get_a_task(user_id: int, task_id: int):
     pass
