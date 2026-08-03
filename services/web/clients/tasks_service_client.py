@@ -46,6 +46,17 @@ def create_task(user_id: int, payload: dict):
 
 
 def get_tasks(user_id: int, project_id: int | None = None):
+    """Get tasks for a given user, optionally filtered by project.
+
+    Sends a GET request to the Tasks service and returns a list of tasks.
+
+    Parameters:
+    - user_id : The ID of the authenticated user.
+    - project_id : Optional project ID filter.
+
+    Returns:
+    - A list of dictionaries representing the tasks.
+    """
     url = f"{settings.TASK_SERVICE_URL}/api/tasks"
 
     params = {}
