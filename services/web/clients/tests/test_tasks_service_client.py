@@ -231,8 +231,8 @@ class TasksClientTests(SimpleTestCase):
 
     @responses.activate
     @override_settings(TIME_TRACKING_SERVICE_URL="http://tasks:5000")
-    def test_get_time_entries_sends_user_id_header(self):
-        """Test get_time_entries sends X-User-ID header."""
+    def test_get_tasks_sends_user_id_header(self):
+        """Test get_tasks sends X-User-ID header."""
         user_id = 123
         mock_response_payload = {"results": []}
         responses.add(
@@ -251,7 +251,7 @@ class TasksClientTests(SimpleTestCase):
     @responses.activate
     @override_settings(TIME_TRACKING_SERVICE_URL="http://tasks:5000")
     def test_tasks_sends_query_params(self):
-        """Test get_time_entries sends query parameters."""
+        """Test get_tasks sends query parameters."""
         user_id = 123
 
         responses.add(
@@ -268,6 +268,56 @@ class TasksClientTests(SimpleTestCase):
         request = responses.calls[0].request
 
         self.assertIn("project_id=42", request.url) # type: ignore
+
+    @responses.activate
+    @override_settings(TIME_TRACKING_SERVICE_URL="http://tasks:5000")
+    def test_get_tasks_raises_service_unavailable_on_request_exception(self):
+        """Test get_tasks raises TasksServiceUnavailable on request exception."""
+        user_id = 123
+
+        responses.add(
+            method=responses.GET,
+            url="http://tasks:5000/api/tasks",
+            body=requests.RequestException("Network error"),
+            status=500,
+        )
+
+        with self.assertRaises(TasksServiceUnavailable):
+            get_tasks(user_id=user_id)
+
+    @responses.activate
+    @override_settings(TIME_TRACKING_SERVICE_URL="http://tasks:5000")
+    def test_get_tasks_raises_error_on_non_2xx_response(self):
+        """Test get_tasks raises TasksServiceError on 4xx/5xx response."""
+        user_id = 123
+
+        responses.add(
+            method=responses.GET,
+            url="http://tasks:5000/api/tasks",
+            json={"message": "Error"},
+            status=500,
+        )
+
+        with self.assertRaises(TasksServiceError):
+            get_tasks(user_id=user_id)
+
+    @responses.activate
+    @override_settings(TIME_TRACKING_SERVICE_URL="http://tasks:5000")
+    def test_get_tasks_raises_error_on_invalid_response_schema(self):
+        """Test get_tasks raises TasksServiceError when response schema is invalid."""
+        user_id = 123
+        mock_response_payload = {"unexpected_key": []}
+
+        responses.add(
+            method=responses.GET,
+            url="http://tasks:5000/api/tasks",
+            json=mock_response_payload,
+            status=200,
+        )
+
+        with self.assertRaises(TasksServiceError):
+            get_tasks(user_id=user_id)
+
     # -----------------------------------------------------------------------------------------------------------------
     # Test cases for get_a_task
     # -----------------------------------------------------------------------------------------------------------------
