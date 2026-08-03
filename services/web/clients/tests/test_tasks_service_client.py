@@ -432,12 +432,13 @@ class TasksClientTests(SimpleTestCase):
 
         with self.assertRaises(TasksServiceError):
             get_a_task(user_id=user_id, task_id=task_id)
+
     # -----------------------------------------------------------------------------------------------------------------
     # Test cases for edit_a_task
     # -----------------------------------------------------------------------------------------------------------------
     @responses.activate
     @override_settings(TIME_TRACKING_SERVICE_URL="http://tasks:5000")
-    def test_edit_a_task_returns_time_entry(self):
+    def test_edit_a_task_returns_task(self):
         """Test edit_a_task returns the updated time entry."""
         user_id = 123
         task_id = 10
@@ -454,6 +455,84 @@ class TasksClientTests(SimpleTestCase):
         result = edit_a_task(user_id=user_id, task_id=task_id, payload=request_payload)
 
         self.assertEqual(result, mock_response_payload["results"][0])
+
+
+
+    @responses.activate
+    @override_settings(TIME_TRACKING_SERVICE_URL="http://tasks:5000")
+    def test_edit_a_task_sends_user_id_header_and_payload(self):
+        """Test edit_a_task sends X-User-ID header and JSON payload."""
+        user_id = 123
+        task_id = 10
+        request_payload = {"description": "Updated"}
+
+        responses.add(
+            method=responses.PATCH,
+            url=f"http://tasks:5000/api/tasks/{task_id}",
+            json={"results": [{}]},
+            status=200,
+        )
+
+        edit_a_task(user_id=user_id, task_id=task_id, payload=request_payload)
+
+        request = responses.calls[0].request
+
+        self.assertEqual(request.headers.get("X-User-ID"), str(user_id))
+        self.assertEqual(request.headers.get("Content-Type"), "application/json")
+        self.assertIsNotNone(request.body)
+        self.assertEqual(json.loads(request.body), request_payload)
+
+    @responses.activate
+    @override_settings(TIME_TRACKING_SERVICE_URL="http://tasks:5000")
+    def test_edit_a_task_raises_service_unavailable_on_request_exception(self):
+        """Test edit_a_task raises TasksServiceUnavailable on request exception."""
+        user_id = 123
+        task_id = 10
+
+        responses.add(
+            method=responses.PATCH,
+            url=f"http://tasks:5000/api/tasks/{task_id}",
+            body=requests.RequestException("Connection error"),
+        )
+
+        with self.assertRaises(TasksServiceUnavailable):
+            edit_a_task(user_id=user_id, task_id=task_id, payload={})
+
+    @responses.activate
+    @override_settings(TIME_TRACKING_SERVICE_URL="http://tasks:5000")
+    def test_edit_a_task_raises_error_on_non_2xx_response(self):
+        """Test edit_a_task raises TasksServiceError on 4xx/5xx response."""
+        user_id = 123
+        task_id = 10
+
+        responses.add(
+            method=responses.PATCH,
+            url=f"http://tasks:5000/api/tasks/{task_id}",
+            json={"message": "Error"},
+            status=500,
+        )
+
+        with self.assertRaises(TasksServiceError):
+            edit_a_task(user_id=user_id, task_id=task_id, payload={})
+
+    @responses.activate
+    @override_settings(TIME_TRACKING_SERVICE_URL="http://tasks:5000")
+    def test_edit_a_task_raises_error_on_invalid_response_schema(self):
+        """Test edit_a_task raises TasksServiceError on invalid response schema."""
+        user_id = 123
+        task_id = 10
+
+        responses.add(
+            method=responses.PATCH,
+            url=f"http://tasks:5000/api/tasks/{task_id}",
+            json={"unexpected_key": []},
+            status=200,
+        )
+
+        with self.assertRaises(TasksServiceError):
+            edit_a_task(user_id=user_id, task_id=task_id, payload={})
+
+
 
     # -----------------------------------------------------------------------------------------------------------------
     # Test cases for delete_a_task

@@ -126,8 +126,35 @@ def get_a_task(user_id: int, task_id: int):
     return results[0]
 
 
-def edit_a_task(user_id: int, task_id: int):
-    pass
+def edit_a_task(user_id: int, task_id: int, payload: dict):
+
+    url = f"{settings.TIME_TRACKING_SERVICE_URL}/api/tasks/{task_id}"
+
+    try:
+        response = requests.patch(url, json=payload, headers={"X-User-ID": str(user_id)}, timeout=5)
+    except requests.RequestException as exc:
+        raise TasksServiceUnavailable("Time tracking service is unavailable.") from exc
+
+    if response.status_code != 200:
+        raise TasksServiceError(f"Tasks service returned {response.status_code}")
+
+    try:
+        data = response.json()
+    except ValueError as exc:
+        raise TasksServiceError("Tasks service returned invalid JSON.") from exc
+
+    try:
+        results = data["results"]
+    except KeyError as exc:
+        raise TasksServiceError("Tasks service response missing results.") from exc
+
+    if not isinstance(results, list):
+        raise TasksServiceError("Tasks service results must be a list.")
+
+    if len(results) != 1:
+        raise TasksServiceError("Tasks service must return exactly one time entry.")
+
+    return results[0]
 
 
 def delete_a_task(user_id: int, task_id: int):
