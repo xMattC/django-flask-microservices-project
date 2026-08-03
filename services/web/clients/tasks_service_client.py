@@ -43,9 +43,15 @@ def create_task(user_id: int, payload: dict):
 
     return data["results"][0]
 
-def get_tasks(user_id: int):
+def get_tasks(user_id: int, project_id: int | None = None):
     url = f"{settings.TASK_SERVICE_URL}/api/tasks"
-    response = requests.get(url, headers={"X-User-ID": str(user_id)}, timeout=5)
+
+    params = {}
+
+    if project_id is not None:
+        params["project_id"] = project_id
+
+    response = requests.get(url, headers={"X-User-ID": str(user_id)}, params=params, timeout=5)
     data = response.json()
 
     return data["results"]

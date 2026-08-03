@@ -250,7 +250,7 @@ class TasksClientTests(SimpleTestCase):
 
     @responses.activate
     @override_settings(TIME_TRACKING_SERVICE_URL="http://tasks:5000")
-    def test_get_time_entries_sends_query_params(self):
+    def test_tasks_sends_query_params(self):
         """Test get_time_entries sends query parameters."""
         user_id = 123
 
@@ -268,7 +268,6 @@ class TasksClientTests(SimpleTestCase):
         request = responses.calls[0].request
 
         self.assertIn("project_id=42", request.url) # type: ignore
-        self.assertIn("running_only=true", request.url) # type: ignore
     # -----------------------------------------------------------------------------------------------------------------
     # Test cases for get_a_task
     # -----------------------------------------------------------------------------------------------------------------

@@ -84,7 +84,13 @@ def get_tasks():
     if not user_id:
         return jsonify({"message": "Missing required header: X-User-ID"}), 400
 
-    tasks = Tasks.query.filter_by(owner_user_id=user_id).all()
+    query = Tasks.query.filter_by(owner_user_id=user_id)
+
+    project_id = request.args.get("project_id")
+    if project_id is not None:
+        query = query.filter_by(project_id=project_id)
+
+    tasks = query.all()
 
     return jsonify({"results": [task.to_dict() for task in tasks]}), 200
 
