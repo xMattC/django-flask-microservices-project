@@ -435,7 +435,25 @@ class TasksClientTests(SimpleTestCase):
     # -----------------------------------------------------------------------------------------------------------------
     # Test cases for edit_a_task
     # -----------------------------------------------------------------------------------------------------------------
+    @responses.activate
+    @override_settings(TIME_TRACKING_SERVICE_URL="http://tasks:5000")
+    def test_edit_a_task_returns_time_entry(self):
+        """Test edit_a_task returns the updated time entry."""
+        user_id = 123
+        task_id = 10
+        request_payload = {"description": "Updated"}
+        mock_response_payload = {"results": [{"id": task_id, "owner_user_id": user_id, "description": "Updated"}]}
 
+        responses.add(
+            method=responses.PATCH,
+            url=f"http://tasks:5000/api/tasks/{task_id}",
+            json=mock_response_payload,
+            status=200,
+        )
+
+        result = edit_a_task(user_id=user_id, task_id=task_id, payload=request_payload)
+
+        self.assertEqual(result, mock_response_payload["results"][0])
 
     # -----------------------------------------------------------------------------------------------------------------
     # Test cases for delete_a_task
