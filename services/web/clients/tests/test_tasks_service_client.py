@@ -193,7 +193,40 @@ class TasksClientTests(SimpleTestCase):
     # -----------------------------------------------------------------------------------------------------------------
     # Test cases for get_tasks
     # -----------------------------------------------------------------------------------------------------------------
+    @responses.activate
+    @override_settings(TASKS_SERVICE_URL="http://tasks:5000")
+    def test_get_tasks_returns_results_list(self):
+        """Test get_tasks sends the user header and returns task results."""
+        user_id = 123
 
+        mock_response_payload = {
+            "results": [
+                {
+                    "id": 1,
+                    "owner_user_id": "123",
+                    "project_id": 42,
+                    "task_name": "Task-1",
+                    "description": "Get Milk",
+                    "state": "to-do",
+                    "created_at": "2026-05-07T06:43:30.504Z",
+                    "updated_at": "2026-05-07T06:43:30.504Z",
+                }
+            ]
+        }
+        responses.add(
+            method=responses.GET,
+            url="http://tasks:5000/api/tasks",
+            json=mock_response_payload,
+            status=200,
+        )
+
+        result = get_tasks(user_id=user_id)
+        self.assertEqual(result, mock_response_payload["results"])
+        self.assertEqual(len(responses.calls), 1)
+
+        request = responses.calls[0].request
+        self.assertEqual(request.url, "http://tasks:5000/api/tasks")
+        self.assertEqual(request.headers.get("X-User-ID"), str(user_id))
 
     # -----------------------------------------------------------------------------------------------------------------
     # Test cases for get_a_task
