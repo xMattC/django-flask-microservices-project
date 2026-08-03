@@ -546,3 +546,55 @@ class TasksClientTests(SimpleTestCase):
 
         self.assertTrue(result)
         self.assertEqual(len(responses.calls), 1)
+
+    @responses.activate
+    @override_settings(TIME_TRACKING_SERVICE_URL="http://tasks:5000")
+    def test_delete_a_task_sends_user_id_header(self):
+        """Test delete_a_task sends X-User-ID header."""
+        user_id = 123
+        task_id = 10
+
+        responses.add(
+            method=responses.DELETE,
+            url=f"http://tasks:5000/api/tasks/{task_id}",
+            status=204,
+        )
+
+        delete_a_task(user_id=user_id, task_id=task_id)
+
+        request = responses.calls[0].request
+
+        self.assertEqual(request.headers.get("X-User-ID"), str(user_id))
+
+    @responses.activate
+    @override_settings(TIME_TRACKING_SERVICE_URL="http://tasks:5000")
+    def test_delete_a_task_raises_service_unavailable_on_request_exception(self):
+        """Test delete_a_task raises TasksServiceUnavailable on request exception."""
+        user_id = 123
+        task_id = 10
+
+        responses.add(
+            method=responses.DELETE,
+            url=f"http://tasks:5000/api/tasks/{task_id}",
+            body=requests.RequestException("Connection error"),
+        )
+
+        with self.assertRaises(TasksServiceUnavailable):
+            delete_a_task(user_id=user_id, task_id=task_id)
+
+    @responses.activate
+    @override_settings(TIME_TRACKING_SERVICE_URL="http://tasks:5000")
+    def test_delete_a_task_raises_error_on_non_2xx_response(self):
+        """Test delete_a_task raises TasksServiceError on 4xx/5xx response."""
+        user_id = 123
+        task_id = 10
+
+        responses.add(
+            method=responses.DELETE,
+            url=f"http://tasks:5000/api/tasks/{task_id}",
+            json={"message": "Error"},
+            status=500,
+        )
+
+        with self.assertRaises(TasksServiceError):
+            delete_a_task(user_id=user_id, task_id=task_id)

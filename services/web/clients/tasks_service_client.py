@@ -133,7 +133,7 @@ def edit_a_task(user_id: int, task_id: int, payload: dict):
     try:
         response = requests.patch(url, json=payload, headers={"X-User-ID": str(user_id)}, timeout=5)
     except requests.RequestException as exc:
-        raise TasksServiceUnavailable("Time tracking service is unavailable.") from exc
+        raise TasksServiceUnavailable("Tasks service is unavailable.") from exc
 
     if response.status_code != 200:
         raise TasksServiceError(f"Tasks service returned {response.status_code}")
@@ -152,10 +152,31 @@ def edit_a_task(user_id: int, task_id: int, payload: dict):
         raise TasksServiceError("Tasks service results must be a list.")
 
     if len(results) != 1:
-        raise TasksServiceError("Tasks service must return exactly one time entry.")
+        raise TasksServiceError("Tasks service must return exactly one task.")
 
     return results[0]
 
 
 def delete_a_task(user_id: int, task_id: int):
-    pass
+    """Delete a task for a given user.
+
+    Sends a DELETE request to the Tasks service.
+
+    Parameters:
+    - user_id : The ID of the authenticated user.
+    - task_id : The ID of the task to delete.
+
+    Returns:
+    - True when the task is deleted successfully.
+    """
+    url = f"{settings.TIME_TRACKING_SERVICE_URL}/api/tasks/{task_id}"
+
+    try:
+        response = requests.delete(url, headers={"X-User-ID": str(user_id)}, timeout=5)
+    except requests.RequestException as exc:
+        raise TasksServiceUnavailable("Tasks service is unavailable.") from exc
+
+    if response.status_code != 204:
+        raise TasksServiceError(f"Tasks service returned {response.status_code}")
+
+    return True
