@@ -32,7 +32,7 @@ class TasksClientTests(SimpleTestCase):
     # Test cases for create_task
     # -----------------------------------------------------------------------------------------------------------------
     @responses.activate
-    @override_settings(TIME_TRACKING_SERVICE_URL="http://time-tracking:5000")
+    @override_settings(TIME_TRACKING_SERVICE_URL="http://tasks:5000")
     def test_create_task_sends_user_id_header_payload_and_returns_a_task_entry(self):
         """Test create_task calls upstream with user header, payload, and returns one task entry."""
         user_id = 123
@@ -228,6 +228,47 @@ class TasksClientTests(SimpleTestCase):
         self.assertEqual(request.url, "http://tasks:5000/api/tasks")
         self.assertEqual(request.headers.get("X-User-ID"), str(user_id))
 
+
+    @responses.activate
+    @override_settings(TIME_TRACKING_SERVICE_URL="http://tasks:5000")
+    def test_get_time_entries_sends_user_id_header(self):
+        """Test get_time_entries sends X-User-ID header."""
+        user_id = 123
+        mock_response_payload = {"results": []}
+        responses.add(
+            method=responses.GET,
+            url="http://tasks:5000/api/tasks",
+            json=mock_response_payload,
+            status=200,
+        )
+
+        get_tasks(user_id=user_id)
+
+        self.assertEqual(len(responses.calls), 1)
+        request = responses.calls[0].request
+        self.assertEqual(request.headers.get("X-User-ID"), str(user_id))
+
+    @responses.activate
+    @override_settings(TIME_TRACKING_SERVICE_URL="http://tasks:5000")
+    def test_get_time_entries_sends_query_params(self):
+        """Test get_time_entries sends query parameters."""
+        user_id = 123
+
+        responses.add(
+            method=responses.GET,
+            url="http://tasks:5000/api/tasks?project_id=42",
+            json={"results": []},
+            status=200,
+        )
+
+        get_tasks(user_id=user_id, project_id=42)
+
+        self.assertEqual(len(responses.calls), 1)
+
+        request = responses.calls[0].request
+
+        self.assertIn("project_id=42", request.url) # type: ignore
+        self.assertIn("running_only=true", request.url) # type: ignore
     # -----------------------------------------------------------------------------------------------------------------
     # Test cases for get_a_task
     # -----------------------------------------------------------------------------------------------------------------
