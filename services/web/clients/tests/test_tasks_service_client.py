@@ -71,7 +71,7 @@ class TasksClientTests(SimpleTestCase):
         request = responses.calls[0].request
         self.assertEqual(request.headers.get("X-User-ID"), str(user_id))
         self.assertEqual(request.headers.get("Content-Type"), "application/json")
-        self.assertEqual(json.loads(request.body), request_payload) # type: ignore
+        self.assertEqual(json.loads(request.body), request_payload)  # type: ignore
 
     @responses.activate
     @override_settings(TASKS_SERVICE_URL="http://tasks:5000")
@@ -97,7 +97,6 @@ class TasksClientTests(SimpleTestCase):
         with self.assertRaises(TasksServiceUnavailable):
             create_task(user_id=user_id, payload=request_payload)
 
-
     @responses.activate
     @override_settings(TASKS_SERVICE_URL="http://tasks:5000")
     def test_create_task_raises_error_on_non_2xx_response(self):
@@ -119,7 +118,6 @@ class TasksClientTests(SimpleTestCase):
 
         with self.assertRaises(TasksServiceError):
             create_task(user_id=user_id, payload=request_payload)
-
 
     @responses.activate
     @override_settings(TASKS_SERVICE_URL="http://tasks:5000")
@@ -144,7 +142,6 @@ class TasksClientTests(SimpleTestCase):
         with self.assertRaises(TasksServiceError):
             create_task(user_id=user_id, payload=request_payload)
 
-
     @responses.activate
     @override_settings(TASKS_SERVICE_URL="http://tasks:5000")
     def test_create_task_raises_error_when_results_key_missing(self):
@@ -166,7 +163,6 @@ class TasksClientTests(SimpleTestCase):
 
         with self.assertRaises(TasksServiceError):
             create_task(user_id=user_id, payload=request_payload)
-
 
     @responses.activate
     @override_settings(TASKS_SERVICE_URL="http://tasks:5000")
@@ -228,7 +224,6 @@ class TasksClientTests(SimpleTestCase):
         self.assertEqual(request.url, "http://tasks:5000/api/tasks")
         self.assertEqual(request.headers.get("X-User-ID"), str(user_id))
 
-
     @responses.activate
     @override_settings(TIME_TRACKING_SERVICE_URL="http://tasks:5000")
     def test_get_tasks_sends_user_id_header(self):
@@ -267,7 +262,7 @@ class TasksClientTests(SimpleTestCase):
 
         request = responses.calls[0].request
 
-        self.assertIn("project_id=42", request.url) # type: ignore
+        self.assertIn("project_id=42", request.url)  # type: ignore
 
     @responses.activate
     @override_settings(TIME_TRACKING_SERVICE_URL="http://tasks:5000")
@@ -360,7 +355,6 @@ class TasksClientTests(SimpleTestCase):
         self.assertEqual(request.url, f"http://tasks:5000/api/tasks/{task_id}")
         self.assertEqual(request.headers.get("X-User-ID"), str(user_id))
 
-
     @responses.activate
     @override_settings(TIME_TRACKING_SERVICE_URL="http://tasks:5000")
     def test_get_a_task_sends_user_id_header(self):
@@ -443,7 +437,9 @@ class TasksClientTests(SimpleTestCase):
         user_id = 123
         task_id = 10
         request_payload = {"description": "Updated"}
-        mock_response_payload = {"results": [{"id": task_id, "owner_user_id": user_id, "description": "Updated"}]}
+        mock_response_payload = {
+            "results": [{"id": task_id, "owner_user_id": user_id, "description": "Updated"}]
+        }
 
         responses.add(
             method=responses.PATCH,
@@ -455,8 +451,6 @@ class TasksClientTests(SimpleTestCase):
         result = edit_a_task(user_id=user_id, task_id=task_id, payload=request_payload)
 
         self.assertEqual(result, mock_response_payload["results"][0])
-
-
 
     @responses.activate
     @override_settings(TIME_TRACKING_SERVICE_URL="http://tasks:5000")
@@ -532,8 +526,23 @@ class TasksClientTests(SimpleTestCase):
         with self.assertRaises(TasksServiceError):
             edit_a_task(user_id=user_id, task_id=task_id, payload={})
 
-
-
     # -----------------------------------------------------------------------------------------------------------------
     # Test cases for delete_a_task
     # -----------------------------------------------------------------------------------------------------------------
+    @responses.activate
+    @override_settings(TIME_TRACKING_SERVICE_URL="http://tasks:5000")
+    def test_delete_a_task_returns_success(self):
+        """Test delete_a_task returns True on successful delete."""
+        user_id = 123
+        task_id = 10
+
+        responses.add(
+            method=responses.DELETE,
+            url=f"http://tasks:5000/api/tasks/{task_id}",
+            status=204,
+        )
+
+        result = delete_a_task(user_id=user_id, task_id=task_id)
+
+        self.assertTrue(result)
+        self.assertEqual(len(responses.calls), 1)
