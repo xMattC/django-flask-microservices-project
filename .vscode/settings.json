@@ -4,6 +4,8 @@
         "healthcheck",
         "isready",
         "PYTHONPATH",
-        "runserver"
+        "rsps",
+        "runserver",
+        "testpass"
     ]
 }

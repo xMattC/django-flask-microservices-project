@@ -4,7 +4,7 @@ import requests
 import responses
 from django.test import SimpleTestCase, override_settings
 
-from clients.tasks_service import (
+from clients.tasks_service_client import (
     TasksServiceError,
     TasksServiceUnavailable,
     create_task,
@@ -71,7 +71,7 @@ class TasksClientTests(SimpleTestCase):
         request = responses.calls[0].request
         self.assertEqual(request.headers.get("X-User-ID"), str(user_id))
         self.assertEqual(request.headers.get("Content-Type"), "application/json")
-        self.assertEqual(json.loads(request.body), request_payload)
+        self.assertEqual(json.loads(request.body), request_payload) # type: ignore
 
     @responses.activate
     @override_settings(TASKS_SERVICE_URL="http://tasks:5000")

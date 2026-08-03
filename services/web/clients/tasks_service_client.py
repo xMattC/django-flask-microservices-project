@@ -39,7 +39,6 @@ def create_task(user_id: int, payload: dict):
     if "results" not in data or not isinstance(data["results"], list):
         raise TasksServiceError("Task service returned invalid data structure.")
 
-
     data = response.json()
 
     return data["results"][0]

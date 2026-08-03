@@ -1,9 +1,10 @@
+import json
+
 import requests
 import responses
-import json
 from django.test import SimpleTestCase, override_settings
 
-from clients.projects_service import (
+from clients.projects_service_client import (
     ProjectsServiceError,
     ProjectsServiceUnavailable,
     create_project,

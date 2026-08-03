@@ -1,17 +1,18 @@
+import json
+
 import requests
 import responses
-import json
 from django.test import SimpleTestCase, override_settings
 
-from clients.time_tracking_service import (
+from clients.time_tracking_service_client import (
     TimeTrackingServiceError,
     TimeTrackingServiceUnavailable,
     create_time_entry,
+    delete_time_entry,
     get_time_entries,
     get_time_entry,
     stop_time_entry,
     update_time_entry,
-    delete_time_entry,
 )
 
 
@@ -68,7 +69,7 @@ class TimeTrackingClientTests(SimpleTestCase):
         self.assertEqual(request.headers.get("X-User-ID"), str(user_id))
         self.assertEqual(request.headers.get("Content-Type"), "application/json")
         self.assertEqual(request.headers.get("Content-Type"), "application/json")
-        self.assertEqual(json.loads(request.body), request_payload)
+        self.assertEqual(json.loads(request.body), request_payload) # type: ignore
 
     @responses.activate
     @override_settings(TIME_TRACKING_SERVICE_URL="http://time-tracking:5000")
@@ -245,8 +246,8 @@ class TimeTrackingClientTests(SimpleTestCase):
 
         request = responses.calls[0].request
 
-        self.assertIn("project_id=42", request.url)
-        self.assertIn("running_only=true", request.url)
+        self.assertIn("project_id=42", request.url) # type: ignore
+        self.assertIn("running_only=true", request.url) # type: ignore
 
     @responses.activate
     @override_settings(TIME_TRACKING_SERVICE_URL="http://time-tracking:5000")

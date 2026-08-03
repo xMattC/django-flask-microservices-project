@@ -1,17 +1,6 @@
 from datetime import datetime
 
-from clients.projects_service import (
-    ProjectsServiceError,
-    ProjectsServiceUnavailable,
-    get_projects,
-)
-from clients.time_tracking_service import (
-    TimeTrackingServiceError,
-    TimeTrackingServiceUnavailable,
-    delete_time_entry,
-    get_time_entries,
-    update_time_entry,
-)
+from clients import projects_service_client, time_tracking_service_client
 from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
@@ -35,9 +24,12 @@ def _handle_update_session(request: HttpRequest):
     started_at = request.POST.get("started_at")
     ended_at = request.POST.get("ended_at")
 
+    if not session_id:
+        return None
+
     try:
-        update_time_entry(
-            request.user.id,
+        time_tracking_service_client.update_time_entry(
+            request.user.id, # type: ignore
             int(session_id),
             {
                 "started_at": started_at,
@@ -47,10 +39,10 @@ def _handle_update_session(request: HttpRequest):
 
         return redirect("app:dashboard")
 
-    except TimeTrackingServiceUnavailable:
+    except time_tracking_service_client.TimeTrackingServiceUnavailable:
         return "Time tracking service is currently unavailable."
 
-    except TimeTrackingServiceError:
+    except time_tracking_service_client.TimeTrackingServiceError:
         return "Could not update session."
 
 
@@ -58,39 +50,42 @@ def _handle_delete_session(request: HttpRequest):
     """Handle session delete POST request."""
     session_id = request.POST.get("session_id")
 
+    if not session_id:
+        return None
+
     try:
-        delete_time_entry(request.user.id, int(session_id))
+        time_tracking_service_client.delete_time_entry(request.user.id, int(session_id)) # type: ignore
 
         return redirect("app:dashboard")
 
-    except TimeTrackingServiceUnavailable:
+    except time_tracking_service_client.TimeTrackingServiceUnavailable:
         return "Time tracking service is currently unavailable."
 
-    except TimeTrackingServiceError:
+    except time_tracking_service_client.TimeTrackingServiceError:
         return "Could not delete session."
 
 
 def _get_projects_for_user(user_id: int):
     """Load projects for a user."""
     try:
-        return get_projects(user_id), None
+        return projects_service_client.get_projects(user_id), None
 
-    except ProjectsServiceUnavailable:
+    except projects_service_client.ProjectsServiceUnavailable:
         return [], "Projects service is currently unavailable."
 
-    except ProjectsServiceError:
+    except projects_service_client.ProjectsServiceError:
         return [], "Could not load projects."
 
 
 def _get_sessions_for_user(user_id: int):
     """Load time tracking sessions for a user."""
     try:
-        return get_time_entries(user_id), None
+        return time_tracking_service_client.get_time_entries(user_id), None
 
-    except TimeTrackingServiceUnavailable:
+    except time_tracking_service_client.TimeTrackingServiceUnavailable:
         return [], "Time tracking service is currently unavailable."
 
-    except TimeTrackingServiceError:
+    except time_tracking_service_client.TimeTrackingServiceError:
         return [], "Could not load sessions."
 
 
@@ -181,8 +176,8 @@ def dashboard_view(request: HttpRequest) -> HttpResponse:
 
             session_delete_error = result
 
-    projects, projects_error = _get_projects_for_user(request.user.id)
-    sessions, sessions_error = _get_sessions_for_user(request.user.id)
+    projects, projects_error = _get_projects_for_user(request.user.id) # type: ignore
+    sessions, sessions_error = _get_sessions_for_user(request.user.id) # type: ignore
 
     dashboard_sessions = _build_dashboard_sessions(projects, sessions)
     has_running_session = any(session["ended_at"] is None for session in dashboard_sessions)
