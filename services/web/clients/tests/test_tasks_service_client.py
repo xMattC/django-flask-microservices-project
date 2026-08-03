@@ -46,7 +46,7 @@ class TasksClientTests(SimpleTestCase):
             "results": [
                 {
                     "id": 0,
-                    "owner_user_id": "123",
+                    "owner_user_id": user_id,
                     "project_id": 42,
                     "task_name": "Task-1",
                     "description": "Get Milk",
@@ -203,7 +203,7 @@ class TasksClientTests(SimpleTestCase):
             "results": [
                 {
                     "id": 1,
-                    "owner_user_id": "123",
+                    "owner_user_id": user_id,
                     "project_id": 42,
                     "task_name": "Task-1",
                     "description": "Get Milk",
@@ -321,6 +321,45 @@ class TasksClientTests(SimpleTestCase):
     # -----------------------------------------------------------------------------------------------------------------
     # Test cases for get_a_task
     # -----------------------------------------------------------------------------------------------------------------
+    @responses.activate
+    @override_settings(TIME_TRACKING_SERVICE_URL="http://tasks:5000")
+    def test_get_tasks_returns_time_entry(self):
+        """Test get_tasks returns a single time entry."""
+        user_id = 123
+        task_id = 10
+        project_id = 42
+
+        mock_response_payload = {
+            "results": [
+                {
+                    "id": task_id,
+                    "owner_user_id": user_id,
+                    "project_id": project_id,
+                    "task_name": "Task-1",
+                    "description": "Get Milk",
+                    "state": "to-do",
+                    "created_at": "2026-05-07T06:43:30.504Z",
+                    "updated_at": "2026-05-07T06:43:30.504Z",
+                }
+            ]
+        }
+
+        responses.add(
+            method=responses.GET,
+            url=f"http://tasks:5000/api/tasks/{task_id}",
+            json=mock_response_payload,
+            status=200,
+        )
+
+        result = get_tasks(user_id=user_id, project_id=project_id)
+
+        self.assertEqual(result, mock_response_payload["results"][0])
+        self.assertEqual(len(responses.calls), 1)
+
+        request = responses.calls[0].request
+
+        self.assertEqual(request.url, f"http://tasks:5000/api/tasks/{task_id}")
+        self.assertEqual(request.headers.get("X-User-ID"), str(user_id))
 
 
     # -----------------------------------------------------------------------------------------------------------------
