@@ -361,6 +361,77 @@ class TasksClientTests(SimpleTestCase):
         self.assertEqual(request.headers.get("X-User-ID"), str(user_id))
 
 
+    @responses.activate
+    @override_settings(TIME_TRACKING_SERVICE_URL="http://tasks:5000")
+    def test_get_a_task_sends_user_id_header(self):
+        """Test get_a_task sends X-User-ID header."""
+        user_id = 123
+        task_id = 10
+
+        responses.add(
+            method=responses.GET,
+            url=f"http://tasks:5000/api/tasks/{task_id}",
+            json={"results": [{}]},
+            status=200,
+        )
+
+        get_a_task(user_id=user_id, task_id=task_id)
+
+        self.assertEqual(len(responses.calls), 1)
+
+        request = responses.calls[0].request
+
+        self.assertEqual(request.headers.get("X-User-ID"), str(user_id))
+
+    @responses.activate
+    @override_settings(TIME_TRACKING_SERVICE_URL="http://tasks:5000")
+    def test_get_a_task_raises_service_unavailable_on_request_exception(self):
+        """Test get_a_task raises TasksServiceUnavailable on request exception."""
+        user_id = 123
+        task_id = 10
+
+        responses.add(
+            method=responses.GET,
+            url=f"http://tasks:5000/api/tasks/{task_id}",
+            body=requests.RequestException("Connection error"),
+        )
+
+        with self.assertRaises(TasksServiceUnavailable):
+            get_a_task(user_id=user_id, task_id=task_id)
+
+    @responses.activate
+    @override_settings(TIME_TRACKING_SERVICE_URL="http://tasks:5000")
+    def test_get_a_task_raises_error_on_non_2xx_response(self):
+        """Test get_a_task raises TasksServiceError on 4xx/5xx response."""
+        user_id = 123
+        task_id = 10
+
+        responses.add(
+            method=responses.GET,
+            url=f"http://tasks:5000/api/tasks/{task_id}",
+            json={"message": "Error"},
+            status=500,
+        )
+
+        with self.assertRaises(TasksServiceError):
+            get_a_task(user_id=user_id, task_id=task_id)
+
+    @responses.activate
+    @override_settings(TIME_TRACKING_SERVICE_URL="http://tasks:5000")
+    def test_get_a_task_raises_error_on_invalid_response_schema(self):
+        """Test get_a_task raises TasksServiceError on invalid response schema."""
+        user_id = 123
+        task_id = 10
+
+        responses.add(
+            method=responses.GET,
+            url=f"http://tasks:5000/api/tasks/{task_id}",
+            json={"unexpected_key": []},
+            status=200,
+        )
+
+        with self.assertRaises(TasksServiceError):
+            get_a_task(user_id=user_id, task_id=task_id)
     # -----------------------------------------------------------------------------------------------------------------
     # Test cases for edit_a_task
     # -----------------------------------------------------------------------------------------------------------------
