@@ -102,28 +102,27 @@ def get_a_task(user_id: int, task_id: int):
     """
     url = f"{settings.TASK_SERVICE_URL}/api/tasks/{task_id}"
 
-    response = requests.get(url, headers={"X-User-ID": str(user_id)}, timeout=5)
+    try:
+        response = requests.get(url, headers={"X-User-ID": str(user_id)}, timeout=5)
+    except requests.RequestException as exc:
+        raise TasksServiceUnavailable("Tasks service is unavailable.") from exc
 
-    data = response.json()
+    if response.status_code != 200:
+        raise TasksServiceError(f"Tasks service returned {response.status_code}")
 
-    results = data["results"]
+    try:
+        data = response.json()
+    except ValueError as exc:
+        raise TasksServiceError("Tasks service returned invalid JSON.") from exc
 
-    print(results)
-    # if response.status_code != 200:
-    #     raise TasksServiceError(f"Tasks service returned {response.status_code}")
+    try:
+        results = data["results"]
+    except KeyError as exc:
+        raise TasksServiceError("Tasks service response missing results.") from exc
 
-    # try:
-    #     data = response.json()
-    # except ValueError as exc:
-    #     raise TasksServiceError("Tasks service returned invalid JSON.") from exc
+    if not isinstance(results, list):
+        raise TasksServiceError("Tasks service results must be a list.")
 
-    # try:
-    #     results = data["results"]
-    # except KeyError as exc:
-    #     raise TasksServiceError("Tasks service response missing results.") from exc
-
-    # if not isinstance(results, list):
-    #     raise TasksServiceError("Tasks service results must be a list.")
     return results[0]
 
 
