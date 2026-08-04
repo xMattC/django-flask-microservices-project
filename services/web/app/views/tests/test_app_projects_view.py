@@ -1,5 +1,4 @@
 from unittest.mock import patch
-from app.views import projects_view
 
 from clients.projects_service_client import (
     ProjectsServiceError,
@@ -12,6 +11,8 @@ from clients.time_tracking_service_client import (
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
+
+from services.web.app.views import sessions_view
 
 
 class ProjectsViewTests(TestCase):
@@ -37,7 +38,7 @@ class ProjectsViewTests(TestCase):
     # -----------------------------------------------------------------------------------------------------------------
     # Test cases for projects_view GET
     # -----------------------------------------------------------------------------------------------------------------
-    @patch.object(projects_view.projects_service_client, "get_projects")
+    @patch.object(sessions_view.projects_service_client, "get_projects")
     def test_projects_view_loads_projects(self, mock_get_projects):
         """Test projects page loads projects for authenticated user."""
         projects = [
@@ -56,7 +57,7 @@ class ProjectsViewTests(TestCase):
 
         mock_get_projects.assert_called_once_with(self.user.id)
 
-    @patch.object(projects_view.projects_service_client, "get_projects")
+    @patch.object(sessions_view.projects_service_client, "get_projects")
     def test_projects_view_shows_error_when_projects_service_unavailable(self, mock_get_projects):
         """Test projects page shows error when projects service is unavailable."""
         mock_get_projects.side_effect = ProjectsServiceUnavailable
@@ -70,7 +71,7 @@ class ProjectsViewTests(TestCase):
             "Projects service is currently unavailable.",
         )
 
-    @patch.object(projects_view.projects_service_client, "get_projects")
+    @patch.object(sessions_view.projects_service_client, "get_projects")
     def test_projects_view_shows_error_when_projects_service_fails(self, mock_get_projects):
         """Test projects page shows error when projects service fails."""
         mock_get_projects.side_effect = ProjectsServiceError
@@ -88,7 +89,7 @@ class ProjectsViewTests(TestCase):
     # Test cases for create project
     # -----------------------------------------------------------------------------------------------------------------
 
-    @patch.object(projects_view.projects_service_client, "create_project")
+    @patch.object(sessions_view.projects_service_client, "create_project")
     def test_projects_view_creates_project_and_redirects(self, mock_create_project):
         """Test valid create project POST creates project and redirects."""
         response = self.client.post(
@@ -107,8 +108,8 @@ class ProjectsViewTests(TestCase):
             {"name": "Project A"},
         )
 
-    @patch.object(projects_view.projects_service_client, "get_projects")
-    @patch.object(projects_view.projects_service_client, "create_project")
+    @patch.object(sessions_view.projects_service_client, "get_projects")
+    @patch.object(sessions_view.projects_service_client, "create_project")
     def test_projects_view_shows_create_error_when_projects_service_unavailable(
         self,
         mock_create_project,
@@ -133,8 +134,8 @@ class ProjectsViewTests(TestCase):
             "Projects service is currently unavailable.",
         )
 
-    @patch.object(projects_view.projects_service_client, "get_projects")
-    @patch.object(projects_view.projects_service_client, "create_project")
+    @patch.object(sessions_view.projects_service_client, "get_projects")
+    @patch.object(sessions_view.projects_service_client, "create_project")
     def test_projects_view_shows_create_error_when_projects_service_fails(
         self,
         mock_create_project,
@@ -163,7 +164,7 @@ class ProjectsViewTests(TestCase):
     # Test cases for update project
     # -----------------------------------------------------------------------------------------------------------------
 
-    @patch.object(projects_view.projects_service_client, "update_project")
+    @patch.object(sessions_view.projects_service_client, "update_project")
     def test_projects_view_updates_project_and_redirects(self, mock_update_project):
         """Test valid update project POST updates project and redirects."""
         response = self.client.post(
@@ -184,8 +185,8 @@ class ProjectsViewTests(TestCase):
             {"name": "Updated Project"},
         )
 
-    @patch.object(projects_view.projects_service_client, "get_projects")
-    @patch.object(projects_view.projects_service_client, "update_project")
+    @patch.object(sessions_view.projects_service_client, "get_projects")
+    @patch.object(sessions_view.projects_service_client, "update_project")
     def test_projects_view_shows_update_error_when_projects_service_unavailable(
         self,
         mock_update_project,
@@ -211,8 +212,8 @@ class ProjectsViewTests(TestCase):
             "Projects service is currently unavailable.",
         )
 
-    @patch.object(projects_view.projects_service_client, "get_projects")
-    @patch.object(projects_view.projects_service_client, "update_project")
+    @patch.object(sessions_view.projects_service_client, "get_projects")
+    @patch.object(sessions_view.projects_service_client, "update_project")
     def test_projects_view_shows_update_error_when_projects_service_fails(
         self,
         mock_update_project,
@@ -242,8 +243,8 @@ class ProjectsViewTests(TestCase):
     # Test cases for delete project
     # -----------------------------------------------------------------------------------------------------------------
 
-    @patch.object(projects_view.projects_service_client, "delete_project")
-    @patch.object(projects_view.time_tracking_service_client, "get_time_entries")
+    @patch.object(sessions_view.projects_service_client, "delete_project")
+    @patch.object(sessions_view.time_tracking_service_client, "get_time_entries")
     def test_projects_view_deletes_project_and_redirects(
         self,
         mock_get_time_entries,
@@ -273,8 +274,8 @@ class ProjectsViewTests(TestCase):
             self.user.id,
         )
 
-    @patch.object(projects_view.projects_service_client, "delete_project")
-    @patch.object(projects_view.time_tracking_service_client, "get_time_entries")
+    @patch.object(sessions_view.projects_service_client, "delete_project")
+    @patch.object(sessions_view.time_tracking_service_client, "get_time_entries")
     def test_projects_view_clears_selected_project_session_when_deleted(
         self,
         mock_get_time_entries,
@@ -298,9 +299,9 @@ class ProjectsViewTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertNotIn("selected_project_id", self.client.session)
 
-    @patch.object(projects_view.projects_service_client, "get_projects")
-    @patch.object(projects_view.projects_service_client, "delete_project")
-    @patch.object(projects_view.time_tracking_service_client, "get_time_entries")
+    @patch.object(sessions_view.projects_service_client, "get_projects")
+    @patch.object(sessions_view.projects_service_client, "delete_project")
+    @patch.object(sessions_view.time_tracking_service_client, "get_time_entries")
     def test_projects_view_does_not_delete_project_when_time_logs_exist(
         self,
         mock_get_time_entries,
@@ -332,8 +333,8 @@ class ProjectsViewTests(TestCase):
 
         mock_delete_project.assert_not_called()
 
-    @patch.object(projects_view.projects_service_client, "get_projects")
-    @patch.object(projects_view.time_tracking_service_client, "get_time_entries")
+    @patch.object(sessions_view.projects_service_client, "get_projects")
+    @patch.object(sessions_view.time_tracking_service_client, "get_time_entries")
     def test_projects_view_shows_delete_error_when_time_tracking_service_unavailable(
         self,
         mock_get_time_entries,
@@ -359,8 +360,8 @@ class ProjectsViewTests(TestCase):
             "Time tracking service is currently unavailable.",
         )
 
-    @patch.object(projects_view.projects_service_client, "get_projects")
-    @patch.object(projects_view.time_tracking_service_client, "get_time_entries")
+    @patch.object(sessions_view.projects_service_client, "get_projects")
+    @patch.object(sessions_view.time_tracking_service_client, "get_time_entries")
     def test_projects_view_shows_delete_error_when_time_tracking_service_fails(
         self,
         mock_get_time_entries,
@@ -386,9 +387,9 @@ class ProjectsViewTests(TestCase):
             "Could not check whether this project has time logs.",
         )
 
-    @patch.object(projects_view.projects_service_client, "get_projects")
-    @patch.object(projects_view.projects_service_client, "delete_project")
-    @patch.object(projects_view.time_tracking_service_client, "get_time_entries")
+    @patch.object(sessions_view.projects_service_client, "get_projects")
+    @patch.object(sessions_view.projects_service_client, "delete_project")
+    @patch.object(sessions_view.time_tracking_service_client, "get_time_entries")
     def test_projects_view_shows_delete_error_when_projects_service_unavailable(
         self,
         mock_get_time_entries,
@@ -415,9 +416,9 @@ class ProjectsViewTests(TestCase):
             "Projects service is currently unavailable.",
         )
 
-    @patch.object(projects_view.projects_service_client, "get_projects")
-    @patch.object(projects_view.projects_service_client, "delete_project")
-    @patch.object(projects_view.time_tracking_service_client, "get_time_entries")
+    @patch.object(sessions_view.projects_service_client, "get_projects")
+    @patch.object(sessions_view.projects_service_client, "delete_project")
+    @patch.object(sessions_view.time_tracking_service_client, "get_time_entries")
     def test_projects_view_shows_delete_error_when_projects_service_fails(
         self, mock_get_time_entries, mock_delete_project, mock_get_projects
     ):

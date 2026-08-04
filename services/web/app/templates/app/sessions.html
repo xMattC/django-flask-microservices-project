@@ -1,0 +1,205 @@
+<style>
+  .sessions-scroll-window {
+    max-height: 500px;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+  }
+
+  .project-column {
+    width: 400px;
+  }
+</style>
+
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+  .sessions-scroll-window {
+    max-height: 500px;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+  }
+</style>
+
+<div class="row mt-5">
+  <div class="col-12">
+    <div class="card shadow-sm border-0">
+      <div class="card-body p-4">
+        <div class="d-flex align-items-center justify-content-between gap-3">
+
+          <div>
+            <h1 class="h3 mb-2">Sessions</h1>
+            <p class="text-muted mb-0">
+              View, edit and delete your time tracking sessions.
+            </p>
+          </div>
+
+          <a href="{% url 'app:dashboard' %}" class="btn btn-outline-secondary btn-sm">
+            Back to Dashboard
+          </a>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row mt-4">
+  <div class="col-12">
+
+    <div class="card shadow-sm border-0">
+      <div class="card-body">
+
+        {% if session_update_error %}
+        <div class="alert alert-danger">
+          {{ session_update_error }}
+        </div>
+        {% endif %}
+
+        {% if session_delete_error %}
+        <div class="alert alert-danger">
+          {{ session_delete_error }}
+        </div>
+        {% endif %}
+
+        {% if projects_error %}
+        <div class="alert alert-warning">
+          {{ projects_error }}
+        </div>
+        {% endif %}
+
+        {% if sessions_error %}
+
+        <p>{{ sessions_error }}</p>
+
+        {% elif sessions %}
+
+        <div class="sessions-scroll-window">
+
+          <table class="sessions-table">
+
+            <thead>
+              <tr>
+                <th class="project-column">Project</th>
+                <th>Start</th>
+                <th>End</th>
+                <th>Duration</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+
+            <tbody>
+
+              {% for session in sessions %}
+
+              <tr>
+
+                <td class="project-column" title="{{ session.project_name }}">
+                  {{ session.project_name }}
+                </td>
+
+                <td>{{ session.started_at_display }}</td>
+                <td>{{ session.ended_at_display }}</td>
+                <td>{{ session.duration_display }}</td>
+
+                <td>
+                  {% if session.ended_at %}
+                  <button
+                    class="btn btn-sm btn-outline-primary"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#edit-session-{{ session.id }}">
+                    Edit
+                  </button>
+                  {% else %}
+                  <span class="text-muted">Running</span>
+                  {% endif %}
+                </td>
+
+              </tr>
+
+              {% if session.ended_at %}
+
+              <tr class="collapse" id="edit-session-{{ session.id }}">
+                <td colspan="5">
+
+                  <form method="post">
+                    {% csrf_token %}
+
+                    <input
+                      type="hidden"
+                      name="form_type"
+                      value="update_session">
+
+                    <input
+                      type="hidden"
+                      name="session_id"
+                      value="{{ session.id }}">
+
+                    <div class="d-flex gap-2 align-items-end">
+
+                      <div style="width: 260px;">
+                        <label class="form-label">Start</label>
+
+                        <input
+                          type="datetime-local"
+                          name="started_at"
+                          class="form-control"
+                          value="{{ session.started_at_form }}">
+                      </div>
+
+                      <div style="width: 260px;">
+                        <label class="form-label">End</label>
+
+                        <input
+                          type="datetime-local"
+                          name="ended_at"
+                          class="form-control"
+                          value="{{ session.ended_at_form }}">
+                      </div>
+
+                      <button
+                        type="submit"
+                        class="btn btn-success btn-sm">
+                        Save
+                      </button>
+
+                      <button
+                        type="submit"
+                        class="btn btn-danger btn-sm"
+                        name="form_type"
+                        value="delete_session">
+                        Delete
+                      </button>
+
+                    </div>
+
+                  </form>
+
+                </td>
+              </tr>
+
+              {% endif %}
+
+              {% endfor %}
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+        {% else %}
+
+        <p>No sessions found.</p>
+
+        {% endif %}
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}
