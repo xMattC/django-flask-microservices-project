@@ -6,17 +6,16 @@ from clients.projects_service_client import (
     delete_project,
     get_projects,
 )
-from django.contrib.auth import get_user_model
-from django.core.management.base import BaseCommand
-from django.utils import timezone
-
-from services.web.clients.time_tracking_service_client import (
+from clients.time_tracking_service_client import (
     create_time_entry,
     delete_time_entry,
     get_time_entries,
     stop_time_entry,
     update_time_entry,
 )
+from django.contrib.auth import get_user_model
+from django.core.management.base import BaseCommand
+from django.utils import timezone
 
 
 class Command(BaseCommand):
