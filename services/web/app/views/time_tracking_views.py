@@ -1,19 +1,28 @@
 from clients import time_tracking_service_client
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect
+from django.views.decorators.http import require_POST
 
 
 @login_required
-def clock_in_view(request) -> HttpResponse:
-    selected_project_id = request.session.get("selected_project_id")
+@require_POST
+def clock_in_view(request: HttpRequest) -> HttpResponse:
+    """Start a timer for the project owned by the Active Session card."""
+    project_id_value = request.POST.get("project_id")
 
-    if not selected_project_id:
+    try:
+        project_id = int(project_id_value) if project_id_value else None
+    except ValueError:
+        project_id = None
+
+    if project_id is None:
         return redirect("app:dashboard")
 
     try:
         time_tracking_service_client.create_time_entry(
-            request.user.id, {"project_id": selected_project_id}
+            request.user.id,
+            {"project_id": project_id},
         )
     except time_tracking_service_client.TimeTrackingServiceError:
         pass
@@ -22,23 +31,21 @@ def clock_in_view(request) -> HttpResponse:
 
 
 @login_required
-def clock_out_view(request):
-    print("CLOCK OUT VIEW")
-    selected_project_id = request.session.get("selected_project_id")
-    print("Selected project:", selected_project_id)
-    running_entries = time_tracking_service_client.get_time_entries(
-        request.user.id,
-        project_id=selected_project_id,
-        running_only=True,
-    )
-    print(
-        time_tracking_service_client.get_time_entries(
+@require_POST
+def clock_out_view(request: HttpRequest) -> HttpResponse:
+    """Stop the user's running timer, regardless of Projects-card selection."""
+    try:
+        running_entries = time_tracking_service_client.get_time_entries(
             request.user.id,
             running_only=True,
         )
-    )
-    print("Running entries:", running_entries)
-    if running_entries:
-        time_tracking_service_client.stop_time_entry(request.user.id, running_entries[0]["id"])
+
+        if running_entries:
+            time_tracking_service_client.stop_time_entry(
+                request.user.id,
+                running_entries[0]["id"],
+            )
+    except time_tracking_service_client.TimeTrackingServiceError:
+        pass
 
     return redirect("app:dashboard")

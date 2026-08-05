@@ -3,60 +3,65 @@ from django.conf import settings
 
 
 class TasksServiceError(Exception):
-    pass
+    """Base exception for Task service errors."""
 
 
 class TasksServiceUnavailable(TasksServiceError):
-    pass
+    """Raised when the Task service cannot be reached."""
 
 
-def create_task(user_id: int, payload: dict):
-    """Create a new task entry for a given user.
+def _headers(user_id: int) -> dict[str, str]:
+    """Build headers required by the Task service."""
+    return {
+        "X-User-ID": str(user_id),
+    }
 
-    Sends a POST request to the Task service and returns the created task entry.
 
-    Parameters:
-    - user_id : The ID of the authenticated user.
-    - payload : The data for the new task entry.
+def _extract_results(response: requests.Response) -> list[dict]:
+    """Validate and return the results list from a Task service response."""
+    try:
+        data = response.json()
+    except ValueError as exc:
+        raise TasksServiceError("Task service returned invalid JSON.") from exc
 
-    Returns:
-    - A dictionary representing the created task entry.
-    """
+    try:
+        results = data["results"]
+    except KeyError as exc:
+        raise TasksServiceError("Task service response missing results.") from exc
+
+    if not isinstance(results, list):
+        raise TasksServiceError("Task service results must be a list.")
+
+    return results
+
+
+def create_task(user_id: int, payload: dict) -> dict:
+    """Create a task for the authenticated user."""
     url = f"{settings.TASK_SERVICE_URL}/api/tasks"
 
     try:
-        response = requests.post(url, json=payload, headers={"X-User-ID": str(user_id)}, timeout=5)
+        response = requests.post(
+            url,
+            json=payload,
+            headers=_headers(user_id),
+            timeout=5,
+        )
     except requests.RequestException as exc:
         raise TasksServiceUnavailable("Task service is unavailable.") from exc
 
     if response.status_code != 201:
         raise TasksServiceError(f"Task service returned {response.status_code}")
 
-    try:
-        data = response.json()
-    except ValueError as exc:
-        raise TasksServiceError("Task service returned invalid JSON.") from exc
+    results = _extract_results(response)
 
-    if "results" not in data or not isinstance(data["results"], list):
-        raise TasksServiceError("Task service returned invalid data structure.")
+    if len(results) != 1:
+        raise TasksServiceError("Task service must return exactly one created task.")
 
-    data = response.json()
-
-    return data["results"][0]
+    return results[0]
 
 
-def get_tasks(user_id: int, project_id: int | None = None):
-    """Get tasks for a given user, optionally filtered by project.
-
-    Sends a GET request to the Tasks service and returns a list of tasks.
-
-    Parameters:
-    - user_id : The ID of the authenticated user.
-    - project_id : Optional project ID filter.
-
-    Returns:
-    - A list of dictionaries representing the tasks.
-    """
+def get_tasks(user_id: int, project_id: int | None = None) -> list[dict]:
+    """Get tasks for the user, optionally filtered by project."""
     url = f"{settings.TASK_SERVICE_URL}/api/tasks"
 
     params = {}
@@ -65,129 +70,84 @@ def get_tasks(user_id: int, project_id: int | None = None):
         params["project_id"] = project_id
 
     try:
-        response = requests.get(url, headers={"X-User-ID": str(user_id)}, params=params, timeout=5)
+        response = requests.get(
+            url,
+            headers=_headers(user_id),
+            params=params,
+            timeout=5,
+        )
     except requests.RequestException as exc:
-        raise TasksServiceUnavailable("Tasks service is unavailable.") from exc
+        raise TasksServiceUnavailable("Task service is unavailable.") from exc
 
     if response.status_code != 200:
-        raise TasksServiceError(f"Tasks service returned {response.status_code}")
+        raise TasksServiceError(f"Task service returned {response.status_code}")
 
-    try:
-        data = response.json()
-    except ValueError as exc:
-        raise TasksServiceError("Tasks service returned invalid JSON.") from exc
-
-    try:
-        results = data["results"]
-    except KeyError as exc:
-        raise TasksServiceError("Tasks service response missing results.") from exc
-
-    if not isinstance(results, list):
-        raise TasksServiceError("Tasks service results must be a list.")
-
-    return results
+    return _extract_results(response)
 
 
-def get_a_task(user_id: int, task_id: int):
-    """Get task for a given user.
-
-    Sends a GET request to the Tasks service and returns a specific task detail.
-
-    Parameters:
-    - user_id : The ID of the authenticated user.
-    - task_id : The ID of the task.
-
-    Returns:
-    - A task.
-    """
+def get_a_task(user_id: int, task_id: int) -> dict:
+    """Get one task belonging to the authenticated user."""
     url = f"{settings.TASK_SERVICE_URL}/api/tasks/{task_id}"
 
     try:
-        response = requests.get(url, headers={"X-User-ID": str(user_id)}, timeout=5)
+        response = requests.get(
+            url,
+            headers=_headers(user_id),
+            timeout=5,
+        )
     except requests.RequestException as exc:
-        raise TasksServiceUnavailable("Tasks service is unavailable.") from exc
+        raise TasksServiceUnavailable("Task service is unavailable.") from exc
 
     if response.status_code != 200:
-        raise TasksServiceError(f"Tasks service returned {response.status_code}")
+        raise TasksServiceError(f"Task service returned {response.status_code}")
 
-    try:
-        data = response.json()
-    except ValueError as exc:
-        raise TasksServiceError("Tasks service returned invalid JSON.") from exc
-
-    try:
-        results = data["results"]
-    except KeyError as exc:
-        raise TasksServiceError("Tasks service response missing results.") from exc
-
-    if not isinstance(results, list):
-        raise TasksServiceError("Tasks service results must be a list.")
-
-    return results[0]
-
-
-def edit_a_task(user_id: int, task_id: int, payload: dict):
-    """Update a task for a given user.
-
-    Sends a PATCH request to the Tasks service and returns the updated time entry.
-
-    Parameters:
-    - user_id : The ID of the authenticated user.
-    - time_entry_id : The ID of the task to update.
-    - payload : The update payload to send to the Task service.
-
-    Returns:
-    - A dictionary representing the updated time entry.
-    """
-    url = f"{settings.TIME_TRACKING_SERVICE_URL}/api/tasks/{task_id}"
-
-    try:
-        response = requests.patch(url, json=payload, headers={"X-User-ID": str(user_id)}, timeout=5)
-    except requests.RequestException as exc:
-        raise TasksServiceUnavailable("Tasks service is unavailable.") from exc
-
-    if response.status_code != 200:
-        raise TasksServiceError(f"Tasks service returned {response.status_code}")
-
-    try:
-        data = response.json()
-    except ValueError as exc:
-        raise TasksServiceError("Tasks service returned invalid JSON.") from exc
-
-    try:
-        results = data["results"]
-    except KeyError as exc:
-        raise TasksServiceError("Tasks service response missing results.") from exc
-
-    if not isinstance(results, list):
-        raise TasksServiceError("Tasks service results must be a list.")
+    results = _extract_results(response)
 
     if len(results) != 1:
-        raise TasksServiceError("Tasks service must return exactly one task.")
+        raise TasksServiceError("Task service must return exactly one task.")
 
     return results[0]
 
 
-def delete_a_task(user_id: int, task_id: int):
-    """Delete a task for a given user.
-
-    Sends a DELETE request to the Tasks service.
-
-    Parameters:
-    - user_id : The ID of the authenticated user.
-    - task_id : The ID of the task to delete.
-
-    Returns:
-    - True when the task is deleted successfully.
-    """
-    url = f"{settings.TIME_TRACKING_SERVICE_URL}/api/tasks/{task_id}"
+def edit_a_task(user_id: int, task_id: int, payload: dict) -> dict:
+    """Update a task belonging to the authenticated user."""
+    url = f"{settings.TASK_SERVICE_URL}/api/tasks/{task_id}"
 
     try:
-        response = requests.delete(url, headers={"X-User-ID": str(user_id)}, timeout=5)
+        response = requests.patch(
+            url,
+            json=payload,
+            headers=_headers(user_id),
+            timeout=5,
+        )
     except requests.RequestException as exc:
-        raise TasksServiceUnavailable("Tasks service is unavailable.") from exc
+        raise TasksServiceUnavailable("Task service is unavailable.") from exc
+
+    if response.status_code != 200:
+        raise TasksServiceError(f"Task service returned {response.status_code}")
+
+    results = _extract_results(response)
+
+    if len(results) != 1:
+        raise TasksServiceError("Task service must return exactly one task.")
+
+    return results[0]
+
+
+def delete_a_task(user_id: int, task_id: int) -> bool:
+    """Delete a task belonging to the authenticated user."""
+    url = f"{settings.TASK_SERVICE_URL}/api/tasks/{task_id}"
+
+    try:
+        response = requests.delete(
+            url,
+            headers=_headers(user_id),
+            timeout=5,
+        )
+    except requests.RequestException as exc:
+        raise TasksServiceUnavailable("Task service is unavailable.") from exc
 
     if response.status_code != 204:
-        raise TasksServiceError(f"Tasks service returned {response.status_code}")
+        raise TasksServiceError(f"Task service returned {response.status_code}")
 
     return True

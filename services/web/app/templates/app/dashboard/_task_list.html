@@ -1,0 +1,140 @@
+{% if task_list %}
+
+  <div class="list-group list-group-flush">
+
+    {% for task in task_list %}
+
+      <div class="list-group-item px-0">
+
+        <div class="d-flex justify-content-between gap-3">
+
+          <div>
+            <h6 class="mb-1">
+              {{ task.task_name }}
+            </h6>
+
+            {% if task.description %}
+              <p class="text-muted small mb-0">
+                {{ task.description }}
+              </p>
+            {% endif %}
+          </div>
+
+          <div class="dropdown">
+
+            <button
+              class="btn btn-sm btn-outline-secondary dropdown-toggle"
+              type="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false">
+              Move
+            </button>
+
+            <ul class="dropdown-menu dropdown-menu-end">
+
+              {% if task.state != "to-do" %}
+                <li>
+                  <form method="post">
+                    {% csrf_token %}
+
+                    <input
+                      type="hidden"
+                      name="form_type"
+                      value="update_task_state">
+
+                    <input
+                      type="hidden"
+                      name="task_id"
+                      value="{{ task.id }}">
+
+                    <input
+                      type="hidden"
+                      name="state"
+                      value="to-do">
+
+                    <button
+                      type="submit"
+                      class="dropdown-item">
+                      Move to To-do
+                    </button>
+                  </form>
+                </li>
+              {% endif %}
+
+              {% if task.state != "in-progress" %}
+                <li>
+                  <form method="post">
+                    {% csrf_token %}
+
+                    <input
+                      type="hidden"
+                      name="form_type"
+                      value="update_task_state">
+
+                    <input
+                      type="hidden"
+                      name="task_id"
+                      value="{{ task.id }}">
+
+                    <input
+                      type="hidden"
+                      name="state"
+                      value="in-progress">
+
+                    <button
+                      type="submit"
+                      class="dropdown-item">
+                      Move to In progress
+                    </button>
+                  </form>
+                </li>
+              {% endif %}
+
+              {% if task.state != "completed" %}
+                <li>
+                  <form method="post">
+                    {% csrf_token %}
+
+                    <input
+                      type="hidden"
+                      name="form_type"
+                      value="update_task_state">
+
+                    <input
+                      type="hidden"
+                      name="task_id"
+                      value="{{ task.id }}">
+
+                    <input
+                      type="hidden"
+                      name="state"
+                      value="completed">
+
+                    <button
+                      type="submit"
+                      class="dropdown-item">
+                      Move to Completed
+                    </button>
+                  </form>
+                </li>
+              {% endif %}
+
+            </ul>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    {% endfor %}
+
+  </div>
+
+{% else %}
+
+  <p class="text-muted mb-0">
+    {{ empty_message }}
+  </p>
+
+{% endif %}

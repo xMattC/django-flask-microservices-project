@@ -3,6 +3,8 @@
         "changeme",
         "healthcheck",
         "isready",
+        "normalise",
+        "normalised",
         "PYTHONPATH",
         "rsps",
         "runserver",
