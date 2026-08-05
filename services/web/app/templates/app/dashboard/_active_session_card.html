@@ -1,0 +1,174 @@
+<div class="card h-100">
+
+  <div class="card-header">
+    <strong>Active Session</strong>
+  </div>
+
+  <div class="card-body">
+
+    <p class="mb-1 text-muted">Working on:</p>
+
+    {% if display_project %}
+      <h4>{{ display_project.project_name }}</h4>
+    {% else %}
+      <h4>No project selected</h4>
+    {% endif %}
+
+    {% if active_session %}
+
+      <h2
+        id="active-session-timer"
+        class="mb-4"
+        data-started-at="{{ active_session.started_at }}">
+        00:00
+      </h2>
+
+    {% else %}
+
+      <p class="text-muted mb-4">
+        Ready to clock in
+        {% if display_project %}
+          to {{ display_project.project_name }}.
+        {% endif %}
+      </p>
+
+    {% endif %}
+
+    <div class="d-flex flex-wrap gap-2">
+
+      <button
+        class="btn btn-primary"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#switch-project-panel"
+        aria-expanded="false"
+        aria-controls="switch-project-panel">
+        Switch
+      </button>
+
+      {% if active_session %}
+
+        <form method="post" action="{% url 'app:clock-out' %}">
+          {% csrf_token %}
+
+          <button type="submit" class="btn btn-danger">
+            Clock Out
+          </button>
+        </form>
+
+      {% else %}
+
+        <form method="post" action="{% url 'app:clock-in' %}">
+          {% csrf_token %}
+
+          <button
+            type="submit"
+            class="btn btn-success"
+            {% if not display_project %}disabled{% endif %}>
+            Clock In
+          </button>
+        </form>
+
+      {% endif %}
+
+      <a
+        href="{% url 'app:sessions' %}"
+        class="btn btn-outline-secondary">
+        Edit Sessions
+      </a>
+
+    </div>
+
+    <div class="collapse mt-3" id="switch-project-panel">
+      <div class="border rounded p-3">
+
+        <form method="post">
+          {% csrf_token %}
+
+          <input
+            type="hidden"
+            name="form_type"
+            value="select_project">
+
+          <div class="d-flex gap-2">
+
+            <select
+              name="project_id"
+              class="form-select"
+              required>
+
+              <option value="">Select another project</option>
+
+              {% for project in projects %}
+                <option
+                  value="{{ project.id }}"
+                  {% if selected_project and project.id == selected_project.id %}
+                    selected
+                  {% endif %}>
+                  {{ project.name }}
+                </option>
+              {% endfor %}
+
+            </select>
+
+            <button type="submit" class="btn btn-success">
+              Confirm
+            </button>
+
+          </div>
+
+        </form>
+
+      </div>
+    </div>
+
+    {% if active_session_error %}
+      <div class="alert alert-danger mt-3 mb-0">
+        {{ active_session_error }}
+      </div>
+    {% endif %}
+
+    {% if switch_project_error %}
+      <div class="alert alert-danger mt-3 mb-0">
+        {{ switch_project_error }}
+      </div>
+    {% endif %}
+
+  </div>
+
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const timer = document.getElementById("active-session-timer");
+
+    if (!timer) {
+      return;
+    }
+
+    const startedAt = new Date(timer.dataset.startedAt);
+
+    function updateTimer() {
+      const elapsedMilliseconds = Date.now() - startedAt.getTime();
+
+      const totalSeconds = Math.max(
+        0,
+        Math.floor(elapsedMilliseconds / 1000)
+      );
+
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+
+      const paddedMinutes = String(minutes).padStart(2, "0");
+      const paddedSeconds = String(seconds).padStart(2, "0");
+
+      timer.textContent = hours > 0
+        ? `${hours}:${paddedMinutes}:${paddedSeconds}`
+        : `${paddedMinutes}:${paddedSeconds}`;
+    }
+
+    updateTimer();
+    window.setInterval(updateTimer, 1000);
+  });
+</script>

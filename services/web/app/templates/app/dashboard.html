@@ -2,29 +2,83 @@
 
 {% block content %}
 
-<div class="row mt-5">
-  <div class="col-12">
+<div class="container-fluid mt-4">
 
-    <div class="card">
+  <!-- Welcome -->
+  <div class="row mb-4">
+    <div class="col text-center">
+      <h2>Welcome {{ request.user.first_name|default:request.user.email }}</h2>
+    </div>
+  </div>
 
-      <div class="card-header">
-        <h3 class="mb-0">Projects</h3>
-      </div>
+  <!-- Active Session -->
+  <div class="row mb-4">
+    <div class="col-lg-8">
+      {% include "app/dashboard/_active_session_card.html" %}
+    </div>
 
-      <div class="card-body">
-        {% include "app/dashboard/_projects_bar.html" %}
+
+    <!-- Overview -->
+    <div class="col-lg-4">
+
+      <div class="card h-100">
+
+        <div class="card-header">
+          <strong>Overview</strong>
+        </div>
+
+        <div class="card-body">
+
+          <p class="text-muted">
+            Metrics service integration pending.
+          </p>
+
+          <ul class="mb-0">
+            <li>Projects</li>
+            <li>Hours this week</li>
+            <li>Open tasks</li>
+            <li>Completed tasks</li>
+          </ul>
+
+        </div>
+
       </div>
 
     </div>
 
   </div>
-</div>
 
-<div class="mt-4 dashboard-grid">
+  <!-- Projects -->
+<div class="card">
 
-  <!-- {% include "app/dashboard/_sessions_card.html" %} -->
+    <div class="card-header">
+        <strong>Projects</strong>
+    </div>
 
-  {% include "app/dashboard/_tasks_card.html" %}
+    <div class="card-body">
+
+        <!-- Project selector -->
+        {% include "app/dashboard/_projects_bar.html" %}
+
+        <div class="row mt-4">
+
+            <!-- Tasks -->
+            <div class="col-lg-8">
+
+                {% include "app/dashboard/_tasks_card.html" %}
+
+            </div>
+
+            <!-- Overview -->
+            <div class="col-lg-4">
+
+                {% include "app/dashboard/_project_overview_card.html" %}
+
+            </div>
+
+        </div>
+
+    </div>
 
 </div>
 

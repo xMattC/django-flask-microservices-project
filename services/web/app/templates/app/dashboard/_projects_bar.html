@@ -31,31 +31,6 @@
       </select>
     </form>
 
-    <form method="post" action="{% url 'app:clock_in' %}" class="mb-0">
-      {% csrf_token %}
-
-      <button
-        type="submit"
-        class="btn btn-sm btn-success btn-lg"
-        {% if has_running_session or not selected_project %}disabled{% endif %}
-      >
-        Clock in
-      </button>
-    </form>
-
-
-    <form method="post" action="{% url 'app:clock_out' %}" class="mb-0">
-      {% csrf_token %}
-
-      <button
-        type="submit"
-        class="btn btn-sm btn-danger btn-lg"
-        {% if not has_running_session %}disabled{% endif %}
-      >
-        Clock out
-      </button>
-    </form>
-
     {% if has_running_session %}
       <span class="text-success fw-semibold">
         Clocked-In
@@ -65,17 +40,6 @@
     <a href="{% url 'app:projects' %}" class="btn btn-sm btn-outline-primary ms-auto">
       Manage projects
     </a>
-
-    <a href="{% url 'app:sessions' %}" class="btn btn-sm btn-outline-primary ms-auto">
-      Manage Sessions
-    </a>
-
-    <!-- {% if selected_project %}
-      <span class="text-muted">
-        Selected:
-        <strong>{{ selected_project.name }}</strong>
-      </span>
-    {% endif %} -->
 
   {% endif %}
 

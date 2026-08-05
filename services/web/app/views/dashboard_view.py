@@ -18,54 +18,46 @@ def _handle_select_project(request: HttpRequest) -> HttpResponse:
     return redirect("app:dashboard")
 
 
-# def _handle_update_session(request: HttpRequest):
-#     """Handle session update POST request."""
-#     session_id = request.POST.get("session_id")
-#     started_at = request.POST.get("started_at")
-#     ended_at = request.POST.get("ended_at")
+def _handle_switch_project(request: HttpRequest):
+    """Stop the current session and start one for another project."""
+    project_id_value = request.POST.get("project_id")
 
-#     if not session_id:
-#         return None
+    if not project_id_value:
+        return "Please select a project."
 
-#     try:
-#         time_tracking_service_client.update_time_entry(
-#             request.user.id,  # type: ignore
-#             int(session_id),
-#             {
-#                 "started_at": started_at,
-#                 "ended_at": ended_at or None,
-#             },
-#         )
+    try:
+        project_id = int(project_id_value)
+    except ValueError:
+        return "Invalid project ID."
 
-#         return redirect("app:dashboard")
+    user_id = request.user.id  # type: ignore[arg-type]
 
-#     except time_tracking_service_client.TimeTrackingServiceUnavailable:
-#         return "Time tracking service is currently unavailable."
+    try:
+        running_entries = time_tracking_service_client.get_time_entries(
+            user_id, running_only=True  # type: ignore
+        )
 
-#     except time_tracking_service_client.TimeTrackingServiceError:
-#         return "Could not update session."
+        if running_entries:
+            time_tracking_service_client.stop_time_entry(
+                user_id, running_entries[0]["id"]  # type: ignore
+            )
 
+        time_tracking_service_client.create_time_entry(
+            user_id, {"project_id": project_id}  # type: ignore
+        )
 
-# def _handle_delete_session(request: HttpRequest):
-#     """Handle session delete POST request."""
-#     session_id = request.POST.get("session_id")
+        request.session["selected_project_id"] = project_id
 
-#     if not session_id:
-#         return None
+        return redirect("app:dashboard")
 
-#     try:
-#         time_tracking_service_client.delete_time_entry(request.user.id, int(session_id))  # type: ignore
+    except time_tracking_service_client.TimeTrackingServiceUnavailable:
+        return "Time tracking service is currently unavailable."
 
-#         return redirect("app:dashboard")
-
-#     except time_tracking_service_client.TimeTrackingServiceUnavailable:
-#         return "Time tracking service is currently unavailable."
-
-#     except time_tracking_service_client.TimeTrackingServiceError:
-#         return "Could not delete session."
+    except time_tracking_service_client.TimeTrackingServiceError:
+        return "Could not switch project."
 
 
-def _get_projects_for_user(user_id: int):
+def _get_projects_for_user(user_id: int) -> tuple[list[dict], str | None]:
     """Load projects for a user."""
     try:
         return projects_service_client.get_projects(user_id), None
@@ -77,16 +69,16 @@ def _get_projects_for_user(user_id: int):
         return [], "Could not load projects."
 
 
-# def _get_sessions_for_user(user_id: int):
-#     """Load time tracking sessions for a user."""
-#     try:
-#         return time_tracking_service_client.get_time_entries(user_id), None
+def _get_sessions_for_user(user_id: int) -> tuple[list[dict], str | None]:
+    """Load time-tracking sessions for a user."""
+    try:
+        return time_tracking_service_client.get_time_entries(user_id), None
 
-#     except time_tracking_service_client.TimeTrackingServiceUnavailable:
-#         return [], "Time tracking service is currently unavailable."
+    except time_tracking_service_client.TimeTrackingServiceUnavailable:
+        return [], "Time tracking service is currently unavailable."
 
-#     except time_tracking_service_client.TimeTrackingServiceError:
-#         return [], "Could not load sessions."
+    except time_tracking_service_client.TimeTrackingServiceError:
+        return [], "Could not load sessions."
 
 
 def _format_duration(total_seconds: int | None, running: bool = False) -> str | None:
@@ -103,60 +95,74 @@ def _format_duration(total_seconds: int | None, running: bool = False) -> str | 
     return f"{hours}h {minutes}m"
 
 
-# def _build_dashboard_session(session: dict, project_names: dict[int, str]) -> dict:
-#     """Build one dashboard session display dictionary."""
-#     created_at = datetime.fromisoformat(session["created_at"])
+def _build_dashboard_session(
+    session: dict,
+    project_names: dict[int, str],
+) -> dict:
+    """Build one formatted dashboard session."""
 
-#     ended_at = None
-#     if session["ended_at"]:
-#         ended_at = datetime.fromisoformat(session["ended_at"])
+    # Your API response uses started_at for the actual session start.
+    started_at = datetime.fromisoformat(session["started_at"])
 
-#     return {
-#         **session,
-#         "project_name": project_names.get(
-#             session["project_id"], f"Project {session['project_id']}"
-#         ),
-#         "created_at_display": created_at.strftime("%d %b %Y %H:%M"),
-#         "ended_at_display": ended_at.strftime("%d %b %Y %H:%M") if ended_at else "Running",
-#         "duration_display": _format_duration(session["duration_seconds"]),
-#         "started_at_form": created_at.strftime("%Y-%m-%dT%H:%M"),
-#         "ended_at_form": ended_at.strftime("%Y-%m-%dT%H:%M") if ended_at else "",
-#     }
+    ended_at = None
+    if session["ended_at"]:
+        ended_at = datetime.fromisoformat(session["ended_at"])
 
+    project_id = session["project_id"]
 
-# def _build_dashboard_sessions(projects: list[dict], sessions: list[dict]) -> list[dict]:
-#     """Build formatted dashboard sessions."""
-#     project_names = {project["id"]: project["name"] for project in projects}
-
-#     return [_build_dashboard_session(session, project_names) for session in sessions]
+    return {
+        **session,
+        "project_name": project_names.get(
+            project_id,
+            f"Project {project_id}",
+        ),
+        "started_at_display": started_at.strftime("%d %b %Y %H:%M"),
+        "ended_at_display": (ended_at.strftime("%d %b %Y %H:%M") if ended_at else "Running"),
+        "duration_display": _format_duration(session["duration_seconds"]),
+    }
 
 
-def _get_selected_project(projects: list[dict], selected_project_id: int | None) -> dict | None:
-    """Return selected project from the loaded projects list."""
+def _build_dashboard_sessions(projects: list[dict], sessions: list[dict]) -> list[dict]:
+    """Build formatted dashboard sessions."""
+    project_names = {project["id"]: project["name"] for project in projects}
+
+    return [_build_dashboard_session(session, project_names) for session in sessions]
+
+
+def _get_active_session(dashboard_sessions: list[dict]) -> dict | None:
+    """Return the currently running session."""
+    return next(
+        (session for session in dashboard_sessions if session["ended_at"] is None),
+        None,
+    )
+
+
+def _get_last_session(dashboard_sessions: list[dict]) -> dict | None:
+    """Return the most recently started session."""
+    if not dashboard_sessions:
+        return None
+
+    return dashboard_sessions[0]
+
+
+def _get_selected_project(
+    projects: list[dict],
+    selected_project_id: int | None,
+) -> dict | None:
+    """Return the selected project."""
     if not selected_project_id:
         return None
 
-    return next((project for project in projects if project["id"] == selected_project_id), None)
-
-
-# def _get_running_duration_display(dashboard_sessions: list[dict]) -> str | None:
-#     """Return formatted running duration if a running session exists."""
-#     running_session = next(
-#         (session for session in dashboard_sessions if session["ended_at"] is None), None
-#     )
-
-#     if not running_session:
-#         return None
-
-#     return _format_duration(running_session["duration_seconds"], running=True)
+    return next(
+        (project for project in projects if project["id"] == selected_project_id),
+        None,
+    )
 
 
 @login_required
 def dashboard_view(request: HttpRequest) -> HttpResponse:
-    """Render and manage the dashboard page."""
-    session_update_error = None
-    session_delete_error = None
-    selected_project_id = request.session.get("selected_project_id")
+    """Render and manage the dashboard."""
+    switch_project_error = None
 
     if request.method == "POST":
         form_type = request.POST.get("form_type")
@@ -164,27 +170,37 @@ def dashboard_view(request: HttpRequest) -> HttpResponse:
         if form_type == "select_project":
             return _handle_select_project(request)
 
-        # if form_type == "update_session":
-        #     result = _handle_update_session(request)
+        if form_type == "switch_project":
+            result = _handle_switch_project(request)
 
-        #     if isinstance(result, HttpResponse):
-        #         return result
+            if isinstance(result, HttpResponse):
+                return result
 
-        #     session_update_error = result
+            switch_project_error = result
 
-        # if form_type == "delete_session":
-        #     result = _handle_delete_session(request)
+    user_id = request.user.id  # type: ignore[arg-type]
+    selected_project_id = request.session.get("selected_project_id")
 
-        #     if isinstance(result, HttpResponse):
-        #         return result
+    projects, projects_error = _get_projects_for_user(user_id)  # type: ignore
+    sessions, sessions_error = _get_sessions_for_user(user_id)  # type: ignore
 
-        #     session_delete_error = result
+    dashboard_sessions = _build_dashboard_sessions(projects, sessions)
 
-    projects, projects_error = _get_projects_for_user(request.user.id)  # type: ignore
-    # sessions, sessions_error = _get_sessions_for_user(request.user.id)  # type: ignore
+    active_session = _get_active_session(dashboard_sessions)
+    last_session = _get_last_session(dashboard_sessions)
 
-    # dashboard_sessions = _build_dashboard_sessions(projects, sessions)
-    # has_running_session = any(session["ended_at"] is None for session in dashboard_sessions)
+    display_session = active_session or last_session
+
+    if selected_project_id is None and last_session:
+        selected_project_id = last_session["project_id"]
+
+    running_duration_display = None
+
+    if active_session:
+        running_duration_display = _format_duration(
+            active_session["duration_seconds"],
+            running=True,
+        )
 
     return render(
         request,
@@ -192,12 +208,13 @@ def dashboard_view(request: HttpRequest) -> HttpResponse:
         {
             "projects": projects,
             "projects_error": projects_error,
+            "display_project": active_session or last_session,
             "selected_project": _get_selected_project(projects, selected_project_id),
-            # "sessions": dashboard_sessions,
-            # "sessions_error": sessions_error,
-            "session_update_error": session_update_error,
-            "session_delete_error": session_delete_error,
-            # "has_running_session": has_running_session,
-            # "running_duration_display": _get_running_duration_display(dashboard_sessions),
+            "active_session": active_session,
+            "display_session": display_session,
+            "last_session": last_session,
+            "active_session_error": sessions_error,
+            "running_duration_display": running_duration_display,
+            "switch_project_error": switch_project_error,
         },
     )

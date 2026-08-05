@@ -13,6 +13,6 @@ urlpatterns = [
     path("app/", dashboard_view, name="dashboard"),
     path("projects/", projects_view, name="projects"),
     path("sessions/", sessions_view, name="sessions"),
-    path("clock-in/", clock_in_view, name="clock_in"),
-    path("clock-out/", clock_out_view, name="clock_out"),
+    path("clock-in/", clock_in_view, name="clock-in"),
+    path("clock-out/", clock_out_view, name="clock-out"),
 ]
