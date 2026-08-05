@@ -103,7 +103,7 @@ This project was built to demonstrate:
 A core focus of this project was designing clear service boundaries while maintaining a simple local development workflow. The platform is structured as independent backend services:
 
 <p align="center">
-  <img src="services\web\static\images\architecture.png" width="700">
+  <img src="services\web\static\images\architecture.png" width="1000">
 </p>
 
 This architecture provides:
