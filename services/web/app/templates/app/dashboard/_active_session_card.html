@@ -1,15 +1,8 @@
 <div class="card dashboard-card current-activity-card">
 
   <div class="card-header d-flex align-items-center gap-2">
-
-    <span class="current-activity-header-icon">
-      ✓
-    </span>
-
-    <strong>
-      Current Activity
-    </strong>
-
+    <i class="bi bi-stopwatch text-success"></i>
+    <strong>Current Activity</strong>
   </div>
 
   <div class="card-body">
@@ -17,53 +10,47 @@
     <div class="row g-4 align-items-center">
 
       <div class="col-md-auto">
+        <div class="current-activity-visual position-relative">
 
-        <div class="current-activity-visual">
+          {% if active_project %}
+            <span class="project-initials">
+              {{ active_project.name|slice:":2"|upper }}
+            </span>
+          {% elif active_session %}
+            <span class="project-initials">
+              {{ active_session.project_name|slice:":2"|upper }}
+            </span>
+          {% else %}
+            <i class="bi bi-folder"></i>
+          {% endif %}
+
+          <span class="project-avatar-icon">
             <i class="bi bi-stopwatch"></i>
-        </div>
+          </span>
 
+        </div>
       </div>
 
       <div class="col">
 
-        <p class="text-muted small mb-1">
-          Current project
-        </p>
+        <p class="text-muted small mb-1">Current project</p>
 
         {% if active_project %}
-
-          <h3 class="current-project-name mb-2">
-            {{ active_project.name }}
-          </h3>
-
+          <h3 class="current-project-name mb-2">{{ active_project.name }}</h3>
         {% elif active_session %}
-
-          <h3 class="current-project-name mb-2">
-            {{ active_session.project_name }}
-          </h3>
-
+          <h3 class="current-project-name mb-2">{{ active_session.project_name }}</h3>
         {% else %}
-
-          <h3 class="current-project-name mb-2">
-            No project selected
-          </h3>
-
+          <h3 class="current-project-name mb-2">No project selected</h3>
         {% endif %}
 
         {% if active_session %}
 
-          <div class="mb-3">
+          <span class="current-status-badge current-status-active mb-3">
+            <span class="current-status-dot"></span>
+            Clocked in
+          </span>
 
-            <span class="current-status-badge current-status-active">
-              <span class="current-status-dot"></span>
-              Work in progress
-            </span>
-
-          </div>
-
-          <p class="text-muted mb-1">
-            Time on this project
-          </p>
+          <p class="text-muted mb-1">Time on this project</p>
 
           <h2
             id="active-session-timer"
@@ -74,20 +61,16 @@
 
         {% else %}
 
-          <div class="mb-3">
-
-            <span class="current-status-badge current-status-ready">
-              <span class="current-status-dot"></span>
-              Ready to start work
-            </span>
-
-          </div>
+          <span class="current-status-badge current-status-ready mb-3">
+            <span class="current-status-dot"></span>
+            Ready to clock in
+          </span>
 
           <p class="text-muted mb-0">
             {% if active_project %}
-              You're ready to start working on this project.
+              You're ready to begin tracking time on this project.
             {% else %}
-              Choose a project before starting work.
+              Choose a project before clocking in.
             {% endif %}
           </p>
 
@@ -100,12 +83,13 @@
     <div class="d-flex flex-wrap gap-2 mt-4">
 
       <button
-        class="btn btn-primary current-activity-button"
+        class="btn btn-primary"
         type="button"
         data-bs-toggle="collapse"
         data-bs-target="#switch-project-panel"
         aria-expanded="{% if switch_project_error %}true{% else %}false{% endif %}"
         aria-controls="switch-project-panel">
+        <i class="bi bi-arrow-left-right me-1"></i>
         Change Project
       </button>
 
@@ -114,10 +98,9 @@
         <form method="post" action="{% url 'app:clock-out' %}">
           {% csrf_token %}
 
-          <button
-            type="submit"
-            class="btn btn-danger current-activity-button">
-            clock-out
+          <button type="submit" class="btn btn-danger">
+            <i class="bi bi-box-arrow-right me-1"></i>
+            Clock Out
           </button>
         </form>
 
@@ -127,26 +110,28 @@
           {% csrf_token %}
 
           {% if active_project %}
-            <input
-              type="hidden"
-              name="project_id"
-              value="{{ active_project.id }}">
+            <input type="hidden" name="project_id" value="{{ active_project.id }}">
           {% endif %}
 
           <button
             type="submit"
-            class="btn btn-success current-activity-button"
+            class="btn btn-success"
             {% if not active_project %}disabled{% endif %}>
-            Clock-in
+            <i class="bi bi-box-arrow-in-right me-1"></i>
+            Clock In
           </button>
         </form>
 
       {% endif %}
 
-      <a
-        href="{% url 'app:sessions' %}"
-        class="btn btn-outline-secondary current-activity-button">
+      <a href="{% url 'app:sessions' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-clock-history me-1"></i>
         Time History
+      </a>
+
+      <a href="{% url 'app:projects' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-folder2-open me-1"></i>
+        Manage Projects
       </a>
 
     </div>
@@ -155,23 +140,17 @@
       class="collapse {% if switch_project_error %}show{% endif %} mt-4"
       id="switch-project-panel">
 
-      <div class="current-switch-panel">
+      <div class="border rounded p-3 bg-light">
 
         <form method="post">
           {% csrf_token %}
 
-          <input
-            type="hidden"
-            name="form_type"
-            value="switch_project">
+          <input type="hidden" name="form_type" value="switch_project">
 
           <div class="row g-3 align-items-end">
 
             <div class="col-md">
-
-              <label
-                for="switch-project-selector"
-                class="form-label">
+              <label for="switch-project-selector" class="form-label">
                 Select a project
               </label>
 
@@ -181,44 +160,32 @@
                 class="form-select"
                 required>
 
-                <option value="">
-                  Choose another project
-                </option>
+                <option value="">Choose another project</option>
 
                 {% for project in projects %}
                   <option
                     value="{{ project.id }}"
-                    {% if active_project and project.id == active_project.id %}
-                      selected
-                    {% endif %}>
+                    {% if active_project and project.id == active_project.id %}selected{% endif %}>
                     {{ project.name }}
                   </option>
                 {% endfor %}
 
               </select>
-
             </div>
 
-            <div class="col-md-auto">
+            <div class="col-md-auto d-flex gap-2">
 
-              <div class="d-flex gap-2">
+              <button
+                type="button"
+                class="btn btn-outline-secondary"
+                data-bs-toggle="collapse"
+                data-bs-target="#switch-project-panel">
+                Cancel
+              </button>
 
-                <button
-                  type="button"
-                  class="btn btn-outline-secondary"
-                  data-bs-toggle="collapse"
-                  data-bs-target="#switch-project-panel"
-                  aria-controls="switch-project-panel">
-                  Cancel
-                </button>
-
-                <button
-                  type="submit"
-                  class="btn btn-primary">
-                  Confirm
-                </button>
-
-              </div>
+              <button type="submit" class="btn btn-primary">
+                Confirm
+              </button>
 
             </div>
 
@@ -231,19 +198,11 @@
     </div>
 
     {% if active_session_error %}
-
-      <div class="alert alert-danger mt-3 mb-0">
-        {{ active_session_error }}
-      </div>
-
+      <div class="alert alert-danger mt-3 mb-0">{{ active_session_error }}</div>
     {% endif %}
 
     {% if switch_project_error %}
-
-      <div class="alert alert-danger mt-3 mb-0">
-        {{ switch_project_error }}
-      </div>
-
+      <div class="alert alert-danger mt-3 mb-0">{{ switch_project_error }}</div>
     {% endif %}
 
   </div>
@@ -251,23 +210,6 @@
 </div>
 
 <style>
-  .current-activity-card {
-    overflow: hidden;
-  }
-
-  .current-activity-header-icon {
-    width: 26px;
-    height: 26px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 0.45rem;
-    background: #e8f7ef;
-    color: #198754;
-    font-size: 0.85rem;
-    font-weight: 700;
-  }
-
   .current-activity-visual {
     width: 126px;
     height: 126px;
@@ -275,18 +217,35 @@
     align-items: center;
     justify-content: center;
     border-radius: 1rem;
-    background: linear-gradient(
-      145deg,
-      #edf9f3,
-      #e2f3ea
-    );
+    background: linear-gradient(145deg, #edf9f3, #e2f3ea);
     color: #198754;
-    font-size: 2.8rem;
   }
 
-  .current-project-name {
+  .project-initials {
+    font-size: 2rem;
     font-weight: 700;
+    letter-spacing: 0.05em;
+  }
+
+  .project-avatar-icon {
+    position: absolute;
+    right: 0.55rem;
+    bottom: 0.55rem;
+    width: 30px;
+    height: 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    color: #198754;
+    background: #fff;
+    box-shadow: 0 0.1rem 0.35rem rgba(31, 45, 61, 0.12);
+  }
+
+  .current-project-name,
+  .current-session-timer {
     color: #172033;
+    font-weight: 700;
   }
 
   .current-status-badge {
@@ -312,44 +271,14 @@
   .current-status-dot {
     width: 8px;
     height: 8px;
-    display: inline-block;
     border-radius: 50%;
     background: currentColor;
-  }
-
-  .current-session-timer {
-    color: #172033;
-    font-weight: 700;
-  }
-
-  .current-activity-button {
-    min-width: 128px;
-  }
-
-  .current-switch-panel {
-    padding: 1rem;
-    border: 1px solid #e3e8ef;
-    border-radius: 0.75rem;
-    background: #f8fafc;
   }
 
   @media (max-width: 767.98px) {
     .current-activity-visual {
       width: 88px;
       height: 88px;
-      font-size: 2rem;
-    }
-
-    .current-activity-button {
-      width: 100%;
-    }
-
-    .current-activity-card form {
-      width: 100%;
-    }
-
-    .current-activity-card form .current-activity-button {
-      width: 100%;
     }
   }
 </style>
@@ -366,26 +295,13 @@
 
     function updateTimer() {
       const elapsedMilliseconds = Date.now() - startedAt.getTime();
-
-      const totalSeconds = Math.max(
-        0,
-        Math.floor(elapsedMilliseconds / 1000)
-      );
-
+      const totalSeconds = Math.max(0, Math.floor(elapsedMilliseconds / 1000));
       const hours = Math.floor(totalSeconds / 3600);
-      const minutes = Math.floor(
-        (totalSeconds % 3600) / 60
-      );
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
       const seconds = totalSeconds % 60;
 
-      const paddedMinutes = String(minutes).padStart(
-        2,
-        "0"
-      );
-      const paddedSeconds = String(seconds).padStart(
-        2,
-        "0"
-      );
+      const paddedMinutes = String(minutes).padStart(2, "0");
+      const paddedSeconds = String(seconds).padStart(2, "0");
 
       timer.textContent = hours > 0
         ? `${hours}:${paddedMinutes}:${paddedSeconds}`
@@ -393,10 +309,6 @@
     }
 
     updateTimer();
-
-    window.setInterval(
-      updateTimer,
-      1000
-    );
+    window.setInterval(updateTimer, 1000);
   });
 </script>

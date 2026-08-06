@@ -114,6 +114,19 @@
 
     {% else %}
 
+      <div class="input-group mb-3">
+        <span class="input-group-text bg-white">
+          <i class="bi bi-search"></i>
+        </span>
+
+        <input
+          id="task-search-input"
+          type="search"
+          class="form-control"
+          placeholder="Search tasks..."
+          aria-label="Search tasks">
+      </div>
+
       <div class="kanban-board">
 
         <section class="kanban-column">
@@ -129,7 +142,7 @@
           </div>
 
           <div class="kanban-task-list" data-task-state="to-do">
-            {% include "app/dashboard/_task_list.html" with task_list=todo_tasks empty_title="No tasks yet" empty_message="Create a task to begin planning this project." %}
+            {% include "app/dashboard/_task_list.html" with task_list=todo_tasks empty_icon="bi-plus-circle" empty_title="No tasks yet" empty_message="Create a task to start planning this project." %}
           </div>
         </section>
 
@@ -146,7 +159,7 @@
           </div>
 
           <div class="kanban-task-list" data-task-state="in-progress">
-            {% include "app/dashboard/_task_list.html" with task_list=in_progress_tasks empty_title="Nothing in progress" empty_message="Move a task here when work begins." %}
+            {% include "app/dashboard/_task_list.html" with task_list=in_progress_tasks empty_icon="bi-rocket-takeoff" empty_title="Ready to begin?" empty_message="Move a task here when work starts." %}
           </div>
         </section>
 
@@ -163,7 +176,7 @@
           </div>
 
           <div class="kanban-task-list" data-task-state="done">
-            {% include "app/dashboard/_task_list.html" with task_list=done_tasks empty_title="No completed tasks" empty_message="Finished tasks will appear here." %}
+            {% include "app/dashboard/_task_list.html" with task_list=done_tasks empty_icon="bi-trophy" empty_title="Nothing completed yet" empty_message="Finished tasks will appear here." %}
           </div>
         </section>
 
@@ -185,43 +198,168 @@
   <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content">
 
-      <div class="modal-header">
-        <div>
-          <p class="text-muted small mb-1">Task details</p>
+      <div class="modal-header align-items-start">
 
-          <h4 class="modal-title" id="task-detail-modal-title">
-            Task
-          </h4>
-        </div>
+        <div class="flex-grow-1">
 
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-          aria-label="Close">
-        </button>
-      </div>
+          <div class="d-flex align-items-center gap-2 mb-2">
 
-      <div class="modal-body">
-
-        <div id="task-view-mode">
-          <div class="d-flex justify-content-between align-items-center gap-3 mb-4">
             <span
               id="task-state-badge"
               class="badge rounded-pill text-bg-secondary">
               To-do
             </span>
 
-            <button
-              id="task-edit-button"
-              type="button"
-              class="btn btn-outline-primary">
-              <i class="bi bi-pencil me-1"></i>
-              Edit
-            </button>
+            <span class="text-muted small">
+              Task details
+            </span>
+
           </div>
 
-          <div id="task-markdown-preview" class="task-markdown-preview"></div>
+          <h4
+            class="modal-title"
+            id="task-detail-modal-title">
+            Task
+          </h4>
+
+        </div>
+
+        <div
+          id="task-view-actions"
+          class="d-flex align-items-center gap-2 me-3">
+
+          <button
+            id="task-edit-button"
+            type="button"
+            class="btn btn-outline-primary">
+            <i class="bi bi-pencil me-1"></i>
+            Edit
+          </button>
+
+          <form id="task-delete-form" method="post">
+            {% csrf_token %}
+
+            <input type="hidden" name="form_type" value="delete_task">
+            <input id="task-delete-task-id" type="hidden" name="task_id">
+
+            <button
+              type="submit"
+              class="btn btn-outline-danger"
+              onclick="return confirm('Delete this task?');">
+              <i class="bi bi-trash me-1"></i>
+              Delete
+            </button>
+          </form>
+
+        </div>
+
+        <div
+          id="task-edit-actions"
+          class="d-none align-items-center gap-2 me-3">
+
+          <button
+            id="task-cancel-edit-button"
+            type="button"
+            class="btn btn-outline-secondary">
+            Cancel
+          </button>
+
+          <button
+            id="task-save-button"
+            type="button"
+            class="btn btn-primary">
+            <i class="bi bi-check-lg me-1"></i>
+            Save changes
+          </button>
+
+        </div>
+
+        <button
+          type="button"
+          class="btn-close mt-2"
+          data-bs-dismiss="modal"
+          aria-label="Close">
+        </button>
+
+      </div>
+
+      <div class="modal-body">
+
+        <form id="task-state-form" method="post" class="mb-4">
+          {% csrf_token %}
+
+          <input type="hidden" name="form_type" value="update_task_state">
+          <input id="task-state-task-id" type="hidden" name="task_id">
+
+          <div class="d-flex align-items-center gap-3 flex-wrap">
+
+            <span class="fw-semibold">
+              Status
+            </span>
+
+            <div
+              class="btn-group task-status-buttons"
+              role="group"
+              aria-label="Task status">
+
+              <input
+                type="radio"
+                class="btn-check"
+                name="state"
+                id="task-state-todo"
+                value="to-do"
+                autocomplete="off">
+
+              <label
+                class="btn btn-outline-secondary"
+                for="task-state-todo">
+                <i class="bi bi-circle-fill me-1"></i>
+                To-do
+              </label>
+
+              <input
+                type="radio"
+                class="btn-check"
+                name="state"
+                id="task-state-progress"
+                value="in-progress"
+                autocomplete="off">
+
+              <label
+                class="btn btn-outline-primary"
+                for="task-state-progress">
+                <i class="bi bi-play-circle me-1"></i>
+                In progress
+              </label>
+
+              <input
+                type="radio"
+                class="btn-check"
+                name="state"
+                id="task-state-done"
+                value="done"
+                autocomplete="off">
+
+              <label
+                class="btn btn-outline-success"
+                for="task-state-done">
+                <i class="bi bi-check-circle me-1"></i>
+                Done
+              </label>
+
+            </div>
+
+          </div>
+
+        </form>
+
+        <div id="task-view-mode">
+
+          <div
+            id="task-markdown-preview"
+            class="task-markdown-preview">
+          </div>
+
         </div>
 
         <div id="task-edit-mode" class="d-none">
@@ -263,66 +401,6 @@
 
       </div>
 
-      <div class="modal-footer justify-content-between">
-
-        <div id="task-view-actions" class="d-flex gap-2">
-
-          <form id="task-state-form" method="post" class="d-flex gap-2">
-            {% csrf_token %}
-
-            <input type="hidden" name="form_type" value="update_task_state">
-            <input id="task-state-task-id" type="hidden" name="task_id">
-
-            <select
-              id="task-state-selector"
-              name="state"
-              class="form-select form-select-sm">
-              <option value="to-do">To-do</option>
-              <option value="in-progress">In progress</option>
-              <option value="done">Done</option>
-            </select>
-
-            <button type="submit" class="btn btn-sm btn-outline-secondary">
-              Move
-            </button>
-          </form>
-
-          <form id="task-delete-form" method="post">
-            {% csrf_token %}
-
-            <input type="hidden" name="form_type" value="delete_task">
-            <input id="task-delete-task-id" type="hidden" name="task_id">
-
-            <button
-              type="submit"
-              class="btn btn-sm btn-outline-danger"
-              onclick="return confirm('Delete this task?');">
-              <i class="bi bi-trash me-1"></i>
-              Delete
-            </button>
-          </form>
-
-        </div>
-
-        <div id="task-edit-actions" class="d-none gap-2">
-          <button
-            id="task-cancel-edit-button"
-            type="button"
-            class="btn btn-outline-secondary">
-            Cancel
-          </button>
-
-          <button
-            id="task-save-button"
-            type="button"
-            class="btn btn-primary">
-            <i class="bi bi-check-lg me-1"></i>
-            Save changes
-          </button>
-        </div>
-
-      </div>
-
     </div>
   </div>
 </div>
@@ -343,6 +421,14 @@
     border: 1px solid #e2e8f0;
     border-radius: 0.85rem;
     background: #f8fafc;
+    transition:
+      border-color 150ms ease,
+      background-color 150ms ease;
+  }
+
+  .kanban-column:hover {
+    border-color: #cbd5e1;
+    background: #f6f9fc;
   }
 
   .kanban-column-header {
@@ -362,7 +448,6 @@
   .kanban-status-dot {
     width: 9px;
     height: 9px;
-    display: inline-block;
     flex-shrink: 0;
     border-radius: 50%;
   }
@@ -422,12 +507,81 @@
     text-align: center;
   }
 
+  .task-status-buttons .btn {
+    min-width: 132px;
+  }
+
+  .task-status-buttons .bi-circle-fill {
+    font-size: 0.55rem;
+  }
+
   .task-markdown-preview {
     min-height: 280px;
-    padding: 1rem;
+    padding: 1.25rem;
     border: 1px solid #e3e8ef;
     border-radius: 0.7rem;
     background: #fff;
+    line-height: 1.65;
+  }
+
+  .task-markdown-preview h1,
+  .task-markdown-preview h2,
+  .task-markdown-preview h3 {
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.35rem;
+    border-bottom: 1px solid #e9ecef;
+  }
+
+  .task-markdown-preview h1:first-child,
+  .task-markdown-preview h2:first-child,
+  .task-markdown-preview h3:first-child {
+    margin-top: 0;
+  }
+
+  .task-markdown-preview pre {
+    padding: 1rem;
+    overflow-x: auto;
+    background: #f6f8fa;
+    border-radius: 0.5rem;
+  }
+
+  .task-markdown-preview code {
+    padding: 0.15rem 0.3rem;
+    background: #f6f8fa;
+    border-radius: 0.25rem;
+  }
+
+  .task-markdown-preview blockquote {
+    padding-left: 1rem;
+    color: #6c757d;
+    border-left: 4px solid #d0d7de;
+  }
+
+  .task-markdown-preview img {
+    max-width: 100%;
+  }
+
+  @media (max-width: 767.98px) {
+    .task-status-buttons {
+      width: 100%;
+    }
+
+    .task-status-buttons .btn {
+      min-width: 0;
+      flex: 1 1 0;
+    }
+
+    #task-view-actions,
+    #task-edit-actions {
+      width: 100%;
+      margin-top: 1rem;
+      margin-right: 0 !important;
+    }
+
+    .modal-header {
+      flex-wrap: wrap;
+    }
   }
 
   @media (max-width: 991.98px) {
@@ -469,7 +623,9 @@
     const saveButton = document.getElementById("task-save-button");
     const titleEditor = document.getElementById("task-title-editor");
     const descriptionEditor = document.getElementById("task-description-editor");
-    const stateSelector = document.getElementById("task-state-selector");
+    const stateRadios = modal.querySelectorAll(
+      'input[name="state"]'
+    );
     const stateTaskId = document.getElementById("task-state-task-id");
     const deleteTaskId = document.getElementById("task-delete-task-id");
     const errorMessage = document.getElementById("task-modal-error");
@@ -523,6 +679,7 @@
       viewMode.classList.remove("d-none");
       editMode.classList.add("d-none");
       viewActions.classList.remove("d-none");
+      viewActions.classList.add("d-flex");
       editActions.classList.add("d-none");
       editActions.classList.remove("d-flex");
       errorMessage.classList.add("d-none");
@@ -532,6 +689,7 @@
       viewMode.classList.add("d-none");
       editMode.classList.remove("d-none");
       viewActions.classList.add("d-none");
+      viewActions.classList.remove("d-flex");
       editActions.classList.remove("d-none");
       editActions.classList.add("d-flex");
       titleEditor.focus();
@@ -551,7 +709,9 @@
       modalTitle.textContent = activeTask.task_name;
       titleEditor.value = activeTask.task_name;
       descriptionEditor.value = activeTask.description || "";
-      stateSelector.value = activeTask.state;
+      stateRadios.forEach(function (radio) {
+        radio.checked = radio.value === activeTask.state;
+      });
       stateTaskId.value = activeTask.id;
       deleteTaskId.value = activeTask.id;
 
@@ -562,11 +722,40 @@
 
     editButton.addEventListener("click", showEditMode);
 
+    stateRadios.forEach(function (radio) {
+      radio.addEventListener("change", function () {
+        if (!activeTask || !radio.checked || radio.value === activeTask.state) {
+          return;
+        }
+
+        stateTaskId.value = activeTask.id;
+        document.getElementById("task-state-form").submit();
+      });
+    });
+
     cancelEditButton.addEventListener("click", function () {
       titleEditor.value = activeTask.task_name;
       descriptionEditor.value = activeTask.description || "";
       showViewMode();
     });
+
+
+    const searchInput = document.getElementById("task-search-input");
+
+    if (searchInput) {
+      searchInput.addEventListener("input", function () {
+        const query = searchInput.value.trim().toLowerCase();
+
+        document.querySelectorAll(".task-item").forEach(function (card) {
+          const searchableText = card.dataset.taskSearch || "";
+
+          card.classList.toggle(
+            "d-none",
+            Boolean(query) && !searchableText.includes(query)
+          );
+        });
+      });
+    }
 
     saveButton.addEventListener("click", async function () {
       if (!activeTask) {

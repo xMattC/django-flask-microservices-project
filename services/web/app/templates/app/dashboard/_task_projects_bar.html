@@ -1,65 +1,58 @@
-<div class="task-toolbar">
+<div class="d-flex align-items-center gap-2 flex-wrap">
 
-  <form method="post" class="task-project-form">
+  <span class="project-colour-dot" aria-hidden="true"></span>
+
+  <form method="post" class="mb-0">
     {% csrf_token %}
 
-    <input
-      type="hidden"
-      name="form_type"
-      value="select_project">
+    <input type="hidden" name="form_type" value="select_project">
 
     <select
       id="project-selector"
       name="project_id"
       class="form-select"
+      style="width: 320px;"
       onchange="this.form.submit()">
 
-      <option value="">
-        Select project
-      </option>
+      <option value="">Select project</option>
 
       {% for project in projects %}
         <option
           value="{{ project.id }}"
-          {% if selected_project and project.id == selected_project.id %}
-            selected
-          {% endif %}>
+          {% if selected_project and project.id == selected_project.id %}selected{% endif %}>
           {{ project.name|truncatechars:30 }}
         </option>
       {% endfor %}
 
     </select>
-
   </form>
 
-  <div class="task-toolbar-actions">
+  <!-- <a href="{% url 'app:projects' %}" class="btn btn-outline-secondary">
+    <i class="bi bi-folder2-open me-1"></i>
+    Manage Projects
+  </a> -->
 
-    <a
-      href="{% url 'app:projects' %}"
-      class="btn btn-outline-secondary">
-
-      <i class="bi bi-folder2-open me-1"></i>
-      Manage Projects
-
-    </a>
-
-    {% if selected_project %}
-
-      <button
-        type="button"
-        class="btn btn-primary"
-        data-bs-toggle="collapse"
-        data-bs-target="#create-task-panel"
-        aria-expanded="{% if task_create_error %}true{% else %}false{% endif %}"
-        aria-controls="create-task-panel">
-
-        <i class="bi bi-plus-lg me-1"></i>
-        Add Task
-
-      </button>
-
-    {% endif %}
-
-  </div>
+  {% if selected_project %}
+    <button
+      type="button"
+      class="btn btn-primary"
+      data-bs-toggle="collapse"
+      data-bs-target="#create-task-panel"
+      aria-expanded="{% if task_create_error %}true{% else %}false{% endif %}"
+      aria-controls="create-task-panel">
+      <i class="bi bi-plus-lg me-1"></i>
+      Add Task
+    </button>
+  {% endif %}
 
 </div>
+
+<style>
+  .project-colour-dot {
+    width: 11px;
+    height: 11px;
+    flex: 0 0 auto;
+    border-radius: 50%;
+    background: #0d6efd;
+  }
+</style>
