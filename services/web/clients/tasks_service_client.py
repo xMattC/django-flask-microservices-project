@@ -1,4 +1,5 @@
 import requests
+
 from django.conf import settings
 
 
@@ -22,17 +23,48 @@ def _extract_results(response: requests.Response) -> list[dict]:
     try:
         data = response.json()
     except ValueError as exc:
-        raise TasksServiceError("Task service returned invalid JSON.") from exc
+        raise TasksServiceError(
+            "Task service returned invalid JSON."
+        ) from exc
 
     try:
         results = data["results"]
     except KeyError as exc:
-        raise TasksServiceError("Task service response missing results.") from exc
+        raise TasksServiceError(
+            "Task service response missing results."
+        ) from exc
 
     if not isinstance(results, list):
-        raise TasksServiceError("Task service results must be a list.")
+        raise TasksServiceError(
+            "Task service results must be a list."
+        )
 
     return results
+
+
+def _raise_for_status(
+    response: requests.Response,
+    expected_status: int,
+) -> None:
+    """Raise a useful client error for an unexpected service response."""
+    if response.status_code == expected_status:
+        return
+
+    try:
+        payload = response.json()
+    except ValueError:
+        payload = {}
+
+    message = payload.get("message")
+
+    if message:
+        raise TasksServiceError(
+            f"Task service returned {response.status_code}: {message}"
+        )
+
+    raise TasksServiceError(
+        f"Task service returned {response.status_code}"
+    )
 
 
 def create_task(user_id: int, payload: dict) -> dict:
@@ -47,20 +79,26 @@ def create_task(user_id: int, payload: dict) -> dict:
             timeout=5,
         )
     except requests.RequestException as exc:
-        raise TasksServiceUnavailable("Task service is unavailable.") from exc
+        raise TasksServiceUnavailable(
+            "Task service is unavailable."
+        ) from exc
 
-    if response.status_code != 201:
-        raise TasksServiceError(f"Task service returned {response.status_code}")
+    _raise_for_status(response, 201)
 
     results = _extract_results(response)
 
     if len(results) != 1:
-        raise TasksServiceError("Task service must return exactly one created task.")
+        raise TasksServiceError(
+            "Task service must return exactly one created task."
+        )
 
     return results[0]
 
 
-def get_tasks(user_id: int, project_id: int | None = None) -> list[dict]:
+def get_tasks(
+    user_id: int,
+    project_id: int | None = None,
+) -> list[dict]:
     """Get tasks for the user, optionally filtered by project."""
     url = f"{settings.TASK_SERVICE_URL}/api/tasks"
 
@@ -77,10 +115,11 @@ def get_tasks(user_id: int, project_id: int | None = None) -> list[dict]:
             timeout=5,
         )
     except requests.RequestException as exc:
-        raise TasksServiceUnavailable("Task service is unavailable.") from exc
+        raise TasksServiceUnavailable(
+            "Task service is unavailable."
+        ) from exc
 
-    if response.status_code != 200:
-        raise TasksServiceError(f"Task service returned {response.status_code}")
+    _raise_for_status(response, 200)
 
     return _extract_results(response)
 
@@ -96,20 +135,27 @@ def get_a_task(user_id: int, task_id: int) -> dict:
             timeout=5,
         )
     except requests.RequestException as exc:
-        raise TasksServiceUnavailable("Task service is unavailable.") from exc
+        raise TasksServiceUnavailable(
+            "Task service is unavailable."
+        ) from exc
 
-    if response.status_code != 200:
-        raise TasksServiceError(f"Task service returned {response.status_code}")
+    _raise_for_status(response, 200)
 
     results = _extract_results(response)
 
     if len(results) != 1:
-        raise TasksServiceError("Task service must return exactly one task.")
+        raise TasksServiceError(
+            "Task service must return exactly one task."
+        )
 
     return results[0]
 
 
-def edit_a_task(user_id: int, task_id: int, payload: dict) -> dict:
+def edit_a_task(
+    user_id: int,
+    task_id: int,
+    payload: dict,
+) -> dict:
     """Update a task belonging to the authenticated user."""
     url = f"{settings.TASK_SERVICE_URL}/api/tasks/{task_id}"
 
@@ -121,15 +167,18 @@ def edit_a_task(user_id: int, task_id: int, payload: dict) -> dict:
             timeout=5,
         )
     except requests.RequestException as exc:
-        raise TasksServiceUnavailable("Task service is unavailable.") from exc
+        raise TasksServiceUnavailable(
+            "Task service is unavailable."
+        ) from exc
 
-    if response.status_code != 200:
-        raise TasksServiceError(f"Task service returned {response.status_code}")
+    _raise_for_status(response, 200)
 
     results = _extract_results(response)
 
     if len(results) != 1:
-        raise TasksServiceError("Task service must return exactly one task.")
+        raise TasksServiceError(
+            "Task service must return exactly one task."
+        )
 
     return results[0]
 
@@ -145,9 +194,10 @@ def delete_a_task(user_id: int, task_id: int) -> bool:
             timeout=5,
         )
     except requests.RequestException as exc:
-        raise TasksServiceUnavailable("Task service is unavailable.") from exc
+        raise TasksServiceUnavailable(
+            "Task service is unavailable."
+        ) from exc
 
-    if response.status_code != 204:
-        raise TasksServiceError(f"Task service returned {response.status_code}")
+    _raise_for_status(response, 204)
 
     return True

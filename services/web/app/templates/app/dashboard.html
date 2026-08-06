@@ -2,83 +2,221 @@
 
 {% block content %}
 
-<div class="container-fluid mt-4">
+<style>
+  /* --------------------------------------------------------------------------
+     Dashboard layout
+     -------------------------------------------------------------------------- */
 
-  <!-- Welcome -->
-  <div class="row mb-4">
-    <div class="col text-center">
-      <h2>Welcome {{ request.user.first_name|default:request.user.email }}</h2>
-    </div>
-  </div>
+  .dashboard-shell {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding-bottom: 2rem;
+  }
 
-  <!-- Active Session -->
-  <div class="row mb-4">
-    <div class="col-lg-8">
+  .dashboard-heading {
+    margin-bottom: 2rem;
+  }
+
+  .dashboard-heading h1 {
+    color: #172033;
+    font-size: clamp(1.8rem, 3vw, 2.4rem);
+    font-weight: 700;
+  }
+
+  .dashboard-heading p {
+    color: #6c757d;
+  }
+
+  /* --------------------------------------------------------------------------
+     Shared dashboard cards
+     -------------------------------------------------------------------------- */
+
+  .dashboard-card {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border: 0;
+    border-radius: 0.9rem;
+    background: #fff;
+    box-shadow: 0 0.3rem 1.2rem rgba(31, 45, 61, 0.08);
+  }
+
+  .dashboard-card > .card-header {
+    padding: 1rem 1.25rem;
+    background: #fff;
+    border-bottom: 1px solid #e9ecef;
+  }
+
+  .dashboard-card > .card-body {
+    padding: 1.25rem;
+  }
+
+  /*
+   * Both Bootstrap columns are flex containers.
+   * This makes the two cards in the top row the same height.
+   */
+  .dashboard-top-column {
+    display: flex;
+  }
+
+  .dashboard-top-column > .dashboard-card {
+    flex: 1 1 auto;
+  }
+
+  /* --------------------------------------------------------------------------
+     Task controls
+     -------------------------------------------------------------------------- */
+
+  .task-project-row {
+    width: 100%;
+    margin-bottom: 1.5rem;
+  }
+
+  .task-project-selector {
+    width: 100%;
+  }
+
+  .task-project-selector select {
+    min-height: 46px;
+    border-radius: 0.65rem;
+  }
+
+  .task-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  }
+
+  .task-project-form {
+    flex: 0 0 320px;
+    margin: 0;
+  }
+
+  .task-project-form .form-select {
+    width: 100%;
+    min-height: 46px;
+    border-radius: 0.65rem;
+  }
+
+  .task-toolbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .task-toolbar-actions .btn {
+    min-height: 46px;
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+  }
+  /* --------------------------------------------------------------------------
+     Task cards and empty states
+     -------------------------------------------------------------------------- */
+
+  .task-item {
+    padding: 1rem;
+    border: 1px solid #e3e8ef;
+    border-radius: 0.7rem;
+    background: #fff;
+    box-shadow: 0 0.15rem 0.5rem rgba(31, 45, 61, 0.05);
+  }
+
+  .task-title {
+    color: #212529;
+    font-weight: 600;
+  }
+
+  .task-description {
+    color: #6c757d;
+    font-size: 0.92rem;
+  }
+
+  .task-empty-state {
+    padding: 2.5rem 1rem;
+    color: #6c757d;
+    text-align: center;
+  }
+
+  .task-empty-state-icon {
+    width: 42px;
+    height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.75rem;
+    color: #198754;
+    background: #e8f5ee;
+    border-radius: 50%;
+    font-size: 1.25rem;
+  }
+
+  /* --------------------------------------------------------------------------
+     Responsive layout
+     -------------------------------------------------------------------------- */
+
+  @media (max-width: 991.98px) {
+    .dashboard-heading {
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+
+    .dashboard-top-column {
+      display: block;
+    }
+
+    .task-project-row {
+      align-items: stretch;
+    }
+  }
+
+  @media (max-width: 575.98px) {
+    .dashboard-shell {
+      padding-right: 0.75rem;
+      padding-left: 0.75rem;
+    }
+
+    .dashboard-card > .card-header,
+    .dashboard-card > .card-body {
+      padding-right: 1rem;
+      padding-left: 1rem;
+    }
+  }
+</style>
+
+<div class="container-fluid mt-4 dashboard-shell">
+
+  <!-- Dashboard introduction -->
+  <header class="dashboard-heading">
+
+    <h1 class="mb-1">
+      Welcome back{% if request.user.first_name %}, {{ request.user.first_name }}{% endif %}
+    </h1>
+
+    <p class="mb-0">
+      Track your time, manage projects and keep your work moving.
+    </p>
+
+  </header>
+
+  <!-- Current activity and workspace metrics -->
+  <div class="row g-4 align-items-stretch mb-4">
+
+    <div class="col-lg-8 dashboard-top-column">
       {% include "app/dashboard/_active_session_card.html" %}
     </div>
 
-
-    <!-- Overview -->
-    <div class="col-lg-4">
-
-      <div class="card h-100">
-
-        <div class="card-header">
-          <strong>Overview</strong>
-        </div>
-
-        <div class="card-body">
-
-          <p class="text-muted">
-            Metrics service integration pending.
-          </p>
-
-          <ul class="mb-0">
-            <li>Projects</li>
-            <li>Hours this week</li>
-            <li>Open tasks</li>
-            <li>Completed tasks</li>
-          </ul>
-
-        </div>
-
-      </div>
-
+    <div class="col-lg-4 dashboard-top-column">
+      {% include "app/dashboard/_user_metrics_card.html" %}
     </div>
 
   </div>
 
-  <!-- Projects -->
-<div class="card">
-
-    <div class="card-header">
-        <strong>Projects</strong>
-    </div>
-
-    <div class="card-body">
-
-        <!-- Project selector -->
-        {% include "app/dashboard/_projects_bar.html" %}
-
-        <div class="row mt-4">
-
-            <!-- Tasks -->
-            <div class="col-lg-8">
-
-                {% include "app/dashboard/_tasks_card.html" %}
-
-            </div>
-
-            <!-- Overview -->
-            <div class="col-lg-4">
-
-                {% include "app/dashboard/_project_overview_card.html" %}
-
-            </div>
-
-        </div>
-
-    </div>
+  <!-- Project tasks / Kanban board -->
+  <section>
+    {% include "app/dashboard/_task_card.html" %}
+  </section>
 
 </div>
 

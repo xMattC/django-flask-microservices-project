@@ -1,0 +1,645 @@
+<div>
+
+  {% if not selected_project %}
+
+    <div class="task-empty-state border rounded">
+      <div class="task-empty-state-icon">
+        <i class="bi bi-kanban"></i>
+      </div>
+
+      <h5 class="mb-2">Select a project</h5>
+
+      <p class="mb-0">
+        Choose a project to view and manage its tasks.
+      </p>
+    </div>
+
+  {% else %}
+
+    <div
+      id="create-task-panel"
+      class="collapse {% if task_create_error %}show{% endif %} mb-4">
+
+      <div class="border rounded p-4 bg-light">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <h5 class="mb-1">Create a task</h5>
+
+            <p class="text-muted small mb-0">
+              Add a task to {{ selected_project.name }}.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-toggle="collapse"
+            data-bs-target="#create-task-panel"
+            aria-label="Close">
+          </button>
+        </div>
+
+        <form method="post">
+          {% csrf_token %}
+
+          <input type="hidden" name="form_type" value="create_task">
+          <input type="hidden" name="project_id" value="{{ selected_project.id }}">
+
+          <div class="mb-3">
+            <label for="task-name" class="form-label">Task name</label>
+
+            <input
+              id="task-name"
+              type="text"
+              name="task_name"
+              class="form-control"
+              maxlength="255"
+              placeholder="Enter a short task title"
+              required>
+          </div>
+
+          <div class="mb-3">
+            <label for="task-description" class="form-label">
+              Description
+            </label>
+
+            <textarea
+              id="task-description"
+              name="description"
+              class="form-control font-monospace"
+              rows="5"
+              placeholder="Add a description using Markdown..."></textarea>
+
+            <div class="form-text">
+              Markdown formatting is supported.
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-end gap-2">
+            <button
+              type="button"
+              class="btn btn-outline-secondary"
+              data-bs-toggle="collapse"
+              data-bs-target="#create-task-panel">
+              Cancel
+            </button>
+
+            <button type="submit" class="btn btn-primary">
+              Create task
+            </button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+
+    {% if task_create_error %}
+      <div class="alert alert-danger">{{ task_create_error }}</div>
+    {% endif %}
+
+    {% if task_update_error %}
+      <div class="alert alert-danger">{{ task_update_error }}</div>
+    {% endif %}
+
+    {% if task_delete_error %}
+      <div class="alert alert-danger">{{ task_delete_error }}</div>
+    {% endif %}
+
+    {% if tasks_error %}
+
+      <div class="alert alert-warning mb-0">
+        {{ tasks_error }}
+      </div>
+
+    {% else %}
+
+      <div class="kanban-board">
+
+        <section class="kanban-column">
+          <div class="kanban-column-header">
+            <div class="d-flex align-items-center gap-2">
+              <span class="kanban-status-dot kanban-status-todo"></span>
+              <h6 class="mb-0">To-do</h6>
+            </div>
+
+            <span class="badge rounded-pill text-bg-light">
+              {{ todo_tasks|length }}
+            </span>
+          </div>
+
+          <div class="kanban-task-list" data-task-state="to-do">
+            {% include "app/dashboard/_task_list.html" with task_list=todo_tasks empty_title="No tasks yet" empty_message="Create a task to begin planning this project." %}
+          </div>
+        </section>
+
+        <section class="kanban-column">
+          <div class="kanban-column-header">
+            <div class="d-flex align-items-center gap-2">
+              <span class="kanban-status-dot kanban-status-progress"></span>
+              <h6 class="mb-0">In progress</h6>
+            </div>
+
+            <span class="badge rounded-pill text-bg-light">
+              {{ in_progress_tasks|length }}
+            </span>
+          </div>
+
+          <div class="kanban-task-list" data-task-state="in-progress">
+            {% include "app/dashboard/_task_list.html" with task_list=in_progress_tasks empty_title="Nothing in progress" empty_message="Move a task here when work begins." %}
+          </div>
+        </section>
+
+        <section class="kanban-column">
+          <div class="kanban-column-header">
+            <div class="d-flex align-items-center gap-2">
+              <span class="kanban-status-dot kanban-status-done"></span>
+              <h6 class="mb-0">Done</h6>
+            </div>
+
+            <span class="badge rounded-pill text-bg-light">
+              {{ done_tasks|length }}
+            </span>
+          </div>
+
+          <div class="kanban-task-list" data-task-state="done">
+            {% include "app/dashboard/_task_list.html" with task_list=done_tasks empty_title="No completed tasks" empty_message="Finished tasks will appear here." %}
+          </div>
+        </section>
+
+      </div>
+
+    {% endif %}
+
+  {% endif %}
+
+</div>
+
+<div
+  class="modal fade"
+  id="task-detail-modal"
+  tabindex="-1"
+  aria-labelledby="task-detail-modal-title"
+  aria-hidden="true">
+
+  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <div>
+          <p class="text-muted small mb-1">Task details</p>
+
+          <h4 class="modal-title" id="task-detail-modal-title">
+            Task
+          </h4>
+        </div>
+
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close">
+        </button>
+      </div>
+
+      <div class="modal-body">
+
+        <div id="task-view-mode">
+          <div class="d-flex justify-content-between align-items-center gap-3 mb-4">
+            <span
+              id="task-state-badge"
+              class="badge rounded-pill text-bg-secondary">
+              To-do
+            </span>
+
+            <button
+              id="task-edit-button"
+              type="button"
+              class="btn btn-outline-primary">
+              <i class="bi bi-pencil me-1"></i>
+              Edit
+            </button>
+          </div>
+
+          <div id="task-markdown-preview" class="task-markdown-preview"></div>
+        </div>
+
+        <div id="task-edit-mode" class="d-none">
+
+          <div class="mb-3">
+            <label for="task-title-editor" class="form-label">
+              Task title
+            </label>
+
+            <input
+              id="task-title-editor"
+              type="text"
+              class="form-control"
+              maxlength="255">
+          </div>
+
+          <div class="mb-3">
+            <label for="task-description-editor" class="form-label">
+              Description
+            </label>
+
+            <textarea
+              id="task-description-editor"
+              class="form-control font-monospace"
+              rows="16"
+              placeholder="Write the task description using Markdown..."></textarea>
+
+            <div class="form-text">
+              Markdown formatting is supported.
+            </div>
+          </div>
+
+        </div>
+
+        <div
+          id="task-modal-error"
+          class="alert alert-danger d-none mb-0">
+        </div>
+
+      </div>
+
+      <div class="modal-footer justify-content-between">
+
+        <div id="task-view-actions" class="d-flex gap-2">
+
+          <form id="task-state-form" method="post" class="d-flex gap-2">
+            {% csrf_token %}
+
+            <input type="hidden" name="form_type" value="update_task_state">
+            <input id="task-state-task-id" type="hidden" name="task_id">
+
+            <select
+              id="task-state-selector"
+              name="state"
+              class="form-select form-select-sm">
+              <option value="to-do">To-do</option>
+              <option value="in-progress">In progress</option>
+              <option value="done">Done</option>
+            </select>
+
+            <button type="submit" class="btn btn-sm btn-outline-secondary">
+              Move
+            </button>
+          </form>
+
+          <form id="task-delete-form" method="post">
+            {% csrf_token %}
+
+            <input type="hidden" name="form_type" value="delete_task">
+            <input id="task-delete-task-id" type="hidden" name="task_id">
+
+            <button
+              type="submit"
+              class="btn btn-sm btn-outline-danger"
+              onclick="return confirm('Delete this task?');">
+              <i class="bi bi-trash me-1"></i>
+              Delete
+            </button>
+          </form>
+
+        </div>
+
+        <div id="task-edit-actions" class="d-none gap-2">
+          <button
+            id="task-cancel-edit-button"
+            type="button"
+            class="btn btn-outline-secondary">
+            Cancel
+          </button>
+
+          <button
+            id="task-save-button"
+            type="button"
+            class="btn btn-primary">
+            <i class="bi bi-check-lg me-1"></i>
+            Save changes
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<style>
+  .kanban-board {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .kanban-column {
+    display: flex;
+    min-width: 0;
+    height: 520px;
+    flex-direction: column;
+    padding: 0.85rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.85rem;
+    background: #f8fafc;
+  }
+
+  .kanban-column-header {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.25rem 0.25rem 0.85rem;
+  }
+
+  .kanban-column-header h6 {
+    color: #263244;
+    font-weight: 700;
+  }
+
+  .kanban-status-dot {
+    width: 9px;
+    height: 9px;
+    display: inline-block;
+    flex-shrink: 0;
+    border-radius: 50%;
+  }
+
+  .kanban-status-todo {
+    background: #6c757d;
+  }
+
+  .kanban-status-progress {
+    background: #0d6efd;
+  }
+
+  .kanban-status-done {
+    background: #198754;
+  }
+
+  .kanban-task-list {
+    display: flex;
+    min-height: 0;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 0.75rem;
+    overflow-y: auto;
+    padding-right: 0.25rem;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+  }
+
+  .kanban-task-list::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .kanban-task-list::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .kanban-task-list::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 999px;
+  }
+
+  .kanban-task-list::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+  }
+
+  .kanban-task-list .task-empty-state {
+    display: flex;
+    min-height: 190px;
+    flex: 1 0 auto;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.25rem;
+    border: 1px dashed #cbd5e1;
+    border-radius: 0.7rem;
+    background: rgba(255, 255, 255, 0.55);
+    text-align: center;
+  }
+
+  .task-markdown-preview {
+    min-height: 280px;
+    padding: 1rem;
+    border: 1px solid #e3e8ef;
+    border-radius: 0.7rem;
+    background: #fff;
+  }
+
+  @media (max-width: 991.98px) {
+    .kanban-board {
+      grid-template-columns: 1fr;
+    }
+
+    .kanban-column {
+      height: auto;
+      max-height: 460px;
+    }
+
+    .kanban-task-list {
+      min-height: 190px;
+    }
+  }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const modal = document.getElementById("task-detail-modal");
+
+    if (!modal) {
+      return;
+    }
+
+    const modalTitle = document.getElementById("task-detail-modal-title");
+    const stateBadge = document.getElementById("task-state-badge");
+    const markdownPreview = document.getElementById("task-markdown-preview");
+    const viewMode = document.getElementById("task-view-mode");
+    const editMode = document.getElementById("task-edit-mode");
+    const viewActions = document.getElementById("task-view-actions");
+    const editActions = document.getElementById("task-edit-actions");
+    const editButton = document.getElementById("task-edit-button");
+    const cancelEditButton = document.getElementById("task-cancel-edit-button");
+    const saveButton = document.getElementById("task-save-button");
+    const titleEditor = document.getElementById("task-title-editor");
+    const descriptionEditor = document.getElementById("task-description-editor");
+    const stateSelector = document.getElementById("task-state-selector");
+    const stateTaskId = document.getElementById("task-state-task-id");
+    const deleteTaskId = document.getElementById("task-delete-task-id");
+    const errorMessage = document.getElementById("task-modal-error");
+
+    let activeTask = null;
+
+    function getCsrfToken() {
+      const input = document.querySelector(
+        "#task-state-form input[name='csrfmiddlewaretoken']"
+      );
+
+      return input ? input.value : "";
+    }
+
+    function formatState(state) {
+      const labels = {
+        "to-do": "To-do",
+        "in-progress": "In progress",
+        "done": "Done",
+      };
+
+      return labels[state] || state;
+    }
+
+    function updateStateBadge(state) {
+      stateBadge.textContent = formatState(state);
+      stateBadge.className = "badge rounded-pill";
+
+      if (state === "done") {
+        stateBadge.classList.add("text-bg-success");
+      } else if (state === "in-progress") {
+        stateBadge.classList.add("text-bg-primary");
+      } else {
+        stateBadge.classList.add("text-bg-secondary");
+      }
+    }
+
+    function renderMarkdown(markdown) {
+      if (!markdown || !markdown.trim()) {
+        markdownPreview.innerHTML =
+          '<p class="text-muted mb-0">No description has been added.</p>';
+        return;
+      }
+
+      markdownPreview.innerHTML = DOMPurify.sanitize(
+        marked.parse(markdown)
+      );
+    }
+
+    function showViewMode() {
+      viewMode.classList.remove("d-none");
+      editMode.classList.add("d-none");
+      viewActions.classList.remove("d-none");
+      editActions.classList.add("d-none");
+      editActions.classList.remove("d-flex");
+      errorMessage.classList.add("d-none");
+    }
+
+    function showEditMode() {
+      viewMode.classList.add("d-none");
+      editMode.classList.remove("d-none");
+      viewActions.classList.add("d-none");
+      editActions.classList.remove("d-none");
+      editActions.classList.add("d-flex");
+      titleEditor.focus();
+    }
+
+    modal.addEventListener("show.bs.modal", function (event) {
+      const button = event.relatedTarget;
+      const taskId = button.dataset.taskId;
+      const dataElement = document.getElementById(`task-data-${taskId}`);
+
+      if (!dataElement) {
+        return;
+      }
+
+      activeTask = JSON.parse(dataElement.textContent);
+
+      modalTitle.textContent = activeTask.task_name;
+      titleEditor.value = activeTask.task_name;
+      descriptionEditor.value = activeTask.description || "";
+      stateSelector.value = activeTask.state;
+      stateTaskId.value = activeTask.id;
+      deleteTaskId.value = activeTask.id;
+
+      updateStateBadge(activeTask.state);
+      renderMarkdown(activeTask.description);
+      showViewMode();
+    });
+
+    editButton.addEventListener("click", showEditMode);
+
+    cancelEditButton.addEventListener("click", function () {
+      titleEditor.value = activeTask.task_name;
+      descriptionEditor.value = activeTask.description || "";
+      showViewMode();
+    });
+
+    saveButton.addEventListener("click", async function () {
+      if (!activeTask) {
+        return;
+      }
+
+      const taskName = titleEditor.value.trim();
+
+      if (!taskName) {
+        errorMessage.textContent = "Task title is required.";
+        errorMessage.classList.remove("d-none");
+        return;
+      }
+
+      saveButton.disabled = true;
+      errorMessage.classList.add("d-none");
+
+      try {
+        const response = await fetch(
+          `/tasks/${activeTask.id}/edit/`,
+          {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRFToken": getCsrfToken(),
+            },
+            body: JSON.stringify({
+              task_name: taskName,
+              description: descriptionEditor.value,
+            }),
+          }
+        );
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            result.message || "Could not update task."
+          );
+        }
+
+        activeTask.task_name = result.task_name;
+        activeTask.description = result.description || "";
+
+        modalTitle.textContent = activeTask.task_name;
+        renderMarkdown(activeTask.description);
+
+        const cardTitle = document.querySelector(
+          `.task-view-button[data-task-id="${activeTask.id}"]`
+        )?.closest(".task-item")
+          ?.querySelector(".task-title");
+
+        if (cardTitle) {
+          cardTitle.textContent = activeTask.task_name;
+        }
+
+        const dataElement = document.getElementById(
+          `task-data-${activeTask.id}`
+        );
+
+        if (dataElement) {
+          dataElement.textContent = JSON.stringify(activeTask);
+        }
+
+        showViewMode();
+
+      } catch (error) {
+        errorMessage.textContent = error.message;
+        errorMessage.classList.remove("d-none");
+
+      } finally {
+        saveButton.disabled = false;
+      }
+    });
+  });
+</script>

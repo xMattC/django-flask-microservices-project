@@ -1,0 +1,37 @@
+  <div class="card dashboard-card">
+
+    <div class="card-header">
+      <strong class="fs-5">Tasks</strong>
+    </div>
+
+    <div class="card-body">
+
+      <div class="task-project-row">
+
+        <div class="task-project-selector">
+          {% include "app/dashboard/_task_projects_bar.html" %}
+        </div>
+
+      </div>
+
+      <div class="row g-4 align-items-stretch">
+
+          <div class="task-control-row">
+
+            <ul
+              class="nav nav-tabs task-tabs"
+              id="task-tabs"
+              role="tablist">
+
+
+          </div>
+
+          {% include "app/dashboard/_tasks_kanban_board.html" %}
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>

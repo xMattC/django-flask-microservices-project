@@ -13,7 +13,7 @@ from django.shortcuts import redirect, render
 ALLOWED_TASK_STATES = {
     "to-do",
     "in-progress",
-    "completed",
+    "done",
 }
 
 
@@ -134,8 +134,8 @@ def _handle_create_task(request: HttpRequest) -> str | HttpResponse:
     except tasks_service_client.TasksServiceUnavailable:
         return "Task service is currently unavailable."
 
-    except tasks_service_client.TasksServiceError:
-        return "Could not create task."
+    except tasks_service_client.TasksServiceError as exc:
+        return f"Could not create task: {exc}"
 
 
 def _handle_update_task_state(request: HttpRequest) -> str | HttpResponse:
@@ -173,8 +173,8 @@ def _handle_update_task_state(request: HttpRequest) -> str | HttpResponse:
     except tasks_service_client.TasksServiceUnavailable:
         return "Task service is currently unavailable."
 
-    except tasks_service_client.TasksServiceError:
-        return "Could not update task."
+    except tasks_service_client.TasksServiceError as exc:
+        return f"Could not update task: {exc}"
 
 
 def _handle_delete_task(request: HttpRequest) -> str | HttpResponse:
@@ -195,15 +195,18 @@ def _handle_delete_task(request: HttpRequest) -> str | HttpResponse:
         return "Could not identify the current user."
 
     try:
-        tasks_service_client.delete_a_task(user_id=user_id, task_id=task_id)
+        tasks_service_client.delete_a_task(
+            user_id=user_id,
+            task_id=task_id,
+        )
 
         return redirect("app:dashboard")
 
     except tasks_service_client.TasksServiceUnavailable:
         return "Task service is currently unavailable."
 
-    except tasks_service_client.TasksServiceError:
-        return "Could not delete task."
+    except tasks_service_client.TasksServiceError as exc:
+        return f"Could not delete task: {exc}"
 
 
 def _get_projects_for_user(user_id: int) -> tuple[list[dict[str, Any]], str | None]:
@@ -232,21 +235,26 @@ def _get_sessions_for_user(user_id: int) -> tuple[list[dict[str, Any]], str | No
         return [], "Could not load sessions."
 
 
-def _get_tasks_for_project(user_id: int, project_id: int | None) -> tuple[list[dict[str, Any]], str | None]:
+def _get_tasks_for_project(
+    user_id: int, project_id: int | None
+) -> tuple[list[dict[str, Any]], str | None]:
     """Load tasks for the selected project."""
     if project_id is None:
         return [], None
 
     try:
-        tasks = tasks_service_client.get_tasks(user_id=user_id, project_id=project_id)
+        tasks = tasks_service_client.get_tasks(
+            user_id=user_id,
+            project_id=project_id,
+        )
 
         return tasks, None
 
     except tasks_service_client.TasksServiceUnavailable:
         return [], "Task service is currently unavailable."
 
-    except tasks_service_client.TasksServiceError:
-        return [], "Could not load tasks."
+    except tasks_service_client.TasksServiceError as exc:
+        return [], f"Could not load tasks: {exc}"
 
 
 def _format_duration(total_seconds: int | None, running: bool = False) -> str | None:
@@ -275,7 +283,9 @@ def _parse_datetime(value: str | None) -> datetime | None:
     return datetime.fromisoformat(normalised_value)
 
 
-def _build_dashboard_session(session: dict[str, Any], project_names: dict[int, str]) -> dict[str, Any]:
+def _build_dashboard_session(
+    session: dict[str, Any], project_names: dict[int, str]
+) -> dict[str, Any]:
     """Build one formatted dashboard session."""
     started_at = _parse_datetime(session.get("started_at"))
     ended_at = _parse_datetime(session.get("ended_at"))
@@ -361,7 +371,7 @@ def _split_tasks_by_state(
     """Split tasks into the three dashboard workflow columns."""
     todo_tasks = []
     in_progress_tasks = []
-    completed_tasks = []
+    done_tasks = []
 
     for task in tasks:
         state = task.get("state")
@@ -370,13 +380,13 @@ def _split_tasks_by_state(
             todo_tasks.append(task)
         elif state == "in-progress":
             in_progress_tasks.append(task)
-        elif state == "completed":
-            completed_tasks.append(task)
+        elif state == "done":
+            done_tasks.append(task)
 
     return (
         todo_tasks,
         in_progress_tasks,
-        completed_tasks,
+        done_tasks,
     )
 
 
@@ -490,7 +500,7 @@ def dashboard_view(request: HttpRequest) -> HttpResponse:
     (
         todo_tasks,
         in_progress_tasks,
-        completed_tasks,
+        done_tasks,
     ) = _split_tasks_by_state(tasks)
 
     running_duration_display = None
@@ -524,7 +534,7 @@ def dashboard_view(request: HttpRequest) -> HttpResponse:
             "tasks_error": tasks_error,
             "todo_tasks": todo_tasks,
             "in_progress_tasks": in_progress_tasks,
-            "completed_tasks": completed_tasks,
+            "done_tasks": done_tasks,
             "task_create_error": task_create_error,
             "task_update_error": task_update_error,
             "task_delete_error": task_delete_error,
