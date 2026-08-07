@@ -243,7 +243,7 @@ class Command(BaseCommand):
     # ------------------------------------------------------------------
     def seed_time_entries(self, user_id, projects, min_entries, max_entries, days):
 
-        twenty_four_hours_ago  = timezone.now() - timedelta(hours=24)
+        twenty_four_hours_ago = timezone.now() - timedelta(hours=24)
 
         for project in projects:
 
@@ -256,14 +256,18 @@ class Command(BaseCommand):
 
                 description = f"Demo session {i + 1} " f"for {project['name']}"
 
-                started_at = (twenty_four_hours_ago  - timedelta(days=random.randint(0, days))).replace(
+                started_at = (
+                    twenty_four_hours_ago - timedelta(days=random.randint(0, days))
+                ).replace(
                     hour=random.randint(8, 16),
                     minute=random.choice([0, 15, 30, 45]),
                     second=0,
                     microsecond=0,
                 )
 
-                ended_at = started_at + timedelta(minutes=random.choice([60, 75, 90, 105, 120, 150, 180, 240]))
+                ended_at = started_at + timedelta(
+                    minutes=random.choice([60, 75, 90, 105, 120, 150, 180, 240])
+                )
 
                 entry = create_time_entry(
                     user_id=user_id,

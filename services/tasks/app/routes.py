@@ -1,7 +1,6 @@
-from flask import jsonify, request
+from flask import current_app, jsonify, request
 from flask_smorest import Blueprint
 from werkzeug.exceptions import HTTPException
-from flask import current_app, jsonify, request
 
 from app.extensions import db
 from app.models import Tasks
@@ -38,19 +37,24 @@ def health():
 
 #     return jsonify({"message": "Internal server error"}), 500
 
+
 @routes.errorhandler(Exception)
 def handle_exception(error):
     """Handle unexpected exceptions."""
     if isinstance(error, HTTPException):
         return error
 
-    current_app.logger.exception(
-        "Unhandled exception in Tasks service"
+    current_app.logger.exception("Unhandled exception in Tasks service")
+
+    return (
+        jsonify(
+            {
+                "message": "Internal server error",
+            }
+        ),
+        500,
     )
 
-    return jsonify({
-        "message": "Internal server error",
-    }), 500
 
 @routes.get("/db-health")
 @endpoint_docs(routes)
@@ -80,9 +84,7 @@ def create_task(data):
     user_id = request.headers.get("X-User-ID")
 
     if not user_id:
-        return jsonify({
-            "message": "Missing required header: X-User-ID"
-        }), 400
+        return jsonify({"message": "Missing required header: X-User-ID"}), 400
 
     task = Tasks(
         owner_user_id=user_id,
@@ -95,9 +97,7 @@ def create_task(data):
     db.session.add(task)
     db.session.commit()
 
-    return jsonify({
-        "results": [task.to_dict()]
-    }), 201
+    return jsonify({"results": [task.to_dict()]}), 201
 
 
 @routes.get("/tasks")
@@ -111,9 +111,7 @@ def get_tasks():
     user_id = request.headers.get("X-User-ID")
 
     if not user_id:
-        return jsonify({
-            "message": "Missing required header: X-User-ID"
-        }), 400
+        return jsonify({"message": "Missing required header: X-User-ID"}), 400
 
     query = Tasks.query.filter_by(
         owner_user_id=user_id,
@@ -133,12 +131,7 @@ def get_tasks():
         Tasks.created_at.desc(),
     ).all()
 
-    return jsonify({
-        "results": [
-            task.to_dict()
-            for task in tasks
-        ]
-    }), 200
+    return jsonify({"results": [task.to_dict() for task in tasks]}), 200
 
 
 @routes.get("/tasks/<int:task_id>")
@@ -152,9 +145,7 @@ def get_task_detail(task_id):
     user_id = request.headers.get("X-User-ID")
 
     if not user_id:
-        return jsonify({
-            "message": "Missing required header: X-User-ID"
-        }), 400
+        return jsonify({"message": "Missing required header: X-User-ID"}), 400
 
     task = Tasks.query.filter_by(
         id=task_id,
@@ -162,13 +153,9 @@ def get_task_detail(task_id):
     ).first()
 
     if task is None:
-        return jsonify({
-            "message": "Task not found"
-        }), 404
+        return jsonify({"message": "Task not found"}), 404
 
-    return jsonify({
-        "results": [task.to_dict()]
-    }), 200
+    return jsonify({"results": [task.to_dict()]}), 200
 
 
 @routes.patch("/tasks/<int:task_id>")
@@ -183,9 +170,7 @@ def update_task(data, task_id):
     user_id = request.headers.get("X-User-ID")
 
     if not user_id:
-        return jsonify({
-            "message": "Missing required header: X-User-ID"
-        }), 400
+        return jsonify({"message": "Missing required header: X-User-ID"}), 400
 
     task = Tasks.query.filter_by(
         id=task_id,
@@ -193,9 +178,7 @@ def update_task(data, task_id):
     ).first()
 
     if task is None:
-        return jsonify({
-            "message": "Task not found"
-        }), 404
+        return jsonify({"message": "Task not found"}), 404
 
     if "task_name" in data:
         task.task_name = data["task_name"]
@@ -211,9 +194,7 @@ def update_task(data, task_id):
 
     db.session.commit()
 
-    return jsonify({
-        "results": [task.to_dict()]
-    }), 200
+    return jsonify({"results": [task.to_dict()]}), 200
 
 
 @routes.delete("/tasks/<int:task_id>")
@@ -227,9 +208,7 @@ def delete_task(task_id):
     user_id = request.headers.get("X-User-ID")
 
     if not user_id:
-        return jsonify({
-            "message": "Missing required header: X-User-ID"
-        }), 400
+        return jsonify({"message": "Missing required header: X-User-ID"}), 400
 
     task = Tasks.query.filter_by(
         id=task_id,
@@ -237,9 +216,7 @@ def delete_task(task_id):
     ).first()
 
     if task is None:
-        return jsonify({
-            "message": "Task not found"
-        }), 404
+        return jsonify({"message": "Task not found"}), 404
 
     db.session.delete(task)
     db.session.commit()

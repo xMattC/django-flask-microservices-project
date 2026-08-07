@@ -18,4 +18,3 @@ urlpatterns = [
     path("clock-out/", clock_out_view, name="clock-out"),
     path("tasks/<int:task_id>/edit/", edit_task_view, name="edit-task"),
 ]
-
