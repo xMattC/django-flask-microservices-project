@@ -132,6 +132,60 @@ services:
     healthcheck:
       test: [ "CMD", "pg_isready", "-q", "-d", "${TIME_TRACKING_DB_NAME}", "-U", "${TIME_TRACKING_DB_USER}" ]
 
+# ------------------------------------------------------------------
+# Flask Tasks Microservice (owns tasks data + logic)
+# ------------------------------------------------------------------
+
+tasks:
+  build:
+    context: ./services/tasks
+    dockerfile: dockerfile
+    args:
+      DEV: "false"
+  restart: always
+  working_dir: /app
+  expose:
+    - "5000"
+  command: >
+    sh -c "gunicorn 'app.main:create_app()' --bind 0.0.0.0:5000"
+  environment:
+    - FLASK_ENV=production
+    - PYTHONPATH=/app
+    - DB_HOST=tasks-db
+    - DB_NAME=${TASKS_DB_NAME}
+    - DB_USER=${TASKS_DB_USER}
+    - DB_PASSWORD=${TASKS_DB_PASSWORD}
+    - DB_PORT=5432
+  depends_on:
+    tasks-db:
+      condition: service_healthy
+
+
+# ------------------------------------------------------------------
+# Flask Tasks Microservice - PostgreSQL Database
+# ------------------------------------------------------------------
+
+tasks-db:
+  image: postgres:15-alpine
+  restart: always
+  volumes:
+    - tasks-db-data:/var/lib/postgresql/data
+  environment:
+    - POSTGRES_DB=${TASKS_DB_NAME}
+    - POSTGRES_USER=${TASKS_DB_USER}
+    - POSTGRES_PASSWORD=${TASKS_DB_PASSWORD}
+  healthcheck:
+    test:
+      [
+        "CMD",
+        "pg_isready",
+        "-q",
+        "-d",
+        "${TASKS_DB_NAME}",
+        "-U",
+        "${TASKS_DB_USER}",
+      ]
+      
   # ------------------------------------------------------------------
   # Reverse Proxy
   # ------------------------------------------------------------------
@@ -143,6 +197,7 @@ services:
       - web
       - projects
       - time-tracking
+      - tasks
     ports:
       - "80:8000"
       - "443:8443"
@@ -160,4 +215,5 @@ volumes:
   web-db-data:
   projects-db-data:
   time-tracking-db-data:
+  tasks-db-data:
   static-data:
