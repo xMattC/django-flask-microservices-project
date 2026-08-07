@@ -225,6 +225,7 @@ cd productivity-microservices-platform
 docker compose run --rm web python manage.py migrate
 docker compose run --rm projects flask --app app.main:create_app db upgrade
 docker compose run --rm time-tracking flask --app app.main:create_app db upgrade
+docker compose run --rm tasks flask --app app.main:create_app db upgrade
 
 # Seed demo user data:
 docker compose run --rm web python manage.py seed_demo_data --reset
