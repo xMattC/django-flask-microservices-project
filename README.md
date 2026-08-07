@@ -133,7 +133,10 @@ Features demonstrated include:
 - Integration with downstream Flask services
 - User-scoped application behaviour
 
-> Django web interface screenshot placeholder
+<p align="center">
+    <img src="docs\images\dashboard_screenshot.png" width="1000">
+</p>
+
 
 ---
 
@@ -147,16 +150,15 @@ Each backend service includes dedicated API documentation.
 | --------------------- | ------------------------------------------------------- |
 | Projects Service      | [API Documentation](services/projects/docs/API.md)      |
 | Time Tracking Service | [API Documentation](services/time-tracking/docs/API.md) |
+| Tasks Service | [API Documentation](services/tasks/docs/API.md) |
 
 The APIs are also documented using live OpenAPI / Swagger interfaces via `flask-smorest`.
 
-### Projects Service Swagger
+### Example: Projects Service Swagger
 
 ![Projects Service Swagger](docs/images/projects_service_api_docs.PNG)
 
-### Time Tracking Service Swagger
 
-![Time Tracking Service Swagger](docs/images/time_tracking_service_api_docs.PNG)
 
 ---
 
