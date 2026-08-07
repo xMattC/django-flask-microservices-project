@@ -32,6 +32,7 @@ You can create an account or use the demo login:
 
 - Django Backend-for-Frontend (BFF)
 - Three independent Flask microservices
+- REST API design and inter-service communication
 - PostgreSQL database per service
 - Docker Compose development environment
 - AWS EC2 deployment
@@ -46,22 +47,6 @@ You can create an account or use the demo login:
 <p align="center">
     <img src="docs\images\dashboard_screenshot.png" width="800">
 </p>
-
----
-
-## 🎯 Engineering Focus
-
-This project was built to demonstrate:
-
-- Microservice architecture and service isolation
-- Django + Flask interoperability
-- REST API design and inter-service communication
-- Docker-based local development workflows
-- AWS EC2 deployment with automated CI/CD pipelines
-- Database migration management across services
-- Automated testing and code quality pipelines
-- Production-oriented deployment and release automation
-- Continuous Integration and Continuous Deployment (CI/CD)
 
 ---
 
