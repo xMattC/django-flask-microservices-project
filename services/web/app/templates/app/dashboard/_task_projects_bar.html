@@ -1,36 +1,36 @@
 <div class="d-flex align-items-center gap-2 flex-wrap">
 
-  <span class="project-colour-dot" aria-hidden="true"></span>
+  <div class="input-group project-select-group">
 
-  <form method="post" class="mb-0">
-    {% csrf_token %}
+    <span class="input-group-text bg-white border-end-0">
+      <i class="bi bi-folder2-open text-primary"></i>
+    </span>
 
-    <input type="hidden" name="form_type" value="select_project">
+    <form method="post" class="mb-0 flex-grow-1">
+      {% csrf_token %}
 
-    <select
-      id="project-selector"
-      name="project_id"
-      class="form-select"
-      style="width: 320px;"
-      onchange="this.form.submit()">
+      <input type="hidden" name="form_type" value="select_project">
 
-      <option value="">Select project</option>
+      <select
+        id="project-selector"
+        name="project_id"
+        class="form-select border-start-0 ps-0"
+        onchange="this.form.submit()">
 
-      {% for project in projects %}
-        <option
-          value="{{ project.id }}"
-          {% if selected_project and project.id == selected_project.id %}selected{% endif %}>
-          {{ project.name|truncatechars:30 }}
-        </option>
-      {% endfor %}
+        <option value="">Select project</option>
 
-    </select>
-  </form>
+        {% for project in projects %}
+          <option
+            value="{{ project.id }}"
+            {% if selected_project and project.id == selected_project.id %}selected{% endif %}>
+            {{ project.name|truncatechars:30 }}
+          </option>
+        {% endfor %}
 
-  <!-- <a href="{% url 'app:projects' %}" class="btn btn-outline-secondary">
-    <i class="bi bi-folder2-open me-1"></i>
-    Manage Projects
-  </a> -->
+      </select>
+    </form>
+
+  </div>
 
   {% if selected_project %}
     <button
@@ -48,11 +48,21 @@
 </div>
 
 <style>
-  .project-colour-dot {
-    width: 11px;
-    height: 11px;
-    flex: 0 0 auto;
-    border-radius: 50%;
-    background: #0d6efd;
+  .project-select-group {
+    width: min(100%, 360px);
+  }
+
+  .project-select-group .input-group-text,
+  .project-select-group .form-select {
+    min-height: 44px;
+    border-color: #dce3eb;
+  }
+
+  .project-select-group .input-group-text {
+    border-radius: 0.6rem 0 0 0.6rem;
+  }
+
+  .project-select-group .form-select {
+    border-radius: 0 0.6rem 0.6rem 0;
   }
 </style>

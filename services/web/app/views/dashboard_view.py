@@ -40,10 +40,8 @@ def _handle_select_project(request: HttpRequest) -> HttpResponse:
     return redirect("app:dashboard")
 
 
-def _handle_switch_project(
-    request: HttpRequest,
-) -> str | HttpResponse:
-    """Stop the current session and start one for another project."""
+def _handle_switch_project(request: HttpRequest) -> str | HttpResponse:
+    """Stop the current session and change the active project."""
     project_id_value = request.POST.get("project_id")
 
     if not project_id_value:
@@ -71,15 +69,9 @@ def _handle_switch_project(
                 running_entries[0]["id"],
             )
 
-        time_tracking_service_client.create_time_entry(
-            user_id,
-            {
-                "project_id": project_id,
-            },
-        )
-
-        # After a switch, align the Projects card with the new active project.
-        # The dropdown remains independent after the user changes it again.
+        # Do NOT create a new running session.
+        # Just remember which project is selected.
+        request.session["active_project_id"] = project_id
         request.session["selected_project_id"] = project_id
 
         return redirect("app:dashboard")
@@ -453,9 +445,11 @@ def dashboard_view(request: HttpRequest) -> HttpResponse:
     last_session = _get_last_session(dashboard_sessions)
     display_session = active_session or last_session
 
-    active_project_id = None
+    active_project_id = _normalise_selected_project_id(
+        request.session.get("active_project_id")
+    )
 
-    if display_session is not None:
+    if active_project_id is None and display_session is not None:
         active_project_id = display_session.get("project_id")
 
     active_project = _get_project_by_id(

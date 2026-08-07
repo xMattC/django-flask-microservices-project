@@ -1,120 +1,432 @@
 {% extends "base.html" %}
 
 {% block content %}
+
 <style>
+  .projects-shell {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-bottom: 3rem;
+  }
+
+  .projects-page-header {
+    margin-bottom: 1.5rem;
+  }
+
+  .projects-page-header h1 {
+    color: #172033;
+    font-size: clamp(2rem, 3vw, 2.5rem);
+    font-weight: 750;
+    letter-spacing: -0.035em;
+  }
+
+  .projects-page-header p {
+    color: #667085;
+  }
+
+  .projects-card {
+    width: 100%;
+    min-width: 0;
+    overflow: hidden;
+    border: 0;
+    border-radius: 1rem;
+    background: #fff;
+    box-shadow: 0 0.45rem 1.5rem rgba(31, 45, 61, 0.075);
+  }
+
+  .projects-card > .card-header {
+    padding: 1rem 1.25rem;
+    background: #fff;
+    border-bottom: 1px solid #e7ecf2;
+  }
+
+  .projects-card > .card-body {
+    padding: 1.25rem;
+  }
+
+  .projects-card-title {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin: 0;
+    color: #172033;
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+
   .projects-scroll-window {
-    max-height: 500px;
+    width: 100%;
+    height: 80vh;
+    min-height: 550px;
     overflow-y: auto;
-    padding-right: 0.5rem;
+    padding-right: 0.35rem;
+    scrollbar-width: thin;
+    scrollbar-color: #c3ccd7 transparent;
+  }
+
+  .projects-scroll-window::-webkit-scrollbar {
+    width: 7px;
+  }
+
+  .projects-scroll-window::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .projects-scroll-window::-webkit-scrollbar-thumb {
+    background: #c3ccd7;
+    border-radius: 999px;
+  }
+
+  .projects-scroll-window::-webkit-scrollbar-thumb:hover {
+    background: #98a6b8;
+  }
+
+  .project-manage-item {
+    min-width: 0;
+    padding: 0.8rem;
+    margin-bottom: 0.75rem;
+    border: 1px solid #e7ecf2;
+    border-radius: 0.8rem;
+    background: #f8fafc;
+    transition:
+      transform 150ms ease,
+      border-color 150ms ease,
+      box-shadow 150ms ease;
+  }
+
+  .project-manage-item:last-child {
+    margin-bottom: 0;
+  }
+
+  .project-manage-item:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 0.4rem 1rem rgba(31, 45, 61, 0.08);
+    transform: translateY(-1px);
+  }
+
+  .project-name-group {
+    flex-wrap: nowrap;
+  }
+
+  .project-name-input {
+    min-width: 0;
+    min-height: 44px;
+    border-color: #dce3eb;
+  }
+
+  .project-name-input:focus,
+  .create-project-form input:focus {
+    border-color: #93b4f7;
+    box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.1);
+  }
+
+  .create-project-form input {
+    min-height: 44px;
+    border-color: #dce3eb;
+    border-radius: 0.6rem;
+  }
+
+  .projects-empty-state {
+    padding: 3rem 1rem;
+    color: #667085;
+    text-align: center;
+  }
+
+  .projects-empty-icon {
+    width: 48px;
+    height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.85rem;
+    color: #2563eb;
+    background: #eaf1ff;
+    border-radius: 50%;
+    font-size: 1.25rem;
+  }
+
+  .projects-error {
+    padding: 0.75rem 0.9rem;
+    color: #b54708;
+    background: #fff4e5;
+    border: 1px solid #fed7aa;
+    border-radius: 0.6rem;
+  }
+
+  .btn {
+    border-radius: 0.55rem;
+    font-weight: 500;
+    transition:
+      transform 120ms ease,
+      box-shadow 120ms ease,
+      background-color 120ms ease;
+  }
+
+  .btn:hover {
+    transform: translateY(-1px);
+  }
+
+  .btn-primary {
+    background: #2563eb;
+    border-color: #2563eb;
+  }
+
+  .btn-primary:hover {
+    background: #1d4ed8;
+    border-color: #1d4ed8;
+  }
+
+  @media (max-width: 991.98px) {
+    .projects-page-header {
+      text-align: center;
+    }
+
+    .projects-page-header .d-flex {
+      align-items: center !important;
+      flex-direction: column;
+    }
+
+    .projects-scroll-window {
+      height: 55vh;
+      min-height: 360px;
+    }
   }
 </style>
 
-<div class="row mt-5">
-  <div class="col-12">
-    <div class="card shadow-sm border-0">
-      <div class="card-body p-4">
-        <div class="d-flex align-items-center justify-content-between gap-3">
-          <div>
-            <h1 class="h3 mb-2">Projects</h1>
-            <p class="text-muted mb-0">
-              Create, rename, and delete your projects.
-            </p>
-          </div>
+<div class="container-fluid mt-4 projects-shell">
 
-          <a href="{% url 'app:dashboard' %}" class="btn btn-outline-secondary btn-sm">
-            Back to dashboard
-          </a>
+  <header class="projects-page-header">
+
+    <div class="d-flex align-items-center justify-content-between gap-3 flex-wrap">
+
+      <div>
+        <h1 class="mb-1">Projects</h1>
+
+        <p class="mb-0">
+          Create and organise projects to keep tasks and time tracking focused.
+        </p>
+      </div>
+
+      <a
+        href="{% url 'app:dashboard' %}"
+        class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>
+        Back to dashboard
+      </a>
+
+    </div>
+
+  </header>
+
+  <div class="row g-4 align-items-start">
+
+    <div class="col-xl-3 col-lg-4">
+
+      <div class="card projects-card">
+
+        <div class="card-header">
+          <h2 class="projects-card-title">
+            <i class="bi bi-folder-plus text-primary"></i>
+            New Project
+          </h2>
         </div>
+
+        <div class="card-body">
+
+          <p class="text-muted small mb-4">
+            Add a new project for tasks and time tracking.
+          </p>
+
+          <form method="post" class="create-project-form">
+            {% csrf_token %}
+
+            <input
+              type="hidden"
+              name="form_type"
+              value="create_project">
+
+            <label
+              class="form-label"
+              for="{{ project_create_form.name.id_for_label }}">
+              Project name
+            </label>
+
+            {{ project_create_form.name }}
+
+            {% if project_create_error %}
+              <div class="projects-error small mt-3">
+                {{ project_create_error }}
+              </div>
+            {% endif %}
+
+            <button
+              type="submit"
+              class="btn btn-primary mt-3">
+              <i class="bi bi-plus-lg me-1"></i>
+              Create
+            </button>
+
+          </form>
+
+        </div>
+
       </div>
+
     </div>
-  </div>
-</div>
 
-<div class="row mt-4">
-  <div class="col-lg-5 mb-3">
-    <div class="card shadow-sm border-0">
-      <div class="card-body">
-        <h5 class="card-title">Create project</h5>
+    <div class="col-xl-9 col-lg-8">
 
-        <form method="post">
-          {% csrf_token %}
-          <input type="hidden" name="form_type" value="create_project">
+      <div class="card projects-card">
 
-          {{ project_create_form.name }}
+        <div class="card-header d-flex align-items-center justify-content-between gap-3">
 
-          {% if project_create_error %}
-            <p class="text-warning small mt-2 mb-0">{{ project_create_error }}</p>
+          <h2 class="projects-card-title">
+            <i class="bi bi-kanban text-primary"></i>
+            Your Projects
+          </h2>
+
+          {% if projects %}
+            <span class="badge rounded-pill text-bg-light">
+              {{ projects|length }}
+            </span>
           {% endif %}
 
-          <button type="submit" class="btn btn-primary btn-sm mt-3">
-            Create project
-          </button>
-        </form>
-      </div>
-    </div>
-  </div>
+        </div>
 
-  <div class="col-lg-7 mb-3">
-    <div class="card shadow-sm border-0">
-      <div class="card-body">
-        <h5 class="card-title">Manage projects</h5>
+        <div class="card-body">
 
-        {% if projects_error %}
-          <p class="text-warning mb-0">{{ projects_error }}</p>
+          {% if projects_error %}
 
-        {% elif projects %}
-          {% if project_update_error %}
-            <p class="text-warning small">{{ project_update_error }}</p>
-          {% endif %}
+            <div class="projects-error mb-0">
+              {{ projects_error }}
+            </div>
 
-          <div class="projects-scroll-window">
-            {% for project in projects|dictsort:"name" %}
-              <div class="border rounded p-3 mb-3">
-                <form method="post" class="mb-2">
-                  {% csrf_token %}
-                  <input type="hidden" name="form_type" value="update_project">
-                  <input type="hidden" name="project_id" value="{{ project.id }}">
+          {% elif projects %}
 
-                  <div class="input-group">
+            {% if project_update_error %}
+              <div class="projects-error small mb-3">
+                {{ project_update_error }}
+              </div>
+            {% endif %}
+
+            <div class="projects-scroll-window">
+
+              {% for project in projects|dictsort:"name" %}
+
+                <article class="project-manage-item">
+
+                  <form method="post" action="{% url 'app:projects' %}">
+                    {% csrf_token %}
+
                     <input
-                      type="text"
-                      name="name"
-                      value="{{ project.name }}"
-                      class="form-control"
-                      maxlength="255"
-                      required
-                    >
-                    <button type="submit" class="btn btn-secondary btn-sm">
-                      Rename
-                    </button>
+                      type="hidden"
+                      name="form_type"
+                      value="update_project">
+
+                    <input
+                      type="hidden"
+                      name="project_id"
+                      value="{{ project.id }}">
+
+                    <label
+                      for="project-name-{{ project.id }}"
+                      class="form-label small text-muted">
+                      Project name
+                    </label>
+
+                    <div class="input-group project-name-group">
+
+                      <span class="input-group-text bg-white">
+                        <i class="bi bi-folder"></i>
+                      </span>
+
+                      <input
+                        id="project-name-{{ project.id }}"
+                        type="text"
+                        name="name"
+                        value="{{ project.name }}"
+                        class="form-control project-name-input"
+                        maxlength="255"
+                        required>
+
+                      <button
+                        type="submit"
+                        class="btn btn-outline-secondary"
+                        title="Rename project">
+                        <i class="bi bi-pencil-square me-1"></i>
+                        Rename
+                      </button>
+
+                    </div>
+
+                  </form>
+
+                  <div class="d-flex justify-content-end mt-2">
+
+                    <form method="post">
+                      {% csrf_token %}
+
+                      <input
+                        type="hidden"
+                        name="form_type"
+                        value="delete_project">
+
+                      <input
+                        type="hidden"
+                        name="project_id"
+                        value="{{ project.id }}">
+
+                      <button
+                        type="submit"
+                        class="btn btn-sm btn-outline-danger"
+                        onclick="return confirm('Delete {{ project.name|escapejs }}?');">
+                        <i class="bi bi-trash me-1"></i>
+                        Delete
+                      </button>
+
+                    </form>
+
                   </div>
-                </form>
-
-                <form method="post" class="d-flex align-items-center gap-2">
-                  {% csrf_token %}
-                  <input type="hidden" name="form_type" value="delete_project">
-                  <input type="hidden" name="project_id" value="{{ project.id }}">
-
-                  <button type="submit" class="btn btn-outline-danger btn-sm">
-                    Delete
-                  </button>
 
                   {% if project_delete_error and project_delete_id == project.id %}
-                    <span class="text-warning small">
+                    <div class="projects-error small mt-3">
                       {{ project_delete_error }}
-                    </span>
+                    </div>
                   {% endif %}
-                </form>
-              </div>
-            {% endfor %}
-          </div>
 
-        {% else %}
-          <p class="text-muted mb-0">No projects found.</p>
-        {% endif %}
+                </article>
+
+              {% endfor %}
+
+            </div>
+
+          {% else %}
+
+            <div class="projects-empty-state">
+
+              <div class="projects-empty-icon">
+                <i class="bi bi-folder-plus"></i>
+              </div>
+
+              <h5 class="mb-2">No projects yet</h5>
+
+              <p class="mb-0">
+                Create your first project to start tracking tasks and time.
+              </p>
+
+            </div>
+
+          {% endif %}
+
+        </div>
+
       </div>
+
     </div>
+
   </div>
+
 </div>
 
 {% endblock %}

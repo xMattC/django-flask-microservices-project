@@ -1,10 +1,9 @@
 import json
 
+from clients import tasks_service_client
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
-
-from clients import tasks_service_client
 
 
 @login_required

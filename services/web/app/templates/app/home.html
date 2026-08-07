@@ -3,318 +3,437 @@
 
 {% block content %}
 
-<!-- ------------------------------------------------------------------ -->
-<!-- Hero Section                                                       -->
-<!-- ------------------------------------------------------------------ -->
+<style>
+  .home-shell {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 0 1.25rem 4rem;
+  }
 
-<div class="text-center mt-5 mb-5">
+  .home-hero {
+    max-width: 960px;
+    margin: 0 auto;
+    text-align: center;
+  }
 
-  <h1 class="display-5 mb-3">
-    Productivity Microservices Platform
-  </h1>
+  .home-hero h1 {
+    padding-top: 3.5rem;
+    color: #172033;
+    font-size: 4rem;
+    font-weight: 750;
+    letter-spacing: -0.045em;
+  }
 
-  <p class="lead text-muted mb-4">
-    Backend engineering portfolio project demonstrating
-    Django Backend-for-Frontend architecture, Flask microservices,
-    Docker-based deployment, PostgreSQL service isolation,
-    and API-driven workflows.
-  </p>
+  .home-hero p {
+    max-width: 850px;
+    margin-right: auto;
+    margin-left: auto;
+    color: #667085;
+    font-size: 1.1rem;
+    line-height: 1.7;
+  }
 
-  {% if not request.user.is_authenticated %}
+  .home-section {
+    margin-top: 2rem;
+  }
 
-    <a
-      href="{% url 'user:login' %}"
-      class="btn btn-primary me-2"
-    >
-      Login
-    </a>
+  .home-section-header {
+    max-width: 900px;
+    margin: 0 auto 2rem;
+    text-align: center;
+  }
 
-    <a
-      href="{% url 'user:register' %}"
-      class="btn btn-outline-primary"
-    >
-      Register
-    </a>
+  .home-section-header h2 {
+    color: #172033;
+    font-size: clamp(1.8rem, 3vw, 2.5rem);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+  }
 
-  {% else %}
+  .home-section-header p {
+    color: #667085;
+    line-height: 1.65;
+  }
 
-    <a
-      href="{% url 'app:dashboard' %}"
-      class="btn btn-primary"
-    >
-      Go to Dashboard
-    </a>
+  .home-card {
+    overflow: hidden;
+    border: 0;
+    border-radius: 1rem;
+    background: #fff;
+    box-shadow: 0 0.45rem 1.5rem rgba(31, 45, 61, 0.075);
+  }
 
-  {% endif %}
+  .home-card-body {
+    padding: 1.25rem;
+  }
 
-</div>
+  .home-image {
+    width: 100%;
+    display: block;
+    border-radius: 0.75rem;
+  }
 
-<!-- ------------------------------------------------------------------ -->
-<!-- System Architecture                                                 -->
-<!-- ------------------------------------------------------------------ -->
+  .architecture-card {
+    padding: 1.5rem;
+  }
 
-<div class="container py-5">
+  .architecture-image {
+    width: 100%;
+    display: block;
+    border-radius: 0.75rem;
+  }
 
-  <div class="text-center mb-4">
+  .technology-list {
+    display: flex;
+    justify-content: center;
+    gap: 0.65rem;
+    flex-wrap: wrap;
+    margin-top: 2rem;
+  }
 
-    <h2 class="mb-3">
-      System Architecture
-    </h2>
+  .technology-badge {
+    padding: 0.5rem 0.85rem;
+    color: #344054;
+    background: #f2f4f7;
+    border: 1px solid #e4e7ec;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
 
-    <p class="text-muted">
-      The platform is deployed using Docker Compose on AWS EC2,
-      with Django acting as the Backend-for-Frontend layer for
-      independent Flask microservices.
+  .workflow-card h3 {
+    color: #172033;
+    font-size: 1.15rem;
+    font-weight: 700;
+  }
+
+  .workflow-card p {
+    color: #667085;
+  }
+
+  .project-workflow-image {
+    width: 100%;
+    display: block;
+    border-radius: 0.75rem;
+  }
+
+  .project-links {
+    padding: 4rem 0 1rem;
+    text-align: center;
+  }
+
+  .btn {
+    border-radius: 0.55rem;
+    font-weight: 500;
+    transition:
+      transform 120ms ease,
+      box-shadow 120ms ease,
+      background-color 120ms ease;
+  }
+
+  .btn:hover {
+    transform: translateY(-1px);
+  }
+
+  .btn-primary {
+    background: #2563eb;
+    border-color: #2563eb;
+  }
+
+  .btn-primary:hover {
+    background: #1d4ed8;
+    border-color: #1d4ed8;
+  }
+
+  @media (max-width: 767.98px) {
+    .home-hero {
+      padding: 3.5rem 0 2.5rem;
+    }
+
+    .home-section {
+      margin-top: 3.5rem;
+    }
+
+    .architecture-card,
+    .home-card-body {
+      padding: 0.85rem;
+    }
+  }
+</style>
+
+<div class="home-shell">
+
+  <!-- Hero -->
+  <section class="home-hero">
+
+    <h1 class="mb-4">
+      Productivity Platform
+    </h1>
+
+    <p class="mb-4">
+      A production-inspired microservices portfolio application demonstrating
+      Django Backend-for-Frontend architecture, independent Flask services,
+      PostgreSQL service isolation, Docker deployment, automated testing,
+      and API-driven workflows.
     </p>
 
-  </div>
+      <div class="d-flex justify-content-center gap-3 flex-wrap">
 
-  <div class="text-center">
+        {% if not request.user.is_authenticated %}
 
-    <img
-      src="{% static 'images/architecture.png' %}"
-      alt="System Architecture Diagram"
-      class="img-fluid rounded shadow-sm"
-      style="max-width: 95%;"
-    >
+          <a
+            href="{% url 'user:login' %}"
+            class="btn btn-primary btn-lg">
+            <i class="bi bi-box-arrow-in-right me-1"></i>
+            Login
+          </a>
 
-  </div>
+          <a
+            href="{% url 'user:register' %}"
+            class="btn btn-outline-primary btn-lg">
+            Register
+          </a>
 
-</div>
+        {% else %}
 
-<!-- ------------------------------------------------------------------ -->
-<!-- Engineering Workflow                                                -->
-<!-- ------------------------------------------------------------------ -->
+          <a
+            href="{% url 'app:dashboard' %}"
+            class="btn btn-primary btn-lg">
+            <i class="bi bi-speedometer2 me-1"></i>
+            Launch Dashboard
+          </a>
 
-<div class="container py-5">
+        {% endif %}
 
-  <div class="text-center mb-4">
+      </div>
 
-    <h2 class="mb-3">
-      Engineering Workflow
-    </h2>
+      {% if not request.user.is_authenticated %}
 
-    <p class="text-muted">
-      Development workflow demonstrating testing, CI/CD,
-      and incremental feature delivery.
-    </p>
+        <div class="alert alert-info mt-4 mx-auto" style="max-width: 420px;">
 
-  </div>
+          <h6 class="alert-heading mb-2">
+            <i class="bi bi-info-circle me-2"></i>
+            Demo Account
+          </h6>
 
-  <div class="row g-4">
-
-    <!-- GitHub Actions -->
-    <div class="col-md-6">
-
-      <div class="card h-100 shadow-sm">
-
-        <div class="card-body">
-
-          <h5 class="card-title">
-            GitHub Actions CI/CD
-          </h5>
-
-          <p class="card-text text-muted">
-            Automated test and lint workflows across services.
+          <p class="mb-1">
+            <strong>Email:</strong>
+            demo@example.com
           </p>
 
-          <img
-            src="{% static 'images/github-actions.png' %}"
-            alt="GitHub Actions CI/CD Screenshot"
-            class="img-fluid rounded border"
-          >
+          <p class="mb-0">
+            <strong>Password:</strong>
+            demo12345
+          </p>
 
         </div>
+
+      {% endif %}
+
+      <!-- <a
+        href="https://github.com/xMattC/productivity-microservices-platform"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="btn btn-outline-dark btn-lg">
+        <i class="bi bi-github me-1"></i>
+        View GitHub
+      </a> -->
+
+    </div>
+
+
+
+  </section>
+
+  <!-- System Architecture -->
+  <section class="home-section">
+
+    <header class="home-section-header">
+
+      <h2 class="mb-3">
+        System Architecture
+      </h2>
+
+      <p class="mb-0">
+        The application uses Django as a Backend-for-Frontend and API gateway,
+        coordinating independent Flask microservices with service-owned
+        PostgreSQL databases. Nginx provides the external entry point, while
+        Docker Compose manages the local and AWS EC2 deployment.
+      </p>
+
+    </header>
+
+    <div class="home-card architecture-card">
+
+      <img
+        src="{% static 'images/architecture.png' %}"
+        alt="Productivity Platform system architecture"
+        class="architecture-image">
+
+    </div>
+
+  </section>
+
+  <!-- Engineering Workflow -->
+  <section class="home-section">
+
+    <header class="home-section-header">
+
+      <h2 class="mb-3">
+        Engineering Workflow
+      </h2>
+
+      <p class="mb-0">
+        The project demonstrates incremental feature delivery, test-driven
+        development, code quality checks, and automated CI workflows across
+        multiple services.
+      </p>
+
+    </header>
+
+    <div class="row g-4">
+
+      <div class="col-lg-6">
+
+        <article class="home-card workflow-card h-100">
+
+          <div class="home-card-body">
+
+            <h3 class="mb-2">
+              <i class="bi bi-github me-2 text-primary"></i>
+              GitHub Actions CI/CD
+            </h3>
+
+            <p class="mb-4">
+              Automated tests, linting, and quality checks run across the
+              services whenever changes are pushed.
+            </p>
+
+            <img
+              src="{% static 'images/github-actions.png' %}"
+              alt="GitHub Actions CI and test workflows"
+              class="home-image">
+
+          </div>
+
+        </article>
+
+      </div>
+
+      <div class="col-lg-6">
+
+        <article class="home-card workflow-card h-100">
+
+          <div class="home-card-body">
+
+            <h3 class="mb-2">
+              <i class="bi bi-git me-2 text-primary"></i>
+              Incremental TDD Workflow
+            </h3>
+
+            <p class="mb-4">
+              Feature branches and commit history demonstrate test-first
+              development and small, reviewable engineering changes.
+            </p>
+
+            <img
+              src="{% static 'images/tdd-commit-history.png' %}"
+              alt="Incremental test-driven development commit history"
+              class="home-image">
+
+          </div>
+
+        </article>
 
       </div>
 
     </div>
 
-    <!-- TDD Commit History -->
-    <div class="col-md-6">
+  </section>
 
-      <div class="card h-100 shadow-sm">
+  <!-- Project Management Workflow -->
+  <section class="home-section">
 
-        <div class="card-body">
+    <header class="home-section-header">
 
-          <h5 class="card-title">
-            Incremental TDD Workflow
-          </h5>
+      <h2 class="mb-3">
+        Project Management Workflow
+      </h2>
 
-          <p class="card-text text-muted">
-            Feature branch history showing test-first development.
-          </p>
+      <p class="mb-0">
+        GitHub Projects is used to track architecture decisions, feature
+        delivery, testing, documentation, and CI/CD work from planning
+        through completion.
+      </p>
 
-          <img
-            src="{% static 'images/tdd-commit-history.png' %}"
-            alt="TDD Commit History Screenshot"
-            class="img-fluid rounded border"
-          >
+    </header>
 
-        </div>
+    <div class="home-card architecture-card">
 
-      </div>
-
-    </div>
-
-  </div>
-
-</div>
-
-<!-- ------------------------------------------------------------------ -->
-<!-- API Documentation                                                   -->
-<!-- ------------------------------------------------------------------ -->
-
-<div class="container py-5">
-
-  <div class="text-center mb-4">
-
-    <h2 class="mb-3">
-      API Documentation
-    </h2>
-
-    <p class="text-muted">
-      Each Flask microservice exposes dedicated OpenAPI / Swagger
-      documentation.
-    </p>
-
-  </div>
-
-  <div class="row g-4">
-
-    <!-- Projects Service Swagger -->
-    <div class="col-md-6">
-
-      <div class="card h-100 shadow-sm">
-
-        <div class="card-body">
-
-          <h5 class="card-title">
-            Projects Service API
-          </h5>
-
-          <p class="card-text text-muted">
-            Swagger documentation for project management endpoints.
-          </p>
-
-          <img
-            src="{% static 'images/projects-service-swagger.png' %}"
-            alt="Projects Service Swagger Documentation Screenshot"
-            class="img-fluid rounded border"
-          >
-
-        </div>
-
-      </div>
+      <img
+        src="{% static 'images/project-management-workflow.png' %}"
+        alt="GitHub Projects engineering workflow"
+        class="project-workflow-image">
 
     </div>
 
-    <!-- Time Tracking Service Swagger -->
-    <div class="col-md-6">
+  </section>
 
-      <div class="card h-100 shadow-sm">
-
-        <div class="card-body">
-
-          <h5 class="card-title">
-            Time Tracking Service API
-          </h5>
-
-          <p class="card-text text-muted">
-            Swagger documentation for time entry endpoints.
-          </p>
-
-          <img
-            src="{% static 'images/time-tracking-service-swagger.png' %}"
-            alt="Time Tracking Service Swagger Documentation Screenshot"
-            class="img-fluid rounded border"
-          >
-
-        </div>
-
-      </div>
-
-    </div>
-
-  </div>
-
-</div>
-
-<!-- ------------------------------------------------------------------ -->
-<!-- Project Management Workflow                                         -->
-<!-- ------------------------------------------------------------------ -->
-
-<div class="container py-5">
-
-  <div class="text-center mb-4">
-
-    <h2 class="mb-3">
-      Project Management Workflow
-    </h2>
-
-    <p class="text-muted">
-      GitHub Projects used to track architecture planning,
-      feature delivery, testing, documentation,
-      and CI/CD implementation.
-    </p>
-
-  </div>
-
-  <div class="text-center">
-
-    <img
-      src="{% static 'images/project-management-workflow.png' %}"
-      alt="GitHub Projects project management workflow screenshot"
-      class="img-fluid rounded shadow-sm"
-      style="max-width: 95%;"
-    >
-
-  </div>
-
-</div>
-
-<!-- ------------------------------------------------------------------ -->
-<!-- Footer / External Links                                             -->
-<!-- ------------------------------------------------------------------ -->
-
-<div class="container py-5">
-
-  <div class="text-center">
+  <!-- Explore -->
+  <section class="project-links">
 
     <h2 class="mb-3">
       Explore the Project
     </h2>
 
     <p class="text-muted mb-4">
-      View the source code, architecture documentation,
+      View the source code, architecture documentation, implementation history,
       and engineering workflow on GitHub.
     </p>
 
     <div class="d-flex justify-content-center gap-3 flex-wrap">
 
+      {% if request.user.is_authenticated %}
+
+        <!-- <a
+          href="{% url 'app:dashboard' %}"
+          class="btn btn-primary">
+          <i class="bi bi-speedometer2 me-1"></i>
+          Open Dashboard
+        </a> -->
+
+      {% endif %}
+
       <a
         href="https://github.com/xMattC/productivity-microservices-platform"
         target="_blank"
-        class="btn btn-outline-dark"
-      >
+        rel="noopener noreferrer"
+        class="btn btn-outline-dark">
+        <i class="bi bi-github me-1"></i>
         GitHub Repository
       </a>
 
-      <!-- <a
-        href="https://www.linkedin.com/in/YOUR_LINKEDIN/"
-        target="_blank"
-        class="btn btn-outline-primary"
-      >
-        LinkedIn
-      </a> -->
+    </div>
+
+    <!-- <p class="text-muted mt-4 small">
+      Built with Python, Django, Flask, PostgreSQL, Docker, AWS,
+      Bootstrap, and GitHub Actions.
+    </p> -->
+
+    <div class="technology-list">
+
+      <span class="technology-badge">Python</span>
+      <span class="technology-badge">Django</span>
+      <span class="technology-badge">Flask</span>
+      <span class="technology-badge">PostgreSQL</span>
+      <span class="technology-badge">Docker</span>
+      <span class="technology-badge">AWS</span>
+      <span class="technology-badge">GitHub Actions</span>
+      <span class="technology-badge">REST APIs</span>
 
     </div>
 
-    <p class="text-muted mt-4 small">
-      Built with Python (Django & Flask), PostgreSQL, Docker, and AWS.
-    </p>
-
-  </div>
+  </section>
 
 </div>
 
