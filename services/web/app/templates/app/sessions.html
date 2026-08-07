@@ -1,0 +1,266 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+  .sessions-shell {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-bottom: 3rem;
+  }
+
+  .sessions-page-header {
+    margin-bottom: 1.5rem;
+  }
+
+  .sessions-page-header h1 {
+    color: #172033;
+    font-size: clamp(2rem, 3vw, 2.5rem);
+    font-weight: 750;
+    letter-spacing: -0.035em;
+  }
+
+  .sessions-page-header p {
+    color: #667085;
+  }
+
+  .sessions-card {
+    border: 0;
+    border-radius: 1rem;
+    background: #fff;
+    box-shadow: 0 0.45rem 1.5rem rgba(31,45,61,.075);
+  }
+
+  .sessions-card > .card-header {
+    padding: 1rem 1.25rem;
+    background: #fff;
+    border-bottom: 1px solid #e7ecf2;
+  }
+
+  .sessions-card > .card-body {
+    padding: 1.25rem;
+  }
+
+  .sessions-scroll-window {
+    width: 100%;
+    height: 78vh;
+    min-height: 550px;
+    overflow-y: auto;
+    padding-right: .35rem;
+    scrollbar-width: thin;
+    scrollbar-color: #c3ccd7 transparent;
+  }
+
+  .sessions-scroll-window::-webkit-scrollbar{width:7px;}
+  .sessions-scroll-window::-webkit-scrollbar-thumb{
+    background:#c3ccd7;
+    border-radius:999px;
+  }
+
+  .sessions-table{
+    width:100%;
+    border-collapse:separate;
+    border-spacing:0 .75rem;
+  }
+
+  .sessions-table th{
+    position:sticky;
+    top:0;
+    background:#fff;
+    z-index:2;
+    padding:.75rem;
+    font-weight:600;
+  }
+
+  .sessions-table td{
+    padding:.75rem;
+    background:#f8fafc;
+    border-top:1px solid #e7ecf2;
+    border-bottom:1px solid #e7ecf2;
+  }
+
+  .sessions-table td:first-child{
+    border-left:1px solid #e7ecf2;
+    border-radius:.7rem 0 0 .7rem;
+  }
+
+  .sessions-table td:last-child{
+    border-right:1px solid #e7ecf2;
+    border-radius:0 .7rem .7rem 0;
+  }
+
+  .project-column{
+    width:320px;
+  }
+
+  @media(max-width:991.98px){
+    .sessions-page-header{text-align:center;}
+    .sessions-page-header .d-flex{
+      flex-direction:column;
+      align-items:center!important;
+    }
+    .sessions-scroll-window{
+      height:60vh;
+      min-height:420px;
+    }
+  }
+</style>
+
+<div class="container-fluid mt-4 sessions-shell">
+
+<header class="sessions-page-header">
+  <div class="d-flex justify-content-between align-items-center gap-3 flex-wrap">
+    <div>
+      <h1 class="mb-1">Sessions</h1>
+      <p class="mb-0">View, edit and manage your time tracking history.</p>
+    </div>
+
+    <a href="{% url 'app:dashboard' %}" class="btn btn-outline-secondary">
+      <i class="bi bi-arrow-left me-1"></i>
+      Back to dashboard
+    </a>
+  </div>
+</header>
+
+<div class="card sessions-card">
+
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <strong><i class="bi bi-clock-history text-primary me-2"></i>Time Sessions</strong>
+
+    {% if sessions %}
+      <span class="badge rounded-pill text-bg-light">{{ sessions|length }}</span>
+    {% endif %}
+  </div>
+
+  <div class="card-body">
+
+    {% if session_update_error %}
+      <div class="alert alert-danger">{{ session_update_error }}</div>
+    {% endif %}
+
+    {% if session_delete_error %}
+      <div class="alert alert-danger">{{ session_delete_error }}</div>
+    {% endif %}
+
+    {% if projects_error %}
+      <div class="alert alert-warning">{{ projects_error }}</div>
+    {% endif %}
+
+    {% if sessions_error %}
+
+      <div class="alert alert-warning">{{ sessions_error }}</div>
+
+    {% elif sessions %}
+
+      <div class="sessions-scroll-window">
+
+        <table class="sessions-table">
+
+          <thead>
+            <tr>
+              <th class="project-column">Project</th>
+              <th>Start</th>
+              <th>End</th>
+              <th>Duration</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+
+          {% for session in sessions %}
+
+            <tr>
+
+              <td class="project-column">{{ session.project_name }}</td>
+              <td>{{ session.started_at_display }}</td>
+              <td>{{ session.ended_at_display }}</td>
+              <td>{{ session.duration_display }}</td>
+
+              <td>
+                {% if session.ended_at %}
+                  <button
+                    class="btn btn-sm btn-outline-primary"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#edit-session-{{ session.id }}">
+                    Edit
+                  </button>
+                {% else %}
+                  <span class="text-muted">Running</span>
+                {% endif %}
+              </td>
+
+            </tr>
+
+            {% if session.ended_at %}
+            <tr class="collapse" id="edit-session-{{ session.id }}">
+              <td colspan="5">
+
+                <form method="post">
+                  {% csrf_token %}
+
+                  <input type="hidden" name="form_type" value="update_session">
+                  <input type="hidden" name="session_id" value="{{ session.id }}">
+
+                  <div class="d-flex flex-wrap gap-3 align-items-end">
+
+                    <div>
+                      <label class="form-label">Start</label>
+                      <input type="datetime-local"
+                             class="form-control"
+                             name="started_at"
+                             value="{{ session.started_at_form }}">
+                    </div>
+
+                    <div>
+                      <label class="form-label">End</label>
+                      <input type="datetime-local"
+                             class="form-control"
+                             name="ended_at"
+                             value="{{ session.ended_at_form }}">
+                    </div>
+
+                    <button class="btn btn-primary" type="submit">
+                      Save
+                    </button>
+
+                    <button class="btn btn-outline-danger"
+                            type="submit"
+                            name="form_type"
+                            value="delete_session">
+                      Delete
+                    </button>
+
+                  </div>
+
+                </form>
+
+              </td>
+            </tr>
+            {% endif %}
+
+          {% endfor %}
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    {% else %}
+
+      <div class="text-center text-muted py-5">
+        <i class="bi bi-clock-history fs-1 d-block mb-3"></i>
+        No sessions recorded yet.
+      </div>
+
+    {% endif %}
+
+  </div>
+
+</div>
+
+</div>
+
+{% endblock %}

@@ -1,18 +1,23 @@
+/* --------------------------------------------------------------------------
+   Global design scale
+   -------------------------------------------------------------------------- */
+
+html {
+  font-size: 13.5px;
+}
+
 body {
-  font-family: "Open Sans", sans-serif;
-  color: #444444;
-  background: linear-gradient(180deg, #f8f9fa, #eef1f4);
   min-height: 100vh;
-}
-
-a {
-  color: #2487ce;
-  text-decoration: none;
-}
-
-a:hover {
-  color: #469fdf;
-  text-decoration: none;
+  margin: 0;
+  color: #344054;
+  background: linear-gradient(180deg, #f8f9fa, #eef1f4);
+  font-family:
+    "Open Sans",
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
 }
 
 h1,
@@ -21,55 +26,62 @@ h3,
 h4,
 h5,
 h6 {
+  color: #172033;
   font-family: "Raleway", sans-serif;
 }
 
-#header {
-  transition: all 0.5s;
-  z-index: 997;
-  padding: 12px 0;
+a {
+  color: #2563eb;
+  text-decoration: none;
 }
 
-#header .logo {
-  font-size: 28px;
-  margin: 0;
-  padding: 0;
-  line-height: 1;
-  font-weight: 300;
-  letter-spacing: 0.5px;
-  font-family: "Poppins", sans-serif;
+a:hover {
+  color: #1d4ed8;
+  text-decoration: none;
 }
 
-#header .logo a {
-  color: inherit;
+/* --------------------------------------------------------------------------
+   Shared controls
+   -------------------------------------------------------------------------- */
+
+.btn {
+  padding: 0.45rem 0.85rem;
+  border-radius: 0.55rem;
+  font-weight: 500;
 }
 
-.nav-link:hover {
-  opacity: 0.8;
+.btn-sm {
+  padding: 0.3rem 0.65rem;
+}
+
+.btn-lg {
+  padding: 0.6rem 1rem;
+}
+
+.btn-primary {
+  background-color: #2563eb;
+  border-color: #2563eb;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: #1d4ed8;
+  border-color: #1d4ed8;
+}
+
+.form-control,
+.form-select {
+  padding: 0.5rem 0.75rem;
 }
 
 .card {
   border: 0;
 }
 
-/* Custom button colour */
-.btn-primary {
-  background-color: #2563eb;
-  border-color: #2563eb;
-}
+/* --------------------------------------------------------------------------
+   Dashboard layout
+   -------------------------------------------------------------------------- */
 
-.btn-primary:hover {
-  background-color: #1d4ed8;
-  border-color: #1d4ed8;
-}
-
-.projects-scroll-window {
-  max-height: 50px;
-  overflow-y: auto;
-  padding-right: 0.5rem;
-}
-
-/* Dashboard layout */
 .dashboard-grid {
   display: grid;
   grid-template-columns: 4fr 3fr;
@@ -86,13 +98,10 @@ h6 {
   min-height: 100%;
 }
 
-@media (max-width: 900px) {
-  .dashboard-grid {
-    grid-template-columns: 1fr;
-  }
-}
+/* --------------------------------------------------------------------------
+   Sessions table
+   -------------------------------------------------------------------------- */
 
-/* Sessions table */
 .sessions-table {
   width: 100%;
   border-collapse: collapse;
@@ -100,44 +109,59 @@ h6 {
 
 .sessions-table th,
 .sessions-table td {
+  padding: 0.65rem;
   text-align: left;
-  padding: 0.75rem;
-  border-bottom: 1px solid #ddd;
   white-space: nowrap;
+  border-bottom: 1px solid #e4e7ec;
 }
 
 .sessions-table th {
+  color: #344054;
   font-weight: 600;
 }
 
 .sessions-table th:nth-child(1),
 .sessions-table td:nth-child(1) {
-  width: 10%;
+  width: 25%;
 }
 
 .sessions-table th:nth-child(2),
 .sessions-table td:nth-child(2) {
-  width: 35%;
+  width: 25%;
 }
 
 .sessions-table th:nth-child(3),
 .sessions-table td:nth-child(3) {
-  width: 35%;
+  width: 25%;
 }
 
 .sessions-table th:nth-child(4),
 .sessions-table td:nth-child(4) {
-  width: 20%;
+  width: 15%;
 }
 
-.sessions-scroll-window {
-  max-height: 260px;
-  overflow-y: auto;
+.sessions-table th:nth-child(5),
+.sessions-table td:nth-child(5) {
+  width: 10%;
 }
 
 .sessions-project-cell {
-  max-width: 150px;
+  max-width: 220px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* --------------------------------------------------------------------------
+   Responsive layout
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 900px) {
+  html {
+    font-size: 15px;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
 }

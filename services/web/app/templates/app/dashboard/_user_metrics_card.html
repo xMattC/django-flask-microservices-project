@@ -1,0 +1,92 @@
+<div class="card dashboard-card">
+
+  <div class="card-header d-flex align-items-center gap-2">
+    <i class="bi bi-bar-chart-line text-primary"></i>
+    <strong>Insights</strong>
+  </div>
+
+  <div class="card-body">
+
+    <p class="text-muted small mb-3">
+      Metrics will be populated once the Analytics service is integrated.
+    </p>
+
+    <div class="insights-list">
+
+      <div class="insight-row">
+        <span>
+          <i class="bi bi-folder2-open text-primary me-2"></i>
+          Projects
+        </span>
+        <strong>0</strong>
+      </div>
+
+      <div class="insight-row">
+        <span>
+          <i class="bi bi-stopwatch text-success me-2"></i>
+          Hours this week
+        </span>
+        <strong>0h</strong>
+      </div>
+
+      <div class="insight-row">
+        <span>
+          <i class="bi bi-list-task text-warning me-2"></i>
+          Open tasks
+        </span>
+        <strong>0</strong>
+      </div>
+
+      <div class="insight-row">
+        <span>
+          <i class="bi bi-check2-circle text-success me-2"></i>
+          Completed tasks
+        </span>
+        <strong>0</strong>
+      </div>
+
+      <!-- <div class="insight-row">
+        <span>
+          <i class="bi bi-graph-up-arrow text-info me-2"></i>
+          Completion rate
+        </span>
+        <strong>0%</strong>
+      </div> -->
+
+    </div>
+
+  </div>
+
+</div>
+
+<style>
+  .insights-list {
+    display: grid;
+    gap: 0.1rem;
+  }
+
+  .insight-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.72rem 0.2rem;
+    border-bottom: 1px solid #edf1f5;
+    border-radius: 0.35rem;
+    transition: background-color 120ms ease;
+  }
+
+  .insight-row:last-child {
+    border-bottom: 0;
+  }
+
+  .insight-row:hover {
+    background: #f8fafc;
+  }
+
+  .insight-row strong {
+    color: #172033;
+    font-size: 1rem;
+    font-variant-numeric: tabular-nums;
+  }
+</style>

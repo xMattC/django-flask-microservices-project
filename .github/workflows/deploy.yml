@@ -37,7 +37,8 @@ jobs:
 
               cd "${{ secrets.EC2_PROJECT_DIR }}"
 
-              git fetch origin main
+              git fetch origin
+              git switch main
               git reset --hard origin/main
 
               docker compose ${COMPOSE_FILES} config

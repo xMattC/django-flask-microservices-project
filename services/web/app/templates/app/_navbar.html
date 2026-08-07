@@ -1,0 +1,131 @@
+<nav class="navbar navbar-expand-lg app-navbar">
+
+  <div class="container">
+
+    <a class="navbar-brand fw-semibold" href="{% url 'app:dashboard' %}">
+      <span class="brand-mark">
+        <i class="bi bi-grid-1x2-fill"></i>
+      </span>
+      Productivity Platform
+    </a>
+
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#main-navigation"
+      aria-controls="main-navigation"
+      aria-expanded="false"
+      aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="main-navigation">
+
+      <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-1">
+
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'app:dashboard' %}">
+            <i class="bi bi-speedometer2 me-1"></i>
+            Dashboard
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'app:projects' %}">
+            <i class="bi bi-folder2-open me-1"></i>
+            Projects
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'app:sessions' %}">
+            <i class="bi bi-clock-history me-1"></i>
+            Time History
+          </a>
+        </li>
+
+        <li class="nav-item dropdown ms-lg-3">
+
+          <button
+            class="btn account-button dropdown-toggle"
+            type="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false">
+            <i class="bi bi-person-circle me-1"></i>
+            {% if request.user.first_name %}
+              {{ request.user.first_name }}
+            {% else %}
+              Account
+            {% endif %}
+          </button>
+
+          <ul class="dropdown-menu dropdown-menu-end border-0 shadow">
+
+            <li>
+              <span class="dropdown-item-text small text-muted">
+                {{ request.user.email }}
+              </span>
+            </li>
+
+            <li><hr class="dropdown-divider"></li>
+
+            <li>
+              <a class="dropdown-item" href="{% url 'logout' %}">
+                <i class="bi bi-box-arrow-right me-2"></i>
+                Log out
+              </a>
+            </li>
+
+          </ul>
+
+        </li>
+
+      </ul>
+
+    </div>
+
+  </div>
+
+</nav>
+
+<style>
+  .app-navbar {
+    background: #344054;
+    box-shadow: 0 0.15rem 0.65rem rgba(17, 24, 39, 0.16);
+  }
+
+  .app-navbar .navbar-brand,
+  .app-navbar .nav-link {
+    color: rgba(255, 255, 255, 0.88);
+  }
+
+  .app-navbar .navbar-brand:hover,
+  .app-navbar .nav-link:hover {
+    color: #fff;
+  }
+
+  .brand-mark {
+    width: 30px;
+    height: 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 0.45rem;
+    color: #fff;
+    background: #2563eb;
+    border-radius: 0.55rem;
+  }
+
+  .account-button {
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.26);
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .account-button:hover,
+  .account-button:focus {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.14);
+  }
+</style>

@@ -173,7 +173,7 @@ Time Tracking Service: [`test_integration.py`](../services/time-tracking/tests/t
 
 ## System Tests
 
-Platform: `TODO`
+Platform: [`system-test.sh`](../tests/system/run-system-tests.sh)
 
 ---
 

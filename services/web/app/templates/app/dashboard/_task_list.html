@@ -1,0 +1,76 @@
+{% if task_list %}
+
+  {% for task in task_list %}
+
+    <article
+      class="task-item"
+      data-task-search="{{ task.task_name|lower }} {{ task.description|default:''|lower }}">
+
+      <button
+        type="button"
+        class="task-card-button"
+        data-bs-toggle="modal"
+        data-bs-target="#task-detail-modal"
+        data-task-id="{{ task.id }}">
+
+        <div class="d-flex justify-content-between align-items-start gap-3">
+
+          <div class="min-w-0">
+
+            <h6 class="task-title mb-2">
+              {{ task.task_name }}
+            </h6>
+
+            <div class="d-flex align-items-center gap-3 text-muted small">
+
+              {% if task.description %}
+                <span>
+                  <i class="bi bi-card-text me-1"></i>
+                  Description
+                </span>
+              {% endif %}
+
+              {% if task.updated_at %}
+                <span>
+                  <i class="bi bi-clock me-1"></i>
+                  {{ task.updated_at|date:"j M" }}
+                </span>
+              {% endif %}
+
+            </div>
+
+          </div>
+
+          <i class="bi bi-chevron-right text-muted"></i>
+
+        </div>
+
+      </button>
+
+      <script id="task-data-{{ task.id }}" type="application/json">
+        {
+          "id": {{ task.id }},
+          "task_name": "{{ task.task_name|escapejs }}",
+          "description": "{{ task.description|default:''|escapejs }}",
+          "state": "{{ task.state|escapejs }}"
+        }
+      </script>
+
+    </article>
+
+  {% endfor %}
+
+{% else %}
+
+  <div class="task-empty-state">
+
+    <div class="task-empty-state-icon">
+      <i class="bi {{ empty_icon|default:'bi-card-checklist' }}"></i>
+    </div>
+
+    <h6 class="mb-2">{{ empty_title }}</h6>
+    <p class="mb-0">{{ empty_message }}</p>
+
+  </div>
+
+{% endif %}
