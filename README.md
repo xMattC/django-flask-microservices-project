@@ -26,6 +26,26 @@ You can create an account or use the demo login:
 
 > Email: demo@example.com<br>
 > Password: demo12345<br>
+---
+
+## 💡 Highlights
+
+- Django Backend-for-Frontend (BFF)
+- Three independent Flask microservices
+- PostgreSQL database per service
+- Docker Compose development environment
+- AWS EC2 deployment
+- GitHub Actions CI/CD
+- OpenAPI documentation
+- Comprehensive automated test suite
+
+---
+
+## 🖼️ Application Screenshot
+
+<p align="center">
+    <img src="docs\images\dashboard_screenshot.png" width="800">
+</p>
 
 ---
 
@@ -56,18 +76,38 @@ This project was built to demonstrate:
 
 ---
 
+## 📈 System Architecture
+
+A core focus of this project was designing clear service boundaries while maintaining a simple local development workflow. The platform is structured as independent backend services:
+
+<p align="center">
+  <img src="services\web\static\images\architecture.png" width="1000">
+</p>
+
+This architecture provides:
+
+- Separation of business domains
+- Independent database ownership and migrations
+- Isolated API logic and responsibilities
+- Improved maintainability and scalability
+- Containerised local development using Docker Compose
+
+The Django application acts as the primary Backend-for-Frontend (BFF) layer, while Flask services handle domain-specific functionality such as project management and time tracking.
+
+[See the full architecture document](docs/architecture.md)
+
+---
+
 ## 🔑 Key Features
 
-- Django Backend-for-Frontend (BFF) web service
-- Independent Flask microservices
-- Project management API
-- Time-tracking API
-- PostgreSQL-backed services
-- Per-service OpenAPI / Swagger documentation
-- Docker Compose development environment
-- Independent service migrations
-- Local admin tooling
-- Automated testing and linting workflows
+- User registration and authentication
+- Project management
+- Kanban task management
+- Time tracking with live session timer
+- Dashboard with project insights
+- OpenAPI documentation for every service
+- Admin interface for user management
+- Responsive web interface
 
 ---
 
@@ -96,47 +136,6 @@ This project was built to demonstrate:
 - Kanban-based project management
     - [Project board: Planning](https://github.com/users/xMattC/projects/4/views/1)
     - [Project board: Tasks](https://github.com/users/xMattC/projects/4/views/7)
-
----
-## 📈 Service Architecture
-
-A core focus of this project was designing clear service boundaries while maintaining a simple local development workflow. The platform is structured as independent backend services:
-
-<p align="center">
-  <img src="services\web\static\images\architecture.png" width="1000">
-</p>
-
-This architecture provides:
-
-- Separation of business domains
-- Independent database ownership and migrations
-- Isolated API logic and responsibilities
-- Improved maintainability and scalability
-- Containerised local development using Docker Compose
-
-The Django application acts as the primary Backend-for-Frontend (BFF) layer, while Flask services handle domain-specific functionality such as project management and time tracking.
-
-[See the full architecture document](docs/architecture.md)
-
----
-
-## 🖼️ Application Screenshots
-
-### Django Web Service
-
-The Django web application acts as the primary Backend-for-Frontend (BFF) layer for the platform.
-
-Features demonstrated include:
-
-- User authentication and session management
-- Project management workflows
-- Integration with downstream Flask services
-- User-scoped application behaviour
-
-<p align="center">
-    <img src="docs\images\dashboard_screenshot.png" width="1000">
-</p>
-
 
 ---
 
