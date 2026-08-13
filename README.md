@@ -206,6 +206,8 @@ Before running this project, ensure you have:
 
 > If you're using Windows or macOS, install Docker Desktop which includes Docker Compose.
 
+> Ensure Docker is running before completing steps 2 and 3. 
+
 ---
 
 ## 1. Clone Repository
@@ -222,21 +224,14 @@ cd productivity-microservices-platform
 
 ```bash
 # Run database migrations for all services:
-docker compose run --rm web python manage.py migrate
-docker compose run --rm projects flask --app app.main:create_app db upgrade
-docker compose run --rm time-tracking flask --app app.main:create_app db upgrade
-docker compose run --rm tasks flask --app app.main:create_app db upgrade
+docker compose exec web python manage.py migrate
+docker compose exec projects flask --app app.main:create_app db upgrade
+docker compose exec time-tracking flask --app app.main:create_app db upgrade
+docker compose exec tasks flask --app app.main:create_app db upgrade
 
 # Seed demo user data:
-docker compose run --rm web python manage.py seed_demo_data --reset
-
-# Create a local admin user:
-docker compose run --rm \
-    -e DJANGO_SUPERUSER_EMAIL=admin@example.com \
-    -e DJANGO_SUPERUSER_PASSWORD=change-me \
-    web python manage.py createsuperuser --noinput
+docker compose exec web python manage.py seed_demo_data --reset
 ```
-
 ---
 
 ## 3. Start the Application
@@ -248,13 +243,8 @@ docker compose up
 
 Web app: http://localhost:8000
 
-> Create an account or<br>
+You can create an account or use the demo login:
 > Email: demo@example.com<br>
 > Password: demo12345<br>
-
-Admin panel: http://localhost:8000/admin/
-
-> Email: admin@example.com<br>
-> Password: change-me<br>
 
 ---
