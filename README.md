@@ -20,6 +20,12 @@ The platform enables users to manage projects, track work sessions, and interact
 
 This project focuses on scalable backend architecture, API-driven service communication, containerised development workflows, and production-style deployment practices.
 
+**Live Demo:** https://productivity-app.xmattc.com/
+
+You can create an account or use the demo login:
+
+> Email: demo@example.com<br>
+> Password: demo12345<br>
 ---
 
 ## 💡 Highlights
